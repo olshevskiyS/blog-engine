@@ -1,14 +1,18 @@
 package ru.olshevskiy.blogengine.model.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +32,7 @@ public class PostComment {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @Column(name = "parent_id")
+  @Column(name = "parent_id", insertable = false, updatable = false)
   private Integer parentId;
 
   @Column(name = "post_id", nullable = false, insertable = false, updatable = false)
@@ -50,6 +54,13 @@ public class PostComment {
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "post_id")
   private Post post;
+
+  @ManyToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "parent_id")
+  private PostComment parentComment;
+
+  @OneToMany(mappedBy = "parentComment", fetch = FetchType.LAZY, orphanRemoval = true)
+  private Set<PostComment> childrenPosts = new HashSet<>();
 
   PostComment(int userId, int postId, String text) {
     this.userId = userId;

@@ -1,15 +1,14 @@
 package ru.olshevskiy.blogengine.model.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -43,8 +42,8 @@ public class Post {
   @Column(name = "moderation_status", nullable = false)
   private ModerationStatus moderationStatus;
 
-  @Column(name = "moderator_id")
-  private Integer moderatorId;
+  @Column(name = "moderator_id", insertable = false, updatable = false)
+  private int moderatorId;
 
   @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
   private int userId;
@@ -65,22 +64,25 @@ public class Post {
   @JoinColumn(name = "user_id")
   private User user;
 
-  @OneToMany(mappedBy = "post")
-  private List<PostVote> postVotes = new ArrayList<>();
+  @ManyToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "moderator_id")
+  private User moderator;
 
-  @OneToMany(mappedBy = "post")
-  private List<PostComment> postComments = new ArrayList<>();
+  @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, orphanRemoval = true)
+  private Set<PostVote> votes = new HashSet<>();
 
-  @ManyToMany(mappedBy = "posts")
+  @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, orphanRemoval = true)
+  private Set<PostComment> comments = new HashSet<>();
+
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+          mappedBy = "posts", fetch = FetchType.LAZY)
   private Set<Tag> tags = new HashSet<>();
 
   Post(int userId, String title, String text) {
     this.userId = userId;
     this.title = title;
     this.text = text;
-    isActive = 1;
     moderationStatus = ModerationStatus.NEW;
-    time = LocalDateTime.now();
   }
 
   private enum ModerationStatus {

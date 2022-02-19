@@ -1,10 +1,11 @@
 package ru.olshevskiy.blogengine.model.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -49,14 +50,17 @@ public class User {
   @Column(name = "photo", columnDefinition = "text")
   private String photo;
 
-  @OneToMany(mappedBy = "user")
-  private List<PostVote> postVotes = new ArrayList<>();
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  private Set<PostVote> postVotes = new HashSet<>();
 
-  @OneToMany(mappedBy = "user")
-  private List<Post> posts = new ArrayList<>();
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  private Set<Post> posts = new HashSet<>();
 
-  @OneToMany(mappedBy = "user")
-  private List<PostComment> postComments = new ArrayList<>();
+  @OneToMany(mappedBy = "moderator", fetch = FetchType.LAZY, orphanRemoval = true)
+  private Set<Post> moderatedPosts = new HashSet<>();
+
+  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  private Set<PostComment> postComments = new HashSet<>();
 
   User(String name, String email, String password) {
     this.name = name;
