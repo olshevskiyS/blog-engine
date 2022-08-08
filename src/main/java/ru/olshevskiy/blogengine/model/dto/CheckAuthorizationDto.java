@@ -3,13 +3,12 @@ package ru.olshevskiy.blogengine.model.dto;
 import lombok.Data;
 
 /**
- * IdAndNameUserDto.
+ * AuthorizationDto.
  *
  * @author Sergey Olshevskiy
  */
 @Data
-public class IdAndNameUserDto {
+public class CheckAuthorizationDto {
 
-  private Integer id;
-  private String name;
+  Boolean result;
 }

@@ -18,7 +18,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Класс сущности тэгов.
+ * Tag.
+ *
+ * @author Sergey Olshevskiy
  */
 @Getter
 @Setter

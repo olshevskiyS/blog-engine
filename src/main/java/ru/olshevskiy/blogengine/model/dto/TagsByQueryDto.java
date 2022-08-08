@@ -1,15 +1,15 @@
 package ru.olshevskiy.blogengine.model.dto;
 
+import java.util.List;
 import lombok.Data;
 
 /**
- * IdAndNameUserDto.
+ * TagsByQueryDto.
  *
  * @author Sergey Olshevskiy
  */
 @Data
-public class IdAndNameUserDto {
+public class TagsByQueryDto {
 
-  private Integer id;
-  private String name;
+  List<TagDto> tags;
 }

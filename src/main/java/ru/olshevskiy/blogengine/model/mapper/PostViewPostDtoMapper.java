@@ -9,7 +9,9 @@ import ru.olshevskiy.blogengine.model.entity.User;
 import ru.olshevskiy.blogengine.model.projection.PostView;
 
 /**
- * Интерфейс маппинга сущности Post через PostView в PostDto.
+ * PostViewPostDtoMapper.
+ *
+ * @author Sergey Olshevskiy
  */
 @Mapper(componentModel = "spring")
 public interface PostViewPostDtoMapper {

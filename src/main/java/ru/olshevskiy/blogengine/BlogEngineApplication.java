@@ -4,7 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Точка входа в приложение.
+ * BlogEngineApplication.
+ *
+ * @author Sergey Olshevskiy
  */
 @SpringBootApplication
 public class BlogEngineApplication {

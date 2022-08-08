@@ -5,7 +5,9 @@ import org.springframework.stereotype.Repository;
 import ru.olshevskiy.blogengine.model.entity.User;
 
 /**
- * Репозиторий для работы с пользователями блога.
+ * UserRepository.
+ *
+ * @author Sergey Olshevskiy
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {

@@ -19,7 +19,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Класс сущности комментариев постов.
+ * PostComment.
+ *
+ * @author Sergey Olshevskiy
  */
 @Getter
 @Setter

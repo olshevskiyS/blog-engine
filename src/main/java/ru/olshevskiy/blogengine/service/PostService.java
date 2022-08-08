@@ -1,11 +1,13 @@
 package ru.olshevskiy.blogengine.service;
 
-import java.util.Map;
+import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
 
 /**
- * Интерфейс сервиса взаимодействия с постами блога.
+ * PostService.
+ *
+ * @author Sergey Olshevskiy
  */
 public interface PostService {
 
-  Map<String, Object> getPosts(int offset, int limit, String mode);
+  GetPostsDto getPosts(int offset, int limit, String mode);
 }

@@ -1,7 +1,5 @@
 package ru.olshevskiy.blogengine.controller;
 
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +9,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.olshevskiy.blogengine.model.dto.GlobalSettingDto;
 import ru.olshevskiy.blogengine.model.dto.InitDto;
-import ru.olshevskiy.blogengine.model.dto.TagDto;
+import ru.olshevskiy.blogengine.model.dto.TagsByQueryDto;
 import ru.olshevskiy.blogengine.service.GlobalSettingServiceImpl;
 import ru.olshevskiy.blogengine.service.TagServiceImpl;
 
 /**
- * Контроллер запросов к API.
+ * ApiGeneralController.
+ *
+ * @author Sergey Olshevskiy
  */
 @RequiredArgsConstructor
 @RestController
@@ -24,8 +24,8 @@ import ru.olshevskiy.blogengine.service.TagServiceImpl;
 public class ApiGeneralController {
 
   private final InitDto initDto;
-  private final GlobalSettingServiceImpl settingsService;
-  private final TagServiceImpl tagService;
+  private final GlobalSettingServiceImpl settingResource;
+  private final TagServiceImpl tagResource;
 
   @GetMapping("/init")
   private ResponseEntity<InitDto> init() {
@@ -34,12 +34,12 @@ public class ApiGeneralController {
 
   @GetMapping("/settings")
   private ResponseEntity<GlobalSettingDto> getBlogGlobalSettings() {
-    return new ResponseEntity<>(settingsService.getGlobalSettings(), HttpStatus.OK);
+    return new ResponseEntity<>(settingResource.getGlobalSettings(), HttpStatus.OK);
   }
 
   @GetMapping("/tag")
-  private ResponseEntity<Map<String, List<TagDto>>> getTagsByQuery(
+  private ResponseEntity<TagsByQueryDto> getTagsByQuery(
           @RequestParam(required = false) String query) {
-    return new ResponseEntity<>(tagService.getTagsByQuery(query), HttpStatus.OK);
+    return new ResponseEntity<>(tagResource.getTagsByQuery(query), HttpStatus.OK);
   }
 }

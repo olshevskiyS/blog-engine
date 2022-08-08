@@ -22,7 +22,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Класс сущности постов.
+ * Post.
+ *
+ * @author Sergey Olshevskiy
  */
 @Getter
 @Setter

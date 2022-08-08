@@ -3,7 +3,9 @@ package ru.olshevskiy.blogengine.model.projection;
 import ru.olshevskiy.blogengine.model.entity.Post;
 
 /**
- * Интерфейс проекции постов блога.
+ * PostView.
+ *
+ * @author Sergey Olshevskiy
  */
 public interface PostView {
 

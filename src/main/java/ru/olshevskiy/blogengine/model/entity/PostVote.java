@@ -15,7 +15,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Класс сущности лайков и дизлайков постов.
+ * PostVote.
+ *
+ * @author Sergey Olshevskiy
  */
 @Getter
 @Setter

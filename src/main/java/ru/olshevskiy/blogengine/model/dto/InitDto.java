@@ -5,7 +5,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Компонент контекста Spring. Содержит общую информацию о блоге.
+ * InitDto.
+ *
+ * @author Sergey Olshevskiy
  */
 @Data
 @Component

@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Класс сущности кодов капч.
+ * CaptchaCode.
+ *
+ * @author Sergey Olshevskiy
  */
 @Getter
 @Setter

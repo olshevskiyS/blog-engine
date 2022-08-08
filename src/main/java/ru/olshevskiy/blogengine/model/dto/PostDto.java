@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 /**
- * Класс DTO постов блога.
+ * PostDto.
+ *
+ * @author Sergey Olshevskiy
  */
 @Data
 public class PostDto {

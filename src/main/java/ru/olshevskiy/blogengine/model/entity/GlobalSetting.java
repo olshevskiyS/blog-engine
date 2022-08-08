@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Класс сущности глобальных настроек блога.
+ * GlobalSetting.
+ *
+ * @author Sergey Olshevskiy
  */
 @Getter
 @Setter

@@ -2,11 +2,15 @@ package ru.olshevskiy.blogengine.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
- * Класс DTO глобальных настроек блога.
+ * GlobalSettingDto.
+ *
+ * @author Sergey Olshevskiy
  */
 @Data
+@Accessors(chain = true)
 public class GlobalSettingDto {
 
   @JsonProperty("MULTIUSER_MODE")

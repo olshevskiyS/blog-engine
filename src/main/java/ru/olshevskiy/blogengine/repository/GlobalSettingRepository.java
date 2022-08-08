@@ -5,7 +5,9 @@ import org.springframework.stereotype.Repository;
 import ru.olshevskiy.blogengine.model.entity.GlobalSetting;
 
 /**
- * Репозиторий для работы с глобальными настройками блога.
+ * GlobalSettingRepository.
+ *
+ * @author Sergey Olshevskiy
  */
 @Repository
 public interface GlobalSettingRepository extends CrudRepository<GlobalSetting, Integer> {

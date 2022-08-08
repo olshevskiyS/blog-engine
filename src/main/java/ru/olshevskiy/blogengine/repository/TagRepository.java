@@ -5,7 +5,9 @@ import org.springframework.stereotype.Repository;
 import ru.olshevskiy.blogengine.model.entity.Tag;
 
 /**
- * Репозиторий для работы с тегами постов блога.
+ * TagRepository.
+ *
+ * @author Sergey Olshevskiy
  */
 @Repository
 public interface TagRepository extends JpaRepository<Tag, Integer> {

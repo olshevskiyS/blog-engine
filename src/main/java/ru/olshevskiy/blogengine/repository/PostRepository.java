@@ -9,7 +9,9 @@ import ru.olshevskiy.blogengine.model.entity.Post;
 import ru.olshevskiy.blogengine.model.projection.PostView;
 
 /**
- * Репозиторий для работы с постами блога.
+ * PostRepository.
+ *
+ * @author Sergey Olshevskiy
  */
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {

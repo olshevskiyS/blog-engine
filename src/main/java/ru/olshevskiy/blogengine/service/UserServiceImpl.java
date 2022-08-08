@@ -1,19 +1,24 @@
 package ru.olshevskiy.blogengine.service;
 
-import java.util.HashMap;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.olshevskiy.blogengine.model.dto.CheckAuthorizationDto;
 
 /**
- * Сервис взаимодействия с пользователями.
+ * UserServiceImpl.
+ *
+ * @author Sergey Olshevskiy
  */
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
   @Override
-  public Map<String, Object> getCheckAuthorization() {
-    Map<String, Object> map = new HashMap<>();
-    map.put("result", false);
-    return map;
+  public CheckAuthorizationDto getCheckAuthorization() {
+    log.info("Start request getCheckAuthorization");
+    CheckAuthorizationDto authorization = new CheckAuthorizationDto();
+    authorization.setResult(false);
+    log.info("Finish request getCheckAuthorization");
+    return authorization;
   }
 }

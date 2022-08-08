@@ -2,7 +2,6 @@ package ru.olshevskiy.blogengine.service;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,15 +9,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.olshevskiy.blogengine.model.dto.TagDto;
+import ru.olshevskiy.blogengine.model.dto.TagsByQueryDto;
 import ru.olshevskiy.blogengine.model.entity.Tag;
 import ru.olshevskiy.blogengine.repository.PostRepository;
 import ru.olshevskiy.blogengine.repository.TagRepository;
 
 /**
- * Сервис взаимодействия с тегами постов блога.
+ * TagServiceImpl.
+ *
+ * @author Sergey Olshevskiy
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TagServiceImpl implements TagService {
@@ -27,10 +31,12 @@ public class TagServiceImpl implements TagService {
   private final PostRepository postRepository;
 
   @Override
-  public Map<String, List<TagDto>> getTagsByQuery(String query) {
+  public TagsByQueryDto getTagsByQuery(String query) {
+    log.info("Start request getTagsByQuery on query = " + query);
     if (query == null) {
       query = "";
     }
+    TagsByQueryDto tagsByQuery = new TagsByQueryDto();
     int totalAmountOfPosts = postRepository.getCountAllActivePosts();
     Map<String, Integer> listOfPostsByTags = getMapOfPostsByTagsDescendingSorted();
     float normalizationRatio = calculationNormalizationRatioForTags(
@@ -45,7 +51,9 @@ public class TagServiceImpl implements TagService {
         listTagsWithNormalizedWeights.add(new TagDto(tagName, df.format(tagNormalizedWeights)));
       }
     }
-    return Collections.singletonMap("tags", listTagsWithNormalizedWeights);
+    tagsByQuery.setTags(listTagsWithNormalizedWeights);
+    log.info("Finish request getTagsByQuery");
+    return tagsByQuery;
   }
 
   private Map<String, Integer> getMapOfPostsByTagsDescendingSorted() {

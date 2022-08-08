@@ -1,13 +1,13 @@
 package ru.olshevskiy.blogengine.service;
 
-import java.util.List;
-import java.util.Map;
-import ru.olshevskiy.blogengine.model.dto.TagDto;
+import ru.olshevskiy.blogengine.model.dto.TagsByQueryDto;
 
 /**
- * Интерфейс сервиса взаимодействия с тегами постов блога.
+ * TagService.
+ *
+ * @author Sergey Olshevskiy
  */
 public interface TagService {
 
-  Map<String, List<TagDto>> getTagsByQuery(String query);
+  TagsByQueryDto getTagsByQuery(String query);
 }

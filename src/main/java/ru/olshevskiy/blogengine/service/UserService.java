@@ -1,11 +1,13 @@
 package ru.olshevskiy.blogengine.service;
 
-import java.util.Map;
+import ru.olshevskiy.blogengine.model.dto.CheckAuthorizationDto;
 
 /**
- * Интерфейс сервиса взаимодействия с пользователями.
+ * UserService.
+ *
+ * @author Sergey Olshevskiy
  */
 public interface UserService {
 
-  Map<String, Object> getCheckAuthorization();
+  CheckAuthorizationDto getCheckAuthorization();
 }

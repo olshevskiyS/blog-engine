@@ -16,7 +16,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Класс сущности пользователей.
+ * User.
+ *
+ * @author Sergey Olshevskiy
  */
 @Getter
 @Setter

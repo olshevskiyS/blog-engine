@@ -4,13 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * Класс DTO тегов для постов блога.
+ * TagDto.
+ *
+ * @author Sergey Olshevskiy
  */
 @Data
 @AllArgsConstructor
 public class TagDto {
 
   String name;
-
   String weight;
 }
