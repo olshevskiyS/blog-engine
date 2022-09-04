@@ -4,13 +4,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
 import ru.olshevskiy.blogengine.model.dto.PostDto;
 import ru.olshevskiy.blogengine.model.mapper.PostViewPostDtoMapper;
+import ru.olshevskiy.blogengine.model.projection.PostView;
 import ru.olshevskiy.blogengine.repository.PostRepository;
 
 /**
@@ -20,6 +23,7 @@ import ru.olshevskiy.blogengine.repository.PostRepository;
  */
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
@@ -32,13 +36,13 @@ public class PostServiceImpl implements PostService {
             + ", limit = " + limit + ", sorting mode = " + mode);
     GetPostsDto postsDto = new GetPostsDto();
     int countPosts = postRepository.getCountAllActivePosts();
-    int countPages = countPosts / limit;
-    List<PostDto> postsList = postRepository
-        .getAllActivePostsWithCommentsAndVotes(
-             PageRequest.of(countPages, limit, sortingMode(mode)))
-        .stream().map(postViewPostDtoMapper::postViewToPostDto)
-        .collect(Collectors.toList());
-    postsDto.setCount(countPosts).setPosts(postsList);
+    int pageNumber = offset / limit;
+    Page<PostView> pages = postRepository.getAllActivePostsWithCommentsAndVotes(
+            PageRequest.of(pageNumber, limit, sortingMode(mode)));
+    List<PostDto> postsList = pages.getContent().stream()
+            .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
+    postsDto.setCount(countPosts)
+            .setPosts(postsList);
     log.info("Finish request getAllActivePostsBySorting");
     return postsDto;
   }

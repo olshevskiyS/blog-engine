@@ -16,7 +16,7 @@ spring:
 
   flyway:
     enabled: true
-    baseline-on-migrate: true
+    baseline-on-migrate: off
     locations: classpath:db/migration
 
 blog:

@@ -15,6 +15,7 @@
 		<flyway-mysql.version>8.4.2</flyway-mysql.version>
 		<flyway-maven-plugin.version>8.4.2</flyway-maven-plugin.version>
 		<mysql-connector-java.version>8.0.28</mysql-connector-java.version>
+		<org.testcontainers.version>1.16.3</org.testcontainers.version>
 		<mapstruct.version>1.4.2.Final</mapstruct.version>
 		<mapstruct-processor.version>1.4.2.Final</mapstruct-processor.version>
 		<lombok.version>1.18.22</lombok.version>
@@ -60,6 +61,18 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>${mysql-connector-java.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<version>${org.testcontainers.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>mysql</artifactId>
+			<version>${org.testcontainers.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>

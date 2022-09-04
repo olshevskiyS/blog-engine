@@ -35,7 +35,10 @@ public class GlobalSetting {
   @Column(name = "value", nullable = false)
   private String value;
 
-  GlobalSetting(String code, String name, String value) {
+  /**
+   * GlobalSetting constructor.
+   */
+  public GlobalSetting(String code, String name, String value) {
     this.code = code;
     this.name = name;
     this.value = value;

@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * Tag.
@@ -26,6 +27,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
+@Accessors(chain = true)
 @Table(name = "tags")
 public class Tag {
 
@@ -42,7 +44,7 @@ public class Tag {
         inverseJoinColumns = @JoinColumn(name = "post_id"))
   private Set<Post> posts = new HashSet<>();
 
-  Tag(String name) {
+  public Tag(String name) {
     this.name = name;
   }
 }
