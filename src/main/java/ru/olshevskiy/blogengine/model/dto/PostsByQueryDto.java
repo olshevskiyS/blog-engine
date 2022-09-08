@@ -5,13 +5,13 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * GetPostsDto.
+ * PostsByQueryDto.
  *
  * @author Sergey Olshevskiy
  */
 @Data
 @Accessors(chain = true)
-public class GetPostsDto {
+public class PostsByQueryDto {
 
   long count;
   List<PostDto> posts;

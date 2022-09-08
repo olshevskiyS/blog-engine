@@ -3,6 +3,7 @@ package ru.olshevskiy.blogengine.model.mapper;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import ru.olshevskiy.blogengine.model.projection.PostView;
 
 /**
@@ -10,16 +11,14 @@ import ru.olshevskiy.blogengine.model.projection.PostView;
  *
  * @author Sergey Olshevskiy
  */
+@Component
 public class PostViewPostDtoMapperSupport {
 
-  @Value("${blog.announceLength}")
-  private int announceLength;
+  private static int announceLength;
 
-  private static int ANNOUNCE_LENGTH_STATIC;
-
-  @Value("${blog.announceLength}")
-  public void setAnnounceLengthStatic(int announceLength) {
-    PostViewPostDtoMapperSupport.ANNOUNCE_LENGTH_STATIC = announceLength;
+  @Value("${blog.post.announceLength}")
+  public void setAnnounceLength(int length) {
+    announceLength = length;
   }
 
   static long convertTimeToSeconds(PostView postView) {
@@ -30,8 +29,8 @@ public class PostViewPostDtoMapperSupport {
   static String getAnnounceFromText(PostView postView) {
     String text = postView.getPost().getText();
     String textWithDeletedHtmlTags = text.replaceAll("<[^>]*>", "");
-    return textWithDeletedHtmlTags.length() > ANNOUNCE_LENGTH_STATIC
-           ? textWithDeletedHtmlTags.substring(0, ANNOUNCE_LENGTH_STATIC) + "..."
+    return textWithDeletedHtmlTags.length() > announceLength
+           ? textWithDeletedHtmlTags.substring(0, announceLength) + "..."
            : textWithDeletedHtmlTags;
   }
 }
