@@ -16,15 +16,15 @@ import ru.olshevskiy.blogengine.model.entity.GlobalSetting;
 import ru.olshevskiy.blogengine.repository.GlobalSettingRepository;
 
 /**
- * GlobalSettingServiceTest.
+ * GeneralServiceUnitTest.
  *
  * @author Sergey Olshevskiy
  */
 @ExtendWith(MockitoExtension.class)
-public class GlobalSettingServiceUnitTest {
+public class GeneralServiceUnitTest {
 
   @InjectMocks
-  private GlobalSettingServiceImpl globalSettingService;
+  private GeneralServiceImpl generalService;
 
   @Mock
   private GlobalSettingRepository globalSettingRepository;
@@ -44,7 +44,7 @@ public class GlobalSettingServiceUnitTest {
     assignedGlobalSettingDto.setMultiuserMode(true)
             .setPostPremoderation(false)
             .setStatisticsIsPublic(false);
-    GlobalSettingDto expectedGlobalSettingDto = globalSettingService.getGlobalSettings();
+    GlobalSettingDto expectedGlobalSettingDto = generalService.getGlobalSettings();
     assertThat(expectedGlobalSettingDto).isEqualTo(assignedGlobalSettingDto);
   }
 }

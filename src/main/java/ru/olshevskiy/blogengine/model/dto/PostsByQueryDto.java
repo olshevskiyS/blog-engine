@@ -13,6 +13,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class PostsByQueryDto {
 
-  long count;
-  List<PostDto> posts;
+  private long count;
+  private List<PostDto> posts;
 }

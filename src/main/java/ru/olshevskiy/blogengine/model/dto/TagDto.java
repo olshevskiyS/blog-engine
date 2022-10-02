@@ -12,6 +12,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class TagDto {
 
-  String name;
-  String weight;
+  private String name;
+  private String weight;
 }

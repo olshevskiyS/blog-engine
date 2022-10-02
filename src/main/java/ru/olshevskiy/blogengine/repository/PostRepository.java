@@ -17,25 +17,24 @@ import ru.olshevskiy.blogengine.model.projection.PostView;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
-  String selectQueryActivePosts = "SELECT p AS post, "
+  String selectActivePosts = "SELECT p AS post, "
           + "SUM(CASE WHEN v.value > 0 THEN 1 ELSE 0 END) AS likeCount, "
           + "SUM(CASE WHEN v.value < 0 THEN 1 ELSE 0 END) AS dislikeCount "
           + "FROM Post p "
-          + "LEFT JOIN p.votes v "
-          + "WHERE p.isActive = 1 "
-          + "AND p.moderationStatus = 'ACCEPTED' "
-          + "AND p.time <= now() ";
+          + "LEFT JOIN p.votes v ";
 
-  @Query(value = "SELECT count(*) FROM Post p "
-          + "WHERE p.isActive = 1 "
+  String criterion = "WHERE p.isActive = 1 "
           + "AND p.moderationStatus = 'ACCEPTED' "
-          + "AND p.time <= now()")
+          + "AND p.time <= now()";
+
+  @Query(value = "SELECT count(*) FROM Post p " + criterion)
   int getCountAllActivePosts();
 
-  @Query(value = selectQueryActivePosts + "GROUP BY p")
+  @Query(value = selectActivePosts + criterion + " GROUP BY p")
   Page<PostView> getAllActivePostsWithCommentsAndVotes(Pageable pageable);
 
-  @Query(value = selectQueryActivePosts + "AND p.text LIKE CONCAT('%', :query, '%') GROUP BY p")
+  @Query(value = selectActivePosts + criterion
+          + " AND p.text LIKE CONCAT('%', :query, '%') GROUP BY p")
   Page<PostView> getActivePostsWithCommentsAndVotesByQuery(@Param("query") String query,
                                                            Pageable pageable);
 }

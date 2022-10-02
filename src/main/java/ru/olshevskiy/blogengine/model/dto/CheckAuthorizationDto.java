@@ -10,5 +10,5 @@ import lombok.Data;
 @Data
 public class CheckAuthorizationDto {
 
-  Boolean result;
+  private Boolean result;
 }

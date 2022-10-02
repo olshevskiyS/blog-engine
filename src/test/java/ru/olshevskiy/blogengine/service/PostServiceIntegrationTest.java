@@ -33,8 +33,8 @@ public class PostServiceIntegrationTest extends InitTestContainer {
     assertThat(postService).isNotNull();
 
     GetPostsDto postsDto1 = postService.getPosts(0, 10, "recent");
-    assertThat(postsDto1.getCount()).isEqualTo(4L);
-    assertThat(postsDto1.getPosts().get(0).getTimestamp()).isEqualTo(1639955887L);
+    assertThat(postsDto1.getCount()).isEqualTo(5L);
+    assertThat(postsDto1.getPosts().get(0).getTimestamp()).isEqualTo(1642457295L);
 
     GetPostsDto postsDto2 = postService.getPosts(0, 10, "early");
     assertThat(postsDto2.getPosts().get(0).getTimestamp()).isEqualTo(1639818770L);
@@ -53,8 +53,8 @@ public class PostServiceIntegrationTest extends InitTestContainer {
     assertThat(postService).isNotNull();
     GetPostsDto postsDto = postService.getPosts(2, 2, "recent");
     assertThat(postsDto.getPosts().size()).isEqualTo(2);
-    assertThat(postsDto.getPosts().get(0).getId()).isEqualTo(2);
-    assertThat(postsDto.getPosts().get(0).getTimestamp()).isEqualTo(1639819680L);
+    assertThat(postsDto.getPosts().get(0).getId()).isEqualTo(3);
+    assertThat(postsDto.getPosts().get(0).getTimestamp()).isEqualTo(1639854154L);
   }
 
   @Test
@@ -71,8 +71,8 @@ public class PostServiceIntegrationTest extends InitTestContainer {
     assertThat(postsDto2.getPosts().size()).isEqualTo(0);
 
     PostsByQueryDto postsDto3 = postService.getPostsByQuery(0, 10, " ");
-    assertThat(postsDto3.getCount()).isEqualTo(4L);
-    assertThat(postsDto3.getPosts().size()).isEqualTo(4);
-    assertThat(postsDto3.getPosts().get(0).getId()).isEqualTo(5);
+    assertThat(postsDto3.getCount()).isEqualTo(5L);
+    assertThat(postsDto3.getPosts().size()).isEqualTo(5);
+    assertThat(postsDto3.getPosts().get(0).getId()).isEqualTo(7);
   }
 }

@@ -24,7 +24,7 @@ public class ApiPostController {
   private final PostServiceImpl postResource;
 
   @GetMapping("")
-  private ResponseEntity<GetPostsDto> getPosts(
+  public ResponseEntity<GetPostsDto> getPosts(
           @RequestParam(defaultValue = "0") int offset,
           @RequestParam(defaultValue = "10") int limit,
           @RequestParam(defaultValue = "recent") String mode) {
@@ -32,7 +32,7 @@ public class ApiPostController {
   }
 
   @GetMapping("/search")
-  private ResponseEntity<PostsByQueryDto> getPostsByQuery(
+  public ResponseEntity<PostsByQueryDto> getPostsByQuery(
           @RequestParam(defaultValue = "0") int offset,
           @RequestParam(defaultValue = "10") int limit,
           @RequestParam String query) {

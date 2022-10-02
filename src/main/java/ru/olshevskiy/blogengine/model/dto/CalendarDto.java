@@ -1,18 +1,19 @@
 package ru.olshevskiy.blogengine.model.dto;
 
 import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * GetPostsDto.
+ * CalendarDto.
  *
  * @author Sergey Olshevskiy
  */
 @Data
 @Accessors(chain = true)
-public class GetPostsDto {
+public class CalendarDto {
 
-  private long count;
-  private List<PostDto> posts;
+  private List<Integer> years;
+  private Map<String, Long> posts;
 }

@@ -1,5 +1,6 @@
 package ru.olshevskiy.blogengine.service;
 
+import ru.olshevskiy.blogengine.model.dto.CalendarDto;
 import ru.olshevskiy.blogengine.model.dto.GlobalSettingDto;
 
 /**
@@ -7,7 +8,9 @@ import ru.olshevskiy.blogengine.model.dto.GlobalSettingDto;
  *
  * @author Sergey Olshevskiy
  */
-public interface GlobalSettingService {
+public interface GeneralService {
 
   GlobalSettingDto getGlobalSettings();
+
+  CalendarDto getCalendar(String year);
 }

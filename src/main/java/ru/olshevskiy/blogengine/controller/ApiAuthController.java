@@ -22,7 +22,7 @@ public class ApiAuthController {
   private final UserServiceImpl userResource;
 
   @GetMapping("/auth/check")
-  private ResponseEntity<CheckAuthorizationDto> checkUserAuthorization() {
+  public ResponseEntity<CheckAuthorizationDto> checkUserAuthorization() {
     return new ResponseEntity<>(userResource.getCheckAuthorization(), HttpStatus.UNAUTHORIZED);
   }
 }

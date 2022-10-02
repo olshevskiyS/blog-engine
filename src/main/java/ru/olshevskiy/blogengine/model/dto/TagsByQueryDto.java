@@ -13,5 +13,5 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class TagsByQueryDto {
 
-  List<TagDto> tags;
+  private List<TagDto> tags;
 }
