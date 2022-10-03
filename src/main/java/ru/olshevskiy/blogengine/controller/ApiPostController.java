@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
+import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
 import ru.olshevskiy.blogengine.service.PostServiceImpl;
 
@@ -37,5 +38,13 @@ public class ApiPostController {
           @RequestParam(defaultValue = "10") int limit,
           @RequestParam String query) {
     return new ResponseEntity<>(postResource.getPostsByQuery(offset, limit, query), HttpStatus.OK);
+  }
+
+  @GetMapping("/byDate")
+  public ResponseEntity<PostsByDateDto> getPostsByDate(
+          @RequestParam(defaultValue = "0") int offset,
+          @RequestParam(defaultValue = "10") int limit,
+          @RequestParam String date) {
+    return new ResponseEntity<>(postResource.getPostsByDate(offset, limit, date), HttpStatus.OK);
   }
 }

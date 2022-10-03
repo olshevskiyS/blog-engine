@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
 import ru.olshevskiy.blogengine.model.dto.PostDto;
+import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
 import ru.olshevskiy.blogengine.model.mapper.PostViewPostDtoMapper;
 import ru.olshevskiy.blogengine.model.projection.PostView;
@@ -67,6 +68,23 @@ public class PostServiceImpl implements PostService {
     postsDto.setCount(page.getTotalElements())
             .setPosts(postsList);
     log.info("Finish request getPostsByQuery");
+    return postsDto;
+  }
+
+  @Override
+  public PostsByDateDto getPostsByDate(int offset, int limit, String date) {
+    log.info("Start request getPostsByDate with offset = " + offset
+            + ", limit = " + limit + ", date = " + date);
+    PostsByDateDto postsDto = new PostsByDateDto();
+    Sort sortingMode = Sort.by(Sort.Direction.DESC, "time");
+    int pageNumber = offset / limit;
+    Page<PostView> page = postRepository.getActivePostsWithCommentsAndVotesByDate(date,
+            PageRequest.of(pageNumber, limit, sortingMode));
+    List<PostDto> postsList = page.getContent().stream()
+            .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
+    postsDto.setCount(page.getTotalElements())
+            .setPosts(postsList);
+    log.info("Finish request getPostsByDate");
     return postsDto;
   }
 

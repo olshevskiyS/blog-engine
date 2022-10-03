@@ -37,4 +37,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
           + " AND p.text LIKE CONCAT('%', :query, '%') GROUP BY p")
   Page<PostView> getActivePostsWithCommentsAndVotesByQuery(@Param("query") String query,
                                                            Pageable pageable);
+
+  @Query(value = selectActivePosts + criterion
+          + " AND DATE_FORMAT(p.time, '%Y-%m-%d') LIKE CONCAT('%', :date, '%') GROUP BY p")
+  Page<PostView> getActivePostsWithCommentsAndVotesByDate(@Param("date") String date,
+                                                          Pageable pageable);
 }

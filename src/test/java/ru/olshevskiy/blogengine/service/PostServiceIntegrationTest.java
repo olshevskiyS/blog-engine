@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ru.olshevskiy.blogengine.InitTestContainer;
 import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
+import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
 
 /**
@@ -29,7 +30,7 @@ public class PostServiceIntegrationTest extends InitTestContainer {
   private PostServiceImpl postService;
 
   @Test
-  void testGetPostsRecentMode() {
+  void testGetPostsWithVariousSortingMode() {
     assertThat(postService).isNotNull();
 
     GetPostsDto postsDto1 = postService.getPosts(0, 10, "recent");
@@ -51,6 +52,7 @@ public class PostServiceIntegrationTest extends InitTestContainer {
   @Test
   void testGetPostsPagination() {
     assertThat(postService).isNotNull();
+
     GetPostsDto postsDto = postService.getPosts(2, 2, "recent");
     assertThat(postsDto.getPosts().size()).isEqualTo(2);
     assertThat(postsDto.getPosts().get(0).getId()).isEqualTo(3);
@@ -74,5 +76,15 @@ public class PostServiceIntegrationTest extends InitTestContainer {
     assertThat(postsDto3.getCount()).isEqualTo(5L);
     assertThat(postsDto3.getPosts().size()).isEqualTo(5);
     assertThat(postsDto3.getPosts().get(0).getId()).isEqualTo(7);
+  }
+
+  @Test
+  void testGetPostsByDate() {
+    assertThat(postService).isNotNull();
+
+    PostsByDateDto postsDto = postService.getPostsByDate(0, 10, "2021-12-18");
+    assertThat(postsDto.getCount()).isEqualTo(3L);
+    assertThat(postsDto.getPosts().size()).isEqualTo(3);
+    assertThat(postsDto.getPosts().get(0).getId()).isEqualTo(3);
   }
 }
