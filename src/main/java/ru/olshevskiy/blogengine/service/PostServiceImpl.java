@@ -14,6 +14,7 @@ import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
 import ru.olshevskiy.blogengine.model.dto.PostDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
+import ru.olshevskiy.blogengine.model.dto.PostsByTagDto;
 import ru.olshevskiy.blogengine.model.mapper.PostViewPostDtoMapper;
 import ru.olshevskiy.blogengine.model.projection.PostView;
 import ru.olshevskiy.blogengine.repository.PostRepository;
@@ -67,7 +68,7 @@ public class PostServiceImpl implements PostService {
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
     postsDto.setCount(page.getTotalElements())
             .setPosts(postsList);
-    log.info("Finish request getPostsByQuery");
+    log.info("Finish request getPostsByQuery = " + query);
     return postsDto;
   }
 
@@ -84,7 +85,24 @@ public class PostServiceImpl implements PostService {
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
     postsDto.setCount(page.getTotalElements())
             .setPosts(postsList);
-    log.info("Finish request getPostsByDate");
+    log.info("Finish request getPostsByDate = " + date);
+    return postsDto;
+  }
+
+  @Override
+  public PostsByTagDto getPostsByTag(int offset, int limit, String tag) {
+    log.info("Start request getPostsByTag with offset = " + offset
+            + ", limit = " + limit + ", tag = " + tag);
+    PostsByTagDto postsDto = new PostsByTagDto();
+    Sort sortingMode = Sort.by(Sort.Direction.DESC, "time");
+    int pageNumber = offset / limit;
+    Page<PostView> page = postRepository.getActivePostsWithCommentsAndVotesByTag(tag,
+            PageRequest.of(pageNumber, limit, sortingMode));
+    List<PostDto> postsList = page.getContent().stream()
+            .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
+    postsDto.setCount(page.getTotalElements())
+            .setPosts(postsList);
+    log.info("Finish request getPostsByTag = " + tag);
     return postsDto;
   }
 

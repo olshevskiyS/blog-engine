@@ -45,7 +45,7 @@ public class ApiGeneralController {
   }
 
   @GetMapping("/calendar")
-  public ResponseEntity<CalendarDto> getCalendar(@RequestParam String year) {
+  public ResponseEntity<CalendarDto> getCalendar(@RequestParam(required = false) String year) {
     return new ResponseEntity<>(generalResource.getCalendar(year), HttpStatus.OK);
   }
 }

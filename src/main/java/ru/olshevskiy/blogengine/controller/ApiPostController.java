@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
+import ru.olshevskiy.blogengine.model.dto.PostsByTagDto;
 import ru.olshevskiy.blogengine.service.PostServiceImpl;
 
 /**
@@ -46,5 +47,13 @@ public class ApiPostController {
           @RequestParam(defaultValue = "10") int limit,
           @RequestParam String date) {
     return new ResponseEntity<>(postResource.getPostsByDate(offset, limit, date), HttpStatus.OK);
+  }
+
+  @GetMapping("/byTag")
+  public ResponseEntity<PostsByTagDto> getPostsByTag(
+          @RequestParam(defaultValue = "0") int offset,
+          @RequestParam(defaultValue = "10") int limit,
+          @RequestParam String tag) {
+    return new ResponseEntity<>(postResource.getPostsByTag(offset, limit, tag), HttpStatus.OK);
   }
 }

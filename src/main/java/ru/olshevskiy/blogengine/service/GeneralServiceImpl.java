@@ -1,5 +1,6 @@
 package ru.olshevskiy.blogengine.service;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,9 @@ public class GeneralServiceImpl implements GeneralService {
   @Override
   public CalendarDto getCalendar(String year) {
     log.info("Start request getCalendar with year = " + year);
+    if (year == null || year.isEmpty()) {
+      year = String.valueOf(LocalDate.now().getYear());
+    }
     CalendarDto calendarDto = new CalendarDto();
     List<Integer> years = calendarRepository.getYearsAllActivePosts();
     Map<String, Long> postsByYear = calendarRepository.getPostsByYear(year);

@@ -13,6 +13,7 @@ import ru.olshevskiy.blogengine.InitTestContainer;
 import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
+import ru.olshevskiy.blogengine.model.dto.PostsByTagDto;
 
 /**
  * ApiPostControllerTest.
@@ -86,5 +87,15 @@ public class PostServiceIntegrationTest extends InitTestContainer {
     assertThat(postsDto.getCount()).isEqualTo(3L);
     assertThat(postsDto.getPosts().size()).isEqualTo(3);
     assertThat(postsDto.getPosts().get(0).getId()).isEqualTo(3);
+  }
+
+  @Test
+  void testGetPostsByTag() {
+    assertThat(postService).isNotNull();
+
+    PostsByTagDto postsDto = postService.getPostsByTag(0, 10, "коррозия");
+    assertThat(postsDto.getCount()).isEqualTo(2L);
+    assertThat(postsDto.getPosts().size()).isEqualTo(2);
+    assertThat(postsDto.getPosts().get(0).getId()).isEqualTo(5);
   }
 }

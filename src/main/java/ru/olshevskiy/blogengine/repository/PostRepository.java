@@ -17,29 +17,33 @@ import ru.olshevskiy.blogengine.model.projection.PostView;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
-  String selectActivePosts = "SELECT p AS post, "
+  String selectPosts = "SELECT p AS post, "
           + "SUM(CASE WHEN v.value > 0 THEN 1 ELSE 0 END) AS likeCount, "
           + "SUM(CASE WHEN v.value < 0 THEN 1 ELSE 0 END) AS dislikeCount "
-          + "FROM Post p "
-          + "LEFT JOIN p.votes v ";
+          + "FROM Post p ";
 
-  String criterion = "WHERE p.isActive = 1 "
+  String primaryCriterion = "WHERE p.isActive = 1 "
           + "AND p.moderationStatus = 'ACCEPTED' "
           + "AND p.time <= now()";
 
-  @Query(value = "SELECT count(*) FROM Post p " + criterion)
+  @Query(value = ("SELECT count(*) FROM Post p " + primaryCriterion))
   int getCountAllActivePosts();
 
-  @Query(value = selectActivePosts + criterion + " GROUP BY p")
+  @Query(value = (selectPosts + "LEFT JOIN p.votes v " + primaryCriterion + " GROUP BY p"))
   Page<PostView> getAllActivePostsWithCommentsAndVotes(Pageable pageable);
 
-  @Query(value = selectActivePosts + criterion
-          + " AND p.text LIKE CONCAT('%', :query, '%') GROUP BY p")
+  @Query(value = (selectPosts + "LEFT JOIN p.votes v " + primaryCriterion
+          + " AND p.text LIKE CONCAT('%', :query, '%') GROUP BY p"))
   Page<PostView> getActivePostsWithCommentsAndVotesByQuery(@Param("query") String query,
                                                            Pageable pageable);
 
-  @Query(value = selectActivePosts + criterion
-          + " AND DATE_FORMAT(p.time, '%Y-%m-%d') LIKE CONCAT('%', :date, '%') GROUP BY p")
+  @Query(value = (selectPosts + "LEFT JOIN p.votes v " + primaryCriterion
+          + " AND DATE_FORMAT(p.time, '%Y-%m-%d') LIKE CONCAT('%', :date, '%') GROUP BY p"))
   Page<PostView> getActivePostsWithCommentsAndVotesByDate(@Param("date") String date,
+                                                          Pageable pageable);
+
+  @Query(value = (selectPosts + "JOIN p.tags t LEFT JOIN p.votes v "  + primaryCriterion
+          + " AND t.name LIKE CONCAT('%', :tag, '%') GROUP BY p"))
+  Page<PostView> getActivePostsWithCommentsAndVotesByTag(@Param("tag") String tag,
                                                           Pageable pageable);
 }
