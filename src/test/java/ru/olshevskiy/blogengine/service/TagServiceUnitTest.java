@@ -52,7 +52,7 @@ public class TagServiceUnitTest {
     posts3.add(new Post());
     posts3.add(new Post());
     tags.add(new Tag("третий").setPosts(posts3));
-    when(postRepository.getCountAllActivePosts()).thenReturn(10);
+    when(postRepository.getCountActivePosts()).thenReturn(10);
     when(tagRepository.findAll()).thenReturn(tags);
   }
 

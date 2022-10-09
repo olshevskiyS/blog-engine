@@ -37,7 +37,7 @@ public class TagServiceImpl implements TagService {
       query = "";
     }
     TagsByQueryDto tagsByQuery = new TagsByQueryDto();
-    int totalAmountOfPosts = postRepository.getCountAllActivePosts();
+    int totalAmountOfPosts = postRepository.getCountActivePosts();
     Map<String, Integer> listOfPostsByTags = getMapOfPostsByTagsDescendingSorted();
     float normalizationRatio = calculationNormalizationRatioForTags(
             listOfPostsByTags, totalAmountOfPosts);

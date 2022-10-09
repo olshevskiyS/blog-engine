@@ -10,7 +10,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.olshevskiy.blogengine.exception.ex.PostNotFoundException;
 import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
+import ru.olshevskiy.blogengine.model.dto.PostByIdDto;
 import ru.olshevskiy.blogengine.model.dto.PostDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
@@ -39,7 +41,7 @@ public class PostServiceImpl implements PostService {
             + ", limit = " + limit + ", sorting mode = " + mode);
     GetPostsDto postsDto = new GetPostsDto();
     int pageNumber = offset / limit;
-    Page<PostView> page = postRepository.getAllActivePostsWithCommentsAndVotes(
+    Page<PostView> page = postRepository.getActivePosts(
             PageRequest.of(pageNumber, limit, sortingMode(mode)));
     List<PostDto> postsList = page.getContent().stream()
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
@@ -58,10 +60,9 @@ public class PostServiceImpl implements PostService {
     int pageNumber = offset / limit;
     Page<PostView> page;
     if (query.isEmpty() || query.matches("\\s+")) {
-      page = postRepository.getAllActivePostsWithCommentsAndVotes(
-              PageRequest.of(pageNumber, limit, sortingMode));
+      page = postRepository.getActivePosts(PageRequest.of(pageNumber, limit, sortingMode));
     } else {
-      page = postRepository.getActivePostsWithCommentsAndVotesByQuery(query,
+      page = postRepository.getActivePostsByQuery(query,
               PageRequest.of(pageNumber, limit, sortingMode));
     }
     List<PostDto> postsList = page.getContent().stream()
@@ -79,7 +80,7 @@ public class PostServiceImpl implements PostService {
     PostsByDateDto postsDto = new PostsByDateDto();
     Sort sortingMode = Sort.by(Sort.Direction.DESC, "time");
     int pageNumber = offset / limit;
-    Page<PostView> page = postRepository.getActivePostsWithCommentsAndVotesByDate(date,
+    Page<PostView> page = postRepository.getActivePostsByDate(date,
             PageRequest.of(pageNumber, limit, sortingMode));
     List<PostDto> postsList = page.getContent().stream()
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
@@ -96,7 +97,7 @@ public class PostServiceImpl implements PostService {
     PostsByTagDto postsDto = new PostsByTagDto();
     Sort sortingMode = Sort.by(Sort.Direction.DESC, "time");
     int pageNumber = offset / limit;
-    Page<PostView> page = postRepository.getActivePostsWithCommentsAndVotesByTag(tag,
+    Page<PostView> page = postRepository.getActivePostsByTag(tag,
             PageRequest.of(pageNumber, limit, sortingMode));
     List<PostDto> postsList = page.getContent().stream()
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
@@ -104,6 +105,15 @@ public class PostServiceImpl implements PostService {
             .setPosts(postsList);
     log.info("Finish request getPostsByTag = " + tag);
     return postsDto;
+  }
+
+  @Override
+  public PostByIdDto getPostById(int id) {
+    log.info("Start request getPostById, id = " + id);
+    PostView postView = postRepository.getPostById(id).orElseThrow(PostNotFoundException::new);
+    PostByIdDto postDto = postViewPostDtoMapper.postViewToPostByIdDto(postView);
+    log.info("Finish request getPostById = " + id);
+    return postDto;
   }
 
   private Sort sortingMode(String mode) {

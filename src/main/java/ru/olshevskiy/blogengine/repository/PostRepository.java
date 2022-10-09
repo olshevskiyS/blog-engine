@@ -1,5 +1,6 @@
 package ru.olshevskiy.blogengine.repository;
 
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,23 +28,23 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
           + "AND p.time <= now()";
 
   @Query(value = ("SELECT count(*) FROM Post p " + primaryCriterion))
-  int getCountAllActivePosts();
+  int getCountActivePosts();
 
   @Query(value = (selectPosts + "LEFT JOIN p.votes v " + primaryCriterion + " GROUP BY p"))
-  Page<PostView> getAllActivePostsWithCommentsAndVotes(Pageable pageable);
+  Page<PostView> getActivePosts(Pageable pageable);
 
   @Query(value = (selectPosts + "LEFT JOIN p.votes v " + primaryCriterion
           + " AND p.text LIKE CONCAT('%', :query, '%') GROUP BY p"))
-  Page<PostView> getActivePostsWithCommentsAndVotesByQuery(@Param("query") String query,
-                                                           Pageable pageable);
+  Page<PostView> getActivePostsByQuery(@Param("query") String query, Pageable pageable);
 
   @Query(value = (selectPosts + "LEFT JOIN p.votes v " + primaryCriterion
           + " AND DATE_FORMAT(p.time, '%Y-%m-%d') LIKE CONCAT('%', :date, '%') GROUP BY p"))
-  Page<PostView> getActivePostsWithCommentsAndVotesByDate(@Param("date") String date,
-                                                          Pageable pageable);
+  Page<PostView> getActivePostsByDate(@Param("date") String date, Pageable pageable);
 
   @Query(value = (selectPosts + "JOIN p.tags t LEFT JOIN p.votes v "  + primaryCriterion
           + " AND t.name LIKE CONCAT('%', :tag, '%') GROUP BY p"))
-  Page<PostView> getActivePostsWithCommentsAndVotesByTag(@Param("tag") String tag,
-                                                          Pageable pageable);
+  Page<PostView> getActivePostsByTag(@Param("tag") String tag, Pageable pageable);
+
+  @Query(value = (selectPosts + "LEFT JOIN p.votes v WHERE p.id = :id GROUP BY p"))
+  Optional<PostView> getPostById(@Param("id") Integer id);
 }

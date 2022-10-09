@@ -4,15 +4,16 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import ru.olshevskiy.blogengine.model.entity.Post;
 import ru.olshevskiy.blogengine.model.projection.PostView;
 
 /**
- * PostViewPostDtoMapperSupport.
+ * PostViewMapperSupport.
  *
  * @author Sergey Olshevskiy
  */
 @Component
-public class PostViewPostDtoMapperSupport {
+public class PostViewMapperSupport {
 
   private static int announceLength;
 
@@ -21,8 +22,7 @@ public class PostViewPostDtoMapperSupport {
     announceLength = length;
   }
 
-  static long convertTimeToSeconds(PostView postView) {
-    LocalDateTime time = postView.getPost().getTime();
+  static long convertTimeToSeconds(LocalDateTime time) {
     return time.atOffset(ZoneOffset.UTC).toInstant().getEpochSecond();
   }
 
@@ -32,5 +32,9 @@ public class PostViewPostDtoMapperSupport {
     return textWithDeletedHtmlTags.length() > announceLength
            ? textWithDeletedHtmlTags.substring(0, announceLength) + "..."
            : textWithDeletedHtmlTags;
+  }
+
+  static Boolean checkPostIsActive(Post post) {
+    return post.getIsActive() == 1;
   }
 }
