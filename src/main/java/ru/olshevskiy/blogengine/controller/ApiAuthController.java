@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.olshevskiy.blogengine.model.dto.CaptchaDto;
 import ru.olshevskiy.blogengine.model.dto.CheckAuthorizationDto;
+import ru.olshevskiy.blogengine.service.CaptchaServiceImpl;
 import ru.olshevskiy.blogengine.service.UserServiceImpl;
 
 /**
@@ -16,13 +18,19 @@ import ru.olshevskiy.blogengine.service.UserServiceImpl;
  */
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/auth")
 public class ApiAuthController {
 
   private final UserServiceImpl userResource;
+  private final CaptchaServiceImpl captchaResource;
 
-  @GetMapping("/auth/check")
+  @GetMapping("/check")
   public ResponseEntity<CheckAuthorizationDto> checkUserAuthorization() {
     return new ResponseEntity<>(userResource.getCheckAuthorization(), HttpStatus.UNAUTHORIZED);
+  }
+
+  @GetMapping("/captcha")
+  public ResponseEntity<CaptchaDto> getCaptcha() {
+    return new ResponseEntity<>(captchaResource.getCaptcha(), HttpStatus.OK);
   }
 }

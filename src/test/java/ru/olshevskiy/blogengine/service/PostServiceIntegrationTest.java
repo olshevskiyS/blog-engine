@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ru.olshevskiy.blogengine.InitTestContainer;
 import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
+import ru.olshevskiy.blogengine.model.dto.PostByIdDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
 import ru.olshevskiy.blogengine.model.dto.PostsByTagDto;
@@ -32,8 +33,6 @@ public class PostServiceIntegrationTest extends InitTestContainer {
 
   @Test
   void testGetPostsWithVariousSortingMode() {
-    assertThat(postService).isNotNull();
-
     GetPostsDto postsDto1 = postService.getPosts(0, 10, "recent");
     assertThat(postsDto1.getCount()).isEqualTo(5L);
     assertThat(postsDto1.getPosts().get(0).getTimestamp()).isEqualTo(1642457295L);
@@ -52,8 +51,6 @@ public class PostServiceIntegrationTest extends InitTestContainer {
 
   @Test
   void testGetPostsPagination() {
-    assertThat(postService).isNotNull();
-
     GetPostsDto postsDto = postService.getPosts(2, 2, "recent");
     assertThat(postsDto.getPosts().size()).isEqualTo(2);
     assertThat(postsDto.getPosts().get(0).getId()).isEqualTo(3);
@@ -62,8 +59,6 @@ public class PostServiceIntegrationTest extends InitTestContainer {
 
   @Test
   void testGetPostsByQuery() {
-    assertThat(postService).isNotNull();
-
     PostsByQueryDto postsDto1 = postService.getPostsByQuery(0, 10, "коррозии");
     assertThat(postsDto1.getCount()).isEqualTo(2L);
     assertThat(postsDto1.getPosts().size()).isEqualTo(2);
@@ -81,8 +76,6 @@ public class PostServiceIntegrationTest extends InitTestContainer {
 
   @Test
   void testGetPostsByDate() {
-    assertThat(postService).isNotNull();
-
     PostsByDateDto postsDto = postService.getPostsByDate(0, 10, "2021-12-18");
     assertThat(postsDto.getCount()).isEqualTo(3L);
     assertThat(postsDto.getPosts().size()).isEqualTo(3);
@@ -91,11 +84,18 @@ public class PostServiceIntegrationTest extends InitTestContainer {
 
   @Test
   void testGetPostsByTag() {
-    assertThat(postService).isNotNull();
-
     PostsByTagDto postsDto = postService.getPostsByTag(0, 10, "коррозия");
     assertThat(postsDto.getCount()).isEqualTo(2L);
     assertThat(postsDto.getPosts().size()).isEqualTo(2);
     assertThat(postsDto.getPosts().get(0).getId()).isEqualTo(5);
+  }
+
+  @Test
+  void testGetPostById() {
+    PostByIdDto postDto = postService.getPostById(2);
+    assertThat(postDto.getViewCount()).isEqualTo(6);
+    assertThat(postDto.getUser().getName()).isEqualTo("пользователь01");
+    assertThat(postDto.getComments().size()).isEqualTo(0);
+    assertThat(postDto.getTags().stream().findFirst().orElseThrow()).isEqualTo("правила");
   }
 }

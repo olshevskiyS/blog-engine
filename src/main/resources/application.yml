@@ -28,3 +28,8 @@ blog:
   copyrightFrom: 2021
   post:
     announceLength: 150
+  captcha:
+    width: 100
+    height: 35
+    prefix: "data:image/png;base64,\u0020"
+    valid-time: 1
