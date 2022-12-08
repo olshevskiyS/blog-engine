@@ -1,4 +1,4 @@
-package ru.olshevskiy.blogengine.service;
+package ru.olshevskiy.blogengine.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,7 +13,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import ru.olshevskiy.blogengine.InitTestContainer;
-import ru.olshevskiy.blogengine.repository.CalendarRepository;
 
 /**
  * CalendarRepositoryIntegrationTest.
@@ -32,7 +31,6 @@ public class CalendarRepositoryIntegrationTest extends InitTestContainer {
 
   @Test
   void testGetYearsAllActivePosts() {
-    assertThat(calendarRepository).isNotNull();
     List<Integer> years = calendarRepository.getYearsAllActivePosts();
     assertThat(years.size()).isEqualTo(2);
     assertThat(years.get(0)).isEqualTo(2021);
@@ -40,7 +38,6 @@ public class CalendarRepositoryIntegrationTest extends InitTestContainer {
 
   @Test
   void testGetPostsByYear() {
-    assertThat(calendarRepository).isNotNull();
     Map<String, Long> posts = calendarRepository.getPostsByYear("2021");
     assertThat(posts.size()).isEqualTo(2);
     assertThat(posts.get("2021-12-18")).isEqualTo(3);

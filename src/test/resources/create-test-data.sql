@@ -71,10 +71,18 @@ CREATE TABLE IF NOT EXISTS captcha_codes (
   PRIMARY KEY (id)
 )ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
 
-INSERT INTO users (code, email, is_moderator, name, password, reg_time) VALUES
-('1111', 'user01@email.com', '1', 'пользователь01', '0101', '2021-12-17 08:00:00.00000'),
-('2222', 'user02@email.com', '0', 'пользователь02', '0202', '2021-12-18 15:23:33.00000'),
-('3333', 'user03@email.com', '0', 'пользователь03', '0303', '2021-12-19 21:20:45.00000');
+CREATE TABLE IF NOT EXISTS global_settings (
+  id INT NOT NULL AUTO_INCREMENT,
+  code VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  value VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
+)ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;
+
+INSERT INTO users (email, is_moderator, name, password, reg_time) VALUES
+('user01@email.com', '1', 'пользователь01', '$2y$10$bRYprOEmBFBJatbnVj0bZOdXu//mUyypr.6MS28.aO8KGpun41QSS', '2021-12-17 08:00:00.00000'),
+('user02@email.com', '0', 'пользователь02', '$2y$10$F.NBILvoBhmK98iZdxD5be4wjt6KlLr3g4mu1c0PW2cdKrw7TnP7S', '2021-12-18 15:23:33.00000'),
+('user03@email.com', '0', 'пользователь03', '$2y$10$Avc0qyiHCHNY7BKpCBa5qeW/NdIrMlUjJqdw0Hj8IcZ/VXFhvdGjK', '2021-12-19 21:20:45.00000');
 
 INSERT INTO posts (is_active, moderation_status, moderator_id, text, time, title, user_id, view_count) VALUES
 ('1', 'ACCEPTED', '1', '<p>Добро пожаловать в мир гальваники! Здесь вы сможете найти своих единомышленников и большое количество интересной информации. Присоединяйтесь к нам и делитесь своей информацией.</p>', '2021-12-18 09:12:50.00000', 'Приветствие', '1', '4'),
@@ -110,4 +118,9 @@ INSERT INTO tag2post (post_id, tag_id) VALUES
 ('5', '1'),
 ('5', '3');
 
-INSERT INTO captcha_codes (time, code, secret_code) VALUE ('2022-01-18 16:10:35.00000', 'uyeq', 'dXllcQ==')
+INSERT INTO captcha_codes (time, code, secret_code) VALUE ('2022-01-18 16:10:35.00000', 'uyeq', 'dXllcQ==');
+
+INSERT INTO global_settings (code, name, value) VALUES
+('MULTIUSER_MODE', 'Многопользовательский режим', 'YES'),
+('POST_PREMODERATION', 'Премодерация постов', 'YES'),
+('STATISTICS_IS_PUBLIC', 'Показывать всем статистику блога', 'YES')

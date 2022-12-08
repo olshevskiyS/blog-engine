@@ -1,10 +1,10 @@
 package ru.olshevskiy.blogengine.service;
 
-import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
-import ru.olshevskiy.blogengine.model.dto.PostByIdDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByTagDto;
+import ru.olshevskiy.blogengine.model.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostByIdRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByDateRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByQueryRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByTagRs;
 
 /**
  * PostService.
@@ -13,13 +13,13 @@ import ru.olshevskiy.blogengine.model.dto.PostsByTagDto;
  */
 public interface PostService {
 
-  GetPostsDto getPosts(int offset, int limit, String mode);
+  GetPostsRs getPosts(int offset, int limit, String mode);
 
-  PostsByQueryDto getPostsByQuery(int offset, int limit, String query);
+  PostsByQueryRs getPostsByQuery(int offset, int limit, String query);
 
-  PostsByDateDto getPostsByDate(int offset, int limit, String date);
+  PostsByDateRs getPostsByDate(int offset, int limit, String date);
 
-  PostsByTagDto getPostsByTag(int offset, int limit, String tag);
+  PostsByTagRs getPostsByTag(int offset, int limit, String tag);
 
-  PostByIdDto getPostById(int id);
+  PostByIdRs getPostById(int id);
 }

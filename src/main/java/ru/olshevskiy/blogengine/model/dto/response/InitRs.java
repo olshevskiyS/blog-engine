@@ -1,17 +1,17 @@
-package ru.olshevskiy.blogengine.model.dto;
+package ru.olshevskiy.blogengine.model.dto.response;
 
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * InitDto.
+ * InitRs.
  *
  * @author Sergey Olshevskiy
  */
 @Data
 @Component
-public class InitDto {
+public class InitRs {
 
   @Value("${blog.title}")
   private String title;

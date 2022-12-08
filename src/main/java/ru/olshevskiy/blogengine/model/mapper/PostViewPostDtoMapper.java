@@ -6,9 +6,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 import ru.olshevskiy.blogengine.model.dto.IdAndNameUserDto;
 import ru.olshevskiy.blogengine.model.dto.IdNamePhotoUserDto;
-import ru.olshevskiy.blogengine.model.dto.PostByIdDto;
 import ru.olshevskiy.blogengine.model.dto.PostCommentDto;
 import ru.olshevskiy.blogengine.model.dto.PostDto;
+import ru.olshevskiy.blogengine.model.dto.response.PostByIdRs;
 import ru.olshevskiy.blogengine.model.entity.PostComment;
 import ru.olshevskiy.blogengine.model.entity.Tag;
 import ru.olshevskiy.blogengine.model.entity.User;
@@ -51,7 +51,7 @@ public interface PostViewPostDtoMapper {
       @Mapping(target = "comments", source = "post.comments"),
       @Mapping(target = "tags", source = "post.tags")
   })
-  PostByIdDto postViewToPostByIdDto(PostView postView);
+  PostByIdRs postViewToPostByIdRs(PostView postView);
 
   Set<PostCommentDto> postCommentToPostCommentDtoList(Set<PostComment> comments);
 

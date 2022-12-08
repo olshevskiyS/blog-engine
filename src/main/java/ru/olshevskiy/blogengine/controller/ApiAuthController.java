@@ -1,15 +1,24 @@
 package ru.olshevskiy.blogengine.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.olshevskiy.blogengine.model.dto.CaptchaDto;
-import ru.olshevskiy.blogengine.model.dto.CheckAuthorizationDto;
+import ru.olshevskiy.blogengine.model.dto.request.LoginRq;
+import ru.olshevskiy.blogengine.model.dto.request.RegistrationRq;
+import ru.olshevskiy.blogengine.model.dto.response.CaptchaRs;
+import ru.olshevskiy.blogengine.model.dto.response.LoginAndCheckRs;
+import ru.olshevskiy.blogengine.model.dto.response.LogoutRs;
+import ru.olshevskiy.blogengine.model.dto.response.RegistrationRs;
+import ru.olshevskiy.blogengine.service.AuthServiceImpl;
 import ru.olshevskiy.blogengine.service.CaptchaServiceImpl;
-import ru.olshevskiy.blogengine.service.UserServiceImpl;
 
 /**
  * ApiAuthController.
@@ -21,16 +30,34 @@ import ru.olshevskiy.blogengine.service.UserServiceImpl;
 @RequestMapping("/api/auth")
 public class ApiAuthController {
 
-  private final UserServiceImpl userResource;
-  private final CaptchaServiceImpl captchaResource;
+  private final AuthServiceImpl authService;
+  private final CaptchaServiceImpl captchaService;
 
   @GetMapping("/check")
-  public ResponseEntity<CheckAuthorizationDto> checkUserAuthorization() {
-    return new ResponseEntity<>(userResource.getCheckAuthorization(), HttpStatus.UNAUTHORIZED);
+  public ResponseEntity<LoginAndCheckRs> check() {
+    return new ResponseEntity<>(authService.check(), HttpStatus.OK);
+  }
+
+  @PostMapping("/register")
+  public ResponseEntity<RegistrationRs> register(
+          @Valid @RequestBody RegistrationRq registrationRq) {
+    return new ResponseEntity<>(authService.register(registrationRq), HttpStatus.CREATED);
   }
 
   @GetMapping("/captcha")
-  public ResponseEntity<CaptchaDto> getCaptcha() {
-    return new ResponseEntity<>(captchaResource.getCaptcha(), HttpStatus.OK);
+  public ResponseEntity<CaptchaRs> getCaptcha() {
+    return new ResponseEntity<>(captchaService.getCaptcha(), HttpStatus.OK);
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<LoginAndCheckRs> login(@RequestBody LoginRq loginRq,
+                                               HttpServletRequest request,
+                                               HttpServletResponse response) {
+    return new ResponseEntity<>(authService.login(loginRq, request, response), HttpStatus.OK);
+  }
+
+  @GetMapping("/logout")
+  public ResponseEntity<LogoutRs> logout(HttpServletRequest request, HttpServletResponse response) {
+    return new ResponseEntity<>(authService.logout(request, response), HttpStatus.OK);
   }
 }

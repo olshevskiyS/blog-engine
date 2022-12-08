@@ -10,6 +10,6 @@ import lombok.Data;
 @Data
 public class IdAndNameUserDto {
 
-  private Integer id;
+  private int id;
   private String name;
 }

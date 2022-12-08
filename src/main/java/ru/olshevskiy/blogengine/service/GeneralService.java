@@ -1,7 +1,7 @@
 package ru.olshevskiy.blogengine.service;
 
-import ru.olshevskiy.blogengine.model.dto.CalendarDto;
-import ru.olshevskiy.blogengine.model.dto.GlobalSettingDto;
+import ru.olshevskiy.blogengine.model.dto.response.CalendarRs;
+import ru.olshevskiy.blogengine.model.dto.response.GlobalSettingsRs;
 
 /**
  * GlobalSettingService.
@@ -10,7 +10,7 @@ import ru.olshevskiy.blogengine.model.dto.GlobalSettingDto;
  */
 public interface GeneralService {
 
-  GlobalSettingDto getGlobalSettings();
+  GlobalSettingsRs getGlobalSettings();
 
-  CalendarDto getCalendar(String year);
+  CalendarRs getCalendar(String year);
 }

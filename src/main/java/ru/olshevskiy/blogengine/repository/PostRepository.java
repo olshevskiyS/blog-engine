@@ -46,5 +46,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
   Page<PostView> getActivePostsByTag(@Param("tag") String tag, Pageable pageable);
 
   @Query(value = (selectPosts + "LEFT JOIN p.votes v WHERE p.id = :id GROUP BY p"))
-  Optional<PostView> getPostById(@Param("id") Integer id);
+  Optional<PostView> getPostById(@Param("id") int id);
+
+  @Query(value = ("SELECT count(*) FROM Post p WHERE p.moderatorId = :userId "
+          + "AND p.moderationStatus = 'NEW'"))
+  int getModerationPostsCount(@Param("userId") int userId);
 }

@@ -1,17 +1,17 @@
-package ru.olshevskiy.blogengine.model.dto;
+package ru.olshevskiy.blogengine.model.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * GlobalSettingDto.
+ * GlobalSettingsRs.
  *
  * @author Sergey Olshevskiy
  */
 @Data
 @Accessors(chain = true)
-public class GlobalSettingDto {
+public class GlobalSettingsRs {
 
   @JsonProperty("MULTIUSER_MODE")
   private boolean multiuserMode;

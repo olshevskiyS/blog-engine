@@ -10,11 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ru.olshevskiy.blogengine.InitTestContainer;
-import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
-import ru.olshevskiy.blogengine.model.dto.PostByIdDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByTagDto;
+import ru.olshevskiy.blogengine.model.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostByIdRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByDateRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByQueryRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByTagRs;
+import ru.olshevskiy.blogengine.repository.PostRepository;
 
 /**
  * ApiPostControllerTest.
@@ -31,71 +32,80 @@ public class PostServiceIntegrationTest extends InitTestContainer {
   @Autowired
   private PostServiceImpl postService;
 
+  @Autowired
+  private PostRepository postRepository;
+
+  @Test
+  void testGetCountActivePosts() {
+    int countActivePosts = postRepository.getCountActivePosts();
+    assertThat(countActivePosts).isEqualTo(5);
+  }
+
   @Test
   void testGetPostsWithVariousSortingMode() {
-    GetPostsDto postsDto1 = postService.getPosts(0, 10, "recent");
-    assertThat(postsDto1.getCount()).isEqualTo(5L);
-    assertThat(postsDto1.getPosts().get(0).getTimestamp()).isEqualTo(1642457295L);
+    GetPostsRs postsRs1 = postService.getPosts(0, 10, "recent");
+    assertThat(postsRs1.getCount()).isEqualTo(5L);
+    assertThat(postsRs1.getPosts().get(0).getTimestamp()).isEqualTo(1642457295L);
 
-    GetPostsDto postsDto2 = postService.getPosts(0, 10, "early");
-    assertThat(postsDto2.getPosts().get(0).getTimestamp()).isEqualTo(1639818770L);
+    GetPostsRs postsRs2 = postService.getPosts(0, 10, "early");
+    assertThat(postsRs2.getPosts().get(0).getTimestamp()).isEqualTo(1639818770L);
 
-    GetPostsDto postsDto3 = postService.getPosts(0, 10, "popular");
-    assertThat(postsDto3.getPosts().get(0).getId()).isEqualTo(5);
-    assertThat(postsDto3.getPosts().get(0).getCommentCount()).isEqualTo(2);
+    GetPostsRs postsRs3 = postService.getPosts(0, 10, "popular");
+    assertThat(postsRs3.getPosts().get(0).getId()).isEqualTo(5);
+    assertThat(postsRs3.getPosts().get(0).getCommentCount()).isEqualTo(2);
 
-    GetPostsDto postsDto4 = postService.getPosts(0, 10, "best");
-    assertThat(postsDto4.getPosts().get(0).getId()).isEqualTo(1);
-    assertThat(postsDto4.getPosts().get(0).getLikeCount()).isEqualTo(2);
+    GetPostsRs postsRs4 = postService.getPosts(0, 10, "best");
+    assertThat(postsRs4.getPosts().get(0).getId()).isEqualTo(1);
+    assertThat(postsRs4.getPosts().get(0).getLikeCount()).isEqualTo(2);
   }
 
   @Test
   void testGetPostsPagination() {
-    GetPostsDto postsDto = postService.getPosts(2, 2, "recent");
-    assertThat(postsDto.getPosts().size()).isEqualTo(2);
-    assertThat(postsDto.getPosts().get(0).getId()).isEqualTo(3);
-    assertThat(postsDto.getPosts().get(0).getTimestamp()).isEqualTo(1639854154L);
+    GetPostsRs postsRs = postService.getPosts(2, 2, "recent");
+    assertThat(postsRs.getPosts().size()).isEqualTo(2);
+    assertThat(postsRs.getPosts().get(0).getId()).isEqualTo(3);
+    assertThat(postsRs.getPosts().get(0).getTimestamp()).isEqualTo(1639854154L);
   }
 
   @Test
   void testGetPostsByQuery() {
-    PostsByQueryDto postsDto1 = postService.getPostsByQuery(0, 10, "коррозии");
-    assertThat(postsDto1.getCount()).isEqualTo(2L);
-    assertThat(postsDto1.getPosts().size()).isEqualTo(2);
-    assertThat(postsDto1.getPosts().get(0).getId()).isEqualTo(5);
+    PostsByQueryRs postsRs1 = postService.getPostsByQuery(0, 10, "коррозии");
+    assertThat(postsRs1.getCount()).isEqualTo(2L);
+    assertThat(postsRs1.getPosts().size()).isEqualTo(2);
+    assertThat(postsRs1.getPosts().get(0).getId()).isEqualTo(5);
 
-    PostsByQueryDto postsDto2 = postService.getPostsByQuery(0, 10, "query");
-    assertThat(postsDto2.getCount()).isEqualTo(0L);
-    assertThat(postsDto2.getPosts().size()).isEqualTo(0);
+    PostsByQueryRs postsRs2 = postService.getPostsByQuery(0, 10, "query");
+    assertThat(postsRs2.getCount()).isEqualTo(0L);
+    assertThat(postsRs2.getPosts().size()).isEqualTo(0);
 
-    PostsByQueryDto postsDto3 = postService.getPostsByQuery(0, 10, " ");
-    assertThat(postsDto3.getCount()).isEqualTo(5L);
-    assertThat(postsDto3.getPosts().size()).isEqualTo(5);
-    assertThat(postsDto3.getPosts().get(0).getId()).isEqualTo(7);
+    PostsByQueryRs postsRs3 = postService.getPostsByQuery(0, 10, " ");
+    assertThat(postsRs3.getCount()).isEqualTo(5L);
+    assertThat(postsRs3.getPosts().size()).isEqualTo(5);
+    assertThat(postsRs3.getPosts().get(0).getId()).isEqualTo(7);
   }
 
   @Test
   void testGetPostsByDate() {
-    PostsByDateDto postsDto = postService.getPostsByDate(0, 10, "2021-12-18");
-    assertThat(postsDto.getCount()).isEqualTo(3L);
-    assertThat(postsDto.getPosts().size()).isEqualTo(3);
-    assertThat(postsDto.getPosts().get(0).getId()).isEqualTo(3);
+    PostsByDateRs postsRs = postService.getPostsByDate(0, 10, "2021-12-18");
+    assertThat(postsRs.getCount()).isEqualTo(3L);
+    assertThat(postsRs.getPosts().size()).isEqualTo(3);
+    assertThat(postsRs.getPosts().get(0).getId()).isEqualTo(3);
   }
 
   @Test
   void testGetPostsByTag() {
-    PostsByTagDto postsDto = postService.getPostsByTag(0, 10, "коррозия");
-    assertThat(postsDto.getCount()).isEqualTo(2L);
-    assertThat(postsDto.getPosts().size()).isEqualTo(2);
-    assertThat(postsDto.getPosts().get(0).getId()).isEqualTo(5);
+    PostsByTagRs postsRs = postService.getPostsByTag(0, 10, "коррозия");
+    assertThat(postsRs.getCount()).isEqualTo(2L);
+    assertThat(postsRs.getPosts().size()).isEqualTo(2);
+    assertThat(postsRs.getPosts().get(0).getId()).isEqualTo(5);
   }
 
   @Test
   void testGetPostById() {
-    PostByIdDto postDto = postService.getPostById(2);
-    assertThat(postDto.getViewCount()).isEqualTo(6);
-    assertThat(postDto.getUser().getName()).isEqualTo("пользователь01");
-    assertThat(postDto.getComments().size()).isEqualTo(0);
-    assertThat(postDto.getTags().stream().findFirst().orElseThrow()).isEqualTo("правила");
+    PostByIdRs postsRs = postService.getPostById(2);
+    assertThat(postsRs.getViewCount()).isEqualTo(6);
+    assertThat(postsRs.getUser().getName()).isEqualTo("пользователь01");
+    assertThat(postsRs.getComments().size()).isEqualTo(0);
+    assertThat(postsRs.getTags().stream().findFirst().orElseThrow()).isEqualTo("правила");
   }
 }

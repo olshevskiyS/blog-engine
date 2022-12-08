@@ -14,7 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.olshevskiy.blogengine.model.dto.TagDto;
-import ru.olshevskiy.blogengine.model.dto.TagsByQueryDto;
+import ru.olshevskiy.blogengine.model.dto.response.TagsByQueryRs;
 import ru.olshevskiy.blogengine.model.entity.Post;
 import ru.olshevskiy.blogengine.model.entity.Tag;
 import ru.olshevskiy.blogengine.repository.PostRepository;
@@ -61,8 +61,8 @@ public class TagServiceUnitTest {
     List<TagDto> dtoList = new ArrayList<>();
     dtoList.add(new TagDto("третий", "1,00"));
     dtoList.add(new TagDto("первый", "0,40"));
-    TagsByQueryDto assignedTagsByQuery = new TagsByQueryDto().setTags(dtoList);
-    TagsByQueryDto expectedTagsByQuery = tagService.getTagsByQuery("е");
-    assertThat(expectedTagsByQuery).isEqualTo(assignedTagsByQuery);
+    TagsByQueryRs assignedTagsByQueryRs = new TagsByQueryRs().setTags(dtoList);
+    TagsByQueryRs expectedTagsByQueryRs = tagService.getTagsByQuery("е");
+    assertThat(expectedTagsByQueryRs).isEqualTo(assignedTagsByQueryRs);
   }
 }

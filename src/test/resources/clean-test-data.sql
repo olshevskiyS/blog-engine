@@ -1,3 +1,5 @@
+DROP TABLE global_settings;
+DROP TABLE captcha_codes;
 DROP TABLE tag2post;
 DROP TABLE tags;
 DROP TABLE post_comments;

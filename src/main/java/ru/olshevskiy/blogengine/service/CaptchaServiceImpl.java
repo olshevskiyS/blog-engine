@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.olshevskiy.blogengine.model.dto.CaptchaDto;
+import ru.olshevskiy.blogengine.model.dto.response.CaptchaRs;
 import ru.olshevskiy.blogengine.model.entity.CaptchaCode;
 import ru.olshevskiy.blogengine.repository.CaptchaRepository;
 
@@ -39,7 +39,7 @@ public class CaptchaServiceImpl implements CaptchaService {
   private final CaptchaRepository captchaRepository;
 
   @Override
-  public CaptchaDto getCaptcha() {
+  public CaptchaRs getCaptcha() {
     log.info("Start request getCaptcha");
     Painter painter = new Painter(width, height, null, null, null, null);
     Cage cage = new Cage(painter, null, null, null, null, null, null);
@@ -48,9 +48,9 @@ public class CaptchaServiceImpl implements CaptchaService {
     String enCodeBase64 = Base64.getEncoder().encodeToString(imageBuff);
     String image = prefix + enCodeBase64;
     String secretCode = Base64.getEncoder().encodeToString(code.getBytes());
-    CaptchaDto captchaDto = new CaptchaDto();
-    captchaDto.setSecret(secretCode)
-              .setImage(image);
+    CaptchaRs captchaRs = new CaptchaRs();
+    captchaRs.setSecret(secretCode)
+             .setImage(image);
     CaptchaCode captcha = new CaptchaCode();
     captcha.setTime(LocalDateTime.now())
            .setCode(code)
@@ -58,6 +58,6 @@ public class CaptchaServiceImpl implements CaptchaService {
     captchaRepository.deleteByTimeBefore(LocalDateTime.now().minusHours(validTime));
     captchaRepository.save(captcha);
     log.info("Finish request getCaptcha");
-    return captchaDto;
+    return captchaRs;
   }
 }

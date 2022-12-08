@@ -13,6 +13,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
 
   flyway:
     enabled: true
@@ -33,3 +34,7 @@ blog:
     height: 35
     prefix: "data:image/png;base64,\u0020"
     valid-time: 1
+  min-password-length: 6
+  security:
+    remember-me-key: blogengine
+    remember-me-validity-seconds: 86400

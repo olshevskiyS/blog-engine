@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.olshevskiy.blogengine.model.dto.GlobalSettingDto;
+import ru.olshevskiy.blogengine.model.dto.response.GlobalSettingsRs;
 import ru.olshevskiy.blogengine.model.entity.GlobalSetting;
 import ru.olshevskiy.blogengine.repository.GlobalSettingRepository;
 
@@ -40,11 +40,11 @@ public class GeneralServiceUnitTest {
 
   @Test
   void testGetGlobalSettings() {
-    GlobalSettingDto assignedGlobalSettingDto = new GlobalSettingDto();
-    assignedGlobalSettingDto.setMultiuserMode(true)
+    GlobalSettingsRs assignedGlobalSettingRs = new GlobalSettingsRs();
+    assignedGlobalSettingRs.setMultiuserMode(true)
             .setPostPremoderation(false)
             .setStatisticsIsPublic(false);
-    GlobalSettingDto expectedGlobalSettingDto = generalService.getGlobalSettings();
-    assertThat(expectedGlobalSettingDto).isEqualTo(assignedGlobalSettingDto);
+    GlobalSettingsRs expectedGlobalSettingRs = generalService.getGlobalSettings();
+    assertThat(expectedGlobalSettingRs).isEqualTo(assignedGlobalSettingRs);
   }
 }

@@ -11,4 +11,6 @@ import ru.olshevskiy.blogengine.model.entity.GlobalSetting;
  */
 @Repository
 public interface GlobalSettingRepository extends CrudRepository<GlobalSetting, Integer> {
+
+  GlobalSetting findByCode(String code);
 }

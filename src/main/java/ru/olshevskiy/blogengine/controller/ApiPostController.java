@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
-import ru.olshevskiy.blogengine.model.dto.PostByIdDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByTagDto;
+import ru.olshevskiy.blogengine.model.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostByIdRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByDateRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByQueryRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByTagRs;
 import ru.olshevskiy.blogengine.service.PostServiceImpl;
 
 /**
@@ -28,7 +28,7 @@ public class ApiPostController {
   private final PostServiceImpl postResource;
 
   @GetMapping("")
-  public ResponseEntity<GetPostsDto> getPosts(
+  public ResponseEntity<GetPostsRs> getPosts(
           @RequestParam(defaultValue = "0") int offset,
           @RequestParam(defaultValue = "10") int limit,
           @RequestParam(defaultValue = "recent") String mode) {
@@ -36,7 +36,7 @@ public class ApiPostController {
   }
 
   @GetMapping("/search")
-  public ResponseEntity<PostsByQueryDto> getPostsByQuery(
+  public ResponseEntity<PostsByQueryRs> getPostsByQuery(
           @RequestParam(defaultValue = "0") int offset,
           @RequestParam(defaultValue = "10") int limit,
           @RequestParam String query) {
@@ -44,7 +44,7 @@ public class ApiPostController {
   }
 
   @GetMapping("/byDate")
-  public ResponseEntity<PostsByDateDto> getPostsByDate(
+  public ResponseEntity<PostsByDateRs> getPostsByDate(
           @RequestParam(defaultValue = "0") int offset,
           @RequestParam(defaultValue = "10") int limit,
           @RequestParam String date) {
@@ -52,7 +52,7 @@ public class ApiPostController {
   }
 
   @GetMapping("/byTag")
-  public ResponseEntity<PostsByTagDto> getPostsByTag(
+  public ResponseEntity<PostsByTagRs> getPostsByTag(
           @RequestParam(defaultValue = "0") int offset,
           @RequestParam(defaultValue = "10") int limit,
           @RequestParam String tag) {
@@ -60,7 +60,7 @@ public class ApiPostController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<PostByIdDto> getPostById(@PathVariable("id") int id) {
+  public ResponseEntity<PostByIdRs> getPostById(@PathVariable("id") int id) {
     return new ResponseEntity<>(postResource.getPostById(id), HttpStatus.OK);
   }
 }

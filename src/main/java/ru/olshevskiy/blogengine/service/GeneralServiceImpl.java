@@ -7,8 +7,8 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.olshevskiy.blogengine.model.dto.CalendarDto;
-import ru.olshevskiy.blogengine.model.dto.GlobalSettingDto;
+import ru.olshevskiy.blogengine.model.dto.response.CalendarRs;
+import ru.olshevskiy.blogengine.model.dto.response.GlobalSettingsRs;
 import ru.olshevskiy.blogengine.repository.CalendarRepository;
 import ru.olshevskiy.blogengine.repository.GlobalSettingRepository;
 
@@ -26,34 +26,34 @@ public class GeneralServiceImpl implements GeneralService {
   private final CalendarRepository calendarRepository;
 
   @Override
-  public GlobalSettingDto getGlobalSettings() {
+  public GlobalSettingsRs getGlobalSettings() {
     log.info("Start request getGlobalSettings");
-    GlobalSettingDto globalSettingsDto = new GlobalSettingDto();
+    GlobalSettingsRs globalSettingsRs = new GlobalSettingsRs();
     Map<String, Boolean> globalSettings = new HashMap<>();
     globalSettingRepository.findAll().forEach(setting -> {
       boolean value;
       value = setting.getValue().equals("YES");
       globalSettings.put(setting.getCode(), value);
     });
-    globalSettingsDto.setMultiuserMode(globalSettings.get("MULTIUSER_MODE"))
+    globalSettingsRs.setMultiuserMode(globalSettings.get("MULTIUSER_MODE"))
             .setPostPremoderation(globalSettings.get("POST_PREMODERATION"))
             .setStatisticsIsPublic(globalSettings.get("STATISTICS_IS_PUBLIC"));
     log.info("Finish request getGlobalSettings");
-    return globalSettingsDto;
+    return globalSettingsRs;
   }
 
   @Override
-  public CalendarDto getCalendar(String year) {
+  public CalendarRs getCalendar(String year) {
     log.info("Start request getCalendar with year = " + year);
     if (year == null || year.isEmpty()) {
       year = String.valueOf(LocalDate.now().getYear());
     }
-    CalendarDto calendarDto = new CalendarDto();
+    CalendarRs calendarRs = new CalendarRs();
     List<Integer> years = calendarRepository.getYearsAllActivePosts();
     Map<String, Long> postsByYear = calendarRepository.getPostsByYear(year);
-    calendarDto.setYears(years)
-               .setPosts(postsByYear);
+    calendarRs.setYears(years)
+              .setPosts(postsByYear);
     log.info("Finish request getCalendar");
-    return calendarDto;
+    return calendarRs;
   }
 }

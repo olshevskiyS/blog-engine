@@ -1,6 +1,6 @@
 package ru.olshevskiy.blogengine.service;
 
-import ru.olshevskiy.blogengine.model.dto.CaptchaDto;
+import ru.olshevskiy.blogengine.model.dto.response.CaptchaRs;
 
 /**
  * CaptchaService.
@@ -9,5 +9,5 @@ import ru.olshevskiy.blogengine.model.dto.CaptchaDto;
  */
 public interface CaptchaService {
 
-  CaptchaDto getCaptcha();
+  CaptchaRs getCaptcha();
 }

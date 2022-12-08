@@ -12,7 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import ru.olshevskiy.blogengine.InitTestContainer;
-import ru.olshevskiy.blogengine.model.dto.CaptchaDto;
+import ru.olshevskiy.blogengine.model.dto.response.CaptchaRs;
 import ru.olshevskiy.blogengine.repository.CaptchaRepository;
 
 /**
@@ -37,9 +37,9 @@ public class CaptchaServiceIntegrationTest extends InitTestContainer {
   void testGetCaptcha() {
     assertThat(captchaRepository.findAll().size()).isEqualTo(1);
 
-    CaptchaDto captchaDto = captchaService.getCaptcha();
-    assertThat(captchaDto.getImage()).containsPattern("^data:image");
-    String secretCode = captchaDto.getSecret();
+    CaptchaRs captchaRs = captchaService.getCaptcha();
+    assertThat(captchaRs.getImage()).containsPattern("^data:image");
+    String secretCode = captchaRs.getSecret();
     assertThat(secretCode).isNotNull();
 
     assertThat(captchaRepository.findAll().size()).isEqualTo(1);

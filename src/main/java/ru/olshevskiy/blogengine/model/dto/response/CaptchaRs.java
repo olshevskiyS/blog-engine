@@ -1,16 +1,16 @@
-package ru.olshevskiy.blogengine.model.dto;
+package ru.olshevskiy.blogengine.model.dto.response;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * CaptchaDto.
+ * CaptchaRs.
  *
  * @author Sergey Olshevskiy
  */
 @Data
 @Accessors(chain = true)
-public class CaptchaDto {
+public class CaptchaRs {
 
   private String secret;
   private String image;

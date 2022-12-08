@@ -3,12 +3,12 @@ INSERT INTO global_settings (code, name, value) VALUES
 ('POST_PREMODERATION', 'Премодерация постов', 'YES'),
 ('STATISTICS_IS_PUBLIC', 'Показывать всем статистику блога', 'YES');
 
-INSERT INTO users (code, email, is_moderator, name, password, reg_time) VALUES
-('1111', 'user01@email.com', '1', 'пользователь01', '0101', '2021-12-17 08:00:00.00000'),
-('2222', 'user02@email.com', '0', 'пользователь02', '0202', '2021-12-18 15:23:33.00000'),
-('3333', 'user03@email.com', '0', 'пользователь03', '0303', '2021-12-19 21:20:45.00000'),
-('4444', 'user04@email.com', '0', 'пользователь04', '0404', '2021-12-20 19:10:34.00000'),
-('5555', 'user05@email.com', '0', 'пользователь05', '0505', '2022-01-10 09:30:05.00000');
+INSERT INTO users (email, is_moderator, name, password, reg_time) VALUES
+('user01@email.com', '1', 'пользователь01', '$2y$10$bRYprOEmBFBJatbnVj0bZOdXu//mUyypr.6MS28.aO8KGpun41QSS', '2021-12-17 08:00:00.00000'),
+('user02@email.com', '0', 'пользователь02', '$2y$10$F.NBILvoBhmK98iZdxD5be4wjt6KlLr3g4mu1c0PW2cdKrw7TnP7S', '2021-12-18 15:23:33.00000'),
+('user03@email.com', '0', 'пользователь03', '$2y$10$Avc0qyiHCHNY7BKpCBa5qeW/NdIrMlUjJqdw0Hj8IcZ/VXFhvdGjK', '2021-12-19 21:20:45.00000'),
+('user04@email.com', '0', 'пользователь04', '$2y$10$SOMUpCd1WshciO2ASfTnlez22b1i2mGvDSx9SuJCnevbUrI5E9GbC', '2021-12-20 19:10:34.00000'),
+('user05@email.com', '0', 'пользователь05', '$2y$10$EXvIGjKes8XkRFgbdoQEWuLvcWUIPuETpCTt.Fbb80HziPWZEFvG.', '2022-01-10 09:30:05.00000');
 
 INSERT INTO posts (is_active, moderation_status, moderator_id, text, time, title, user_id, view_count) VALUES
 ('1', 'ACCEPTED', '1', '<p>Добро пожаловать в мир гальваники! Здесь вы сможете найти своих единомышленников и большое количество интересной информации. Присоединяйтесь к нам и делитесь своей информацией.</p>', '2021-12-18 09:12:50.00000', 'Приветствие', '1', '4'),

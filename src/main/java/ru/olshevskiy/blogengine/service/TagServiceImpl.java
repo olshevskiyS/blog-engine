@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.olshevskiy.blogengine.model.dto.TagDto;
-import ru.olshevskiy.blogengine.model.dto.TagsByQueryDto;
+import ru.olshevskiy.blogengine.model.dto.response.TagsByQueryRs;
 import ru.olshevskiy.blogengine.model.entity.Tag;
 import ru.olshevskiy.blogengine.repository.PostRepository;
 import ru.olshevskiy.blogengine.repository.TagRepository;
@@ -31,12 +31,12 @@ public class TagServiceImpl implements TagService {
   private final PostRepository postRepository;
 
   @Override
-  public TagsByQueryDto getTagsByQuery(String query) {
+  public TagsByQueryRs getTagsByQuery(String query) {
     log.info("Start request getTagsByQuery on query = " + query);
     if (query == null) {
       query = "";
     }
-    TagsByQueryDto tagsByQuery = new TagsByQueryDto();
+    TagsByQueryRs tagsByQueryRs = new TagsByQueryRs();
     int totalAmountOfPosts = postRepository.getCountActivePosts();
     Map<String, Integer> listOfPostsByTags = getMapOfPostsByTagsDescendingSorted();
     float normalizationRatio = calculationNormalizationRatioForTags(
@@ -51,9 +51,9 @@ public class TagServiceImpl implements TagService {
         listTagsWithNormalizedWeights.add(new TagDto(tagName, df.format(tagNormalizedWeights)));
       }
     }
-    tagsByQuery.setTags(listTagsWithNormalizedWeights);
+    tagsByQueryRs.setTags(listTagsWithNormalizedWeights);
     log.info("Finish request getTagsByQuery");
-    return tagsByQuery;
+    return tagsByQueryRs;
   }
 
   private Map<String, Integer> getMapOfPostsByTagsDescendingSorted() {

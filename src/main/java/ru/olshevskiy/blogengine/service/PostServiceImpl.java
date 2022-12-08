@@ -11,12 +11,12 @@ import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.olshevskiy.blogengine.exception.ex.PostNotFoundException;
-import ru.olshevskiy.blogengine.model.dto.GetPostsDto;
-import ru.olshevskiy.blogengine.model.dto.PostByIdDto;
 import ru.olshevskiy.blogengine.model.dto.PostDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByDateDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByQueryDto;
-import ru.olshevskiy.blogengine.model.dto.PostsByTagDto;
+import ru.olshevskiy.blogengine.model.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostByIdRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByDateRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByQueryRs;
+import ru.olshevskiy.blogengine.model.dto.response.PostsByTagRs;
 import ru.olshevskiy.blogengine.model.mapper.PostViewPostDtoMapper;
 import ru.olshevskiy.blogengine.model.projection.PostView;
 import ru.olshevskiy.blogengine.repository.PostRepository;
@@ -36,26 +36,26 @@ public class PostServiceImpl implements PostService {
   private final PostViewPostDtoMapper postViewPostDtoMapper;
 
   @Override
-  public GetPostsDto getPosts(int offset, int limit, String mode) {
+  public GetPostsRs getPosts(int offset, int limit, String mode) {
     log.info("Start request getPosts with offset = " + offset
             + ", limit = " + limit + ", sorting mode = " + mode);
-    GetPostsDto postsDto = new GetPostsDto();
+    GetPostsRs postsRs = new GetPostsRs();
     int pageNumber = offset / limit;
     Page<PostView> page = postRepository.getActivePosts(
             PageRequest.of(pageNumber, limit, sortingMode(mode)));
     List<PostDto> postsList = page.getContent().stream()
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
-    postsDto.setCount(page.getTotalElements())
-            .setPosts(postsList);
+    postsRs.setCount(page.getTotalElements())
+           .setPosts(postsList);
     log.info("Finish request getPosts");
-    return postsDto;
+    return postsRs;
   }
 
   @Override
-  public PostsByQueryDto getPostsByQuery(int offset, int limit, String query) {
+  public PostsByQueryRs getPostsByQuery(int offset, int limit, String query) {
     log.info("Start request getPostsByQuery with offset = " + offset
             + ", limit = " + limit + ", query = " + query);
-    PostsByQueryDto postsDto = new PostsByQueryDto();
+    PostsByQueryRs postsByQueryRs = new PostsByQueryRs();
     Sort sortingMode = Sort.by(Sort.Direction.DESC, "time");
     int pageNumber = offset / limit;
     Page<PostView> page;
@@ -67,53 +67,53 @@ public class PostServiceImpl implements PostService {
     }
     List<PostDto> postsList = page.getContent().stream()
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
-    postsDto.setCount(page.getTotalElements())
-            .setPosts(postsList);
+    postsByQueryRs.setCount(page.getTotalElements())
+                  .setPosts(postsList);
     log.info("Finish request getPostsByQuery = " + query);
-    return postsDto;
+    return postsByQueryRs;
   }
 
   @Override
-  public PostsByDateDto getPostsByDate(int offset, int limit, String date) {
+  public PostsByDateRs getPostsByDate(int offset, int limit, String date) {
     log.info("Start request getPostsByDate with offset = " + offset
             + ", limit = " + limit + ", date = " + date);
-    PostsByDateDto postsDto = new PostsByDateDto();
+    PostsByDateRs postsByDateRs = new PostsByDateRs();
     Sort sortingMode = Sort.by(Sort.Direction.DESC, "time");
     int pageNumber = offset / limit;
     Page<PostView> page = postRepository.getActivePostsByDate(date,
             PageRequest.of(pageNumber, limit, sortingMode));
     List<PostDto> postsList = page.getContent().stream()
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
-    postsDto.setCount(page.getTotalElements())
-            .setPosts(postsList);
+    postsByDateRs.setCount(page.getTotalElements())
+                 .setPosts(postsList);
     log.info("Finish request getPostsByDate = " + date);
-    return postsDto;
+    return postsByDateRs;
   }
 
   @Override
-  public PostsByTagDto getPostsByTag(int offset, int limit, String tag) {
+  public PostsByTagRs getPostsByTag(int offset, int limit, String tag) {
     log.info("Start request getPostsByTag with offset = " + offset
             + ", limit = " + limit + ", tag = " + tag);
-    PostsByTagDto postsDto = new PostsByTagDto();
+    PostsByTagRs postsByTagRs = new PostsByTagRs();
     Sort sortingMode = Sort.by(Sort.Direction.DESC, "time");
     int pageNumber = offset / limit;
     Page<PostView> page = postRepository.getActivePostsByTag(tag,
             PageRequest.of(pageNumber, limit, sortingMode));
     List<PostDto> postsList = page.getContent().stream()
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
-    postsDto.setCount(page.getTotalElements())
-            .setPosts(postsList);
+    postsByTagRs.setCount(page.getTotalElements())
+                .setPosts(postsList);
     log.info("Finish request getPostsByTag = " + tag);
-    return postsDto;
+    return postsByTagRs;
   }
 
   @Override
-  public PostByIdDto getPostById(int id) {
+  public PostByIdRs getPostById(int id) {
     log.info("Start request getPostById, id = " + id);
     PostView postView = postRepository.getPostById(id).orElseThrow(PostNotFoundException::new);
-    PostByIdDto postDto = postViewPostDtoMapper.postViewToPostByIdDto(postView);
+    PostByIdRs postByIdRs = postViewPostDtoMapper.postViewToPostByIdRs(postView);
     log.info("Finish request getPostById = " + id);
-    return postDto;
+    return postByIdRs;
   }
 
   private Sort sortingMode(String mode) {

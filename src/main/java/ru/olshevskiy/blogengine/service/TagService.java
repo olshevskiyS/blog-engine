@@ -1,6 +1,6 @@
 package ru.olshevskiy.blogengine.service;
 
-import ru.olshevskiy.blogengine.model.dto.TagsByQueryDto;
+import ru.olshevskiy.blogengine.model.dto.response.TagsByQueryRs;
 
 /**
  * TagService.
@@ -9,5 +9,5 @@ import ru.olshevskiy.blogengine.model.dto.TagsByQueryDto;
  */
 public interface TagService {
 
-  TagsByQueryDto getTagsByQuery(String query);
+  TagsByQueryRs getTagsByQuery(String query);
 }
