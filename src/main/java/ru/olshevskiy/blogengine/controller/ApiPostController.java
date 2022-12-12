@@ -3,12 +3,14 @@ package ru.olshevskiy.blogengine.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.olshevskiy.blogengine.model.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.model.dto.response.MyPostsRs;
 import ru.olshevskiy.blogengine.model.dto.response.PostByIdRs;
 import ru.olshevskiy.blogengine.model.dto.response.PostsByDateRs;
 import ru.olshevskiy.blogengine.model.dto.response.PostsByQueryRs;
@@ -62,5 +64,14 @@ public class ApiPostController {
   @GetMapping("/{id}")
   public ResponseEntity<PostByIdRs> getPostById(@PathVariable("id") int id) {
     return new ResponseEntity<>(postResource.getPostById(id), HttpStatus.OK);
+  }
+
+  @GetMapping("/my")
+  @PreAuthorize("hasAuthority('user:write')")
+  public ResponseEntity<MyPostsRs> getMyPosts(
+          @RequestParam(defaultValue = "0") int offset,
+          @RequestParam(defaultValue = "10") int limit,
+          @RequestParam String status) {
+    return new ResponseEntity<>(postResource.getMyPosts(offset, limit, status), HttpStatus.OK);
   }
 }

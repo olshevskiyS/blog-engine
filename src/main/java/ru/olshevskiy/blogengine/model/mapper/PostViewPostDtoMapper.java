@@ -39,19 +39,19 @@ public interface PostViewPostDtoMapper {
   IdAndNameUserDto userToIdAndNameUserDto(User user);
 
   @Mappings({
-      @Mapping(target = "id", source = "post.id"),
+      @Mapping(target = "id", source = "postView.post.id"),
       @Mapping(target = "timestamp", expression =
               "java(PostViewMapperSupport.convertTimeToSeconds(postView.getPost().getTime()))"),
       @Mapping(target = "active", expression =
               "java(PostViewMapperSupport.checkPostIsActive(postView.getPost()))"),
-      @Mapping(target = "user", source = "post.user"),
-      @Mapping(target = "title", source = "post.title"),
-      @Mapping(target = "text", source = "post.text"),
-      @Mapping(target = "viewCount", source = "post.viewCount"),
-      @Mapping(target = "comments", source = "post.comments"),
-      @Mapping(target = "tags", source = "post.tags")
+      @Mapping(target = "user", source = "postView.post.user"),
+      @Mapping(target = "title", source = "postView.post.title"),
+      @Mapping(target = "text", source = "postView.post.text"),
+      @Mapping(target = "viewCount", source = "actualViewCount"),
+      @Mapping(target = "comments", source = "postView.post.comments"),
+      @Mapping(target = "tags", source = "postView.post.tags")
   })
-  PostByIdRs postViewToPostByIdRs(PostView postView);
+  PostByIdRs postViewToPostById(PostView postView, int actualViewCount);
 
   Set<PostCommentDto> postCommentToPostCommentDtoList(Set<PostComment> comments);
 

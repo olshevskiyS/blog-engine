@@ -7,10 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ru.olshevskiy.blogengine.InitTestContainer;
 import ru.olshevskiy.blogengine.model.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.model.dto.response.MyPostsRs;
 import ru.olshevskiy.blogengine.model.dto.response.PostByIdRs;
 import ru.olshevskiy.blogengine.model.dto.response.PostsByDateRs;
 import ru.olshevskiy.blogengine.model.dto.response.PostsByQueryRs;
@@ -101,11 +103,55 @@ public class PostServiceIntegrationTest extends InitTestContainer {
   }
 
   @Test
-  void testGetPostById() {
+  void testGetPostByIdUnauthorizedUser() {
     PostByIdRs postsRs = postService.getPostById(2);
-    assertThat(postsRs.getViewCount()).isEqualTo(6);
+    assertThat(postsRs.getViewCount()).isEqualTo(7);
     assertThat(postsRs.getUser().getName()).isEqualTo("пользователь01");
     assertThat(postsRs.getComments().size()).isEqualTo(0);
     assertThat(postsRs.getTags().stream().findFirst().orElseThrow()).isEqualTo("правила");
+  }
+
+  @Test
+  @WithUserDetails(value = "user02@email.com",
+                   userDetailsServiceBeanName = "userDetailsServiceImpl")
+  void testGetPostByIdAuthorizedUserAsNotAuthor() {
+    PostByIdRs postsRs = postService.getPostById(2);
+    assertThat(postsRs.getViewCount()).isEqualTo(7);
+  }
+
+  @Test
+  @WithUserDetails(value = "user01@email.com",
+                   userDetailsServiceBeanName = "userDetailsServiceImpl")
+  void testGetPostByIdAuthorizedUserAsAuthor() {
+    PostByIdRs postsRs = postService.getPostById(2);
+    assertThat(postsRs.getViewCount()).isEqualTo(6);
+  }
+
+  @Test
+  @WithUserDetails(value = "user02@email.com",
+                   userDetailsServiceBeanName = "userDetailsServiceImpl")
+  void testGetMyPostsWithUser2() {
+    MyPostsRs myPostsRs1 = postService.getMyPosts(0, 10, "inactive");
+    assertThat(myPostsRs1.getCount()).isEqualTo(0L);
+    MyPostsRs myPostsRs2 = postService.getMyPosts(0, 10, "pending");
+    assertThat(myPostsRs2.getCount()).isEqualTo(1L);
+    MyPostsRs myPostsRs3 = postService.getMyPosts(0, 10, "declined");
+    assertThat(myPostsRs3.getCount()).isEqualTo(0L);
+    MyPostsRs myPostsRs4 = postService.getMyPosts(0, 10, "published");
+    assertThat(myPostsRs4.getCount()).isEqualTo(2L);
+  }
+
+  @Test
+  @WithUserDetails(value = "user03@email.com",
+          userDetailsServiceBeanName = "userDetailsServiceImpl")
+  void testGetMyPostsWithUser3() {
+    MyPostsRs myPostsRs1 = postService.getMyPosts(0, 10, "inactive");
+    assertThat(myPostsRs1.getCount()).isEqualTo(1L);
+    MyPostsRs myPostsRs2 = postService.getMyPosts(0, 10, "pending");
+    assertThat(myPostsRs2.getCount()).isEqualTo(0L);
+    MyPostsRs myPostsRs3 = postService.getMyPosts(0, 10, "declined");
+    assertThat(myPostsRs3.getCount()).isEqualTo(1L);
+    MyPostsRs myPostsRs4 = postService.getMyPosts(0, 10, "published");
+    assertThat(myPostsRs4.getCount()).isEqualTo(1L);
   }
 }

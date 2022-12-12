@@ -112,7 +112,7 @@ public class AuthServiceIntegrationTest extends InitTestContainer {
 
   @Test
   @WithUserDetails(value = "user02@email.com",
-          userDetailsServiceBeanName = "userDetailsServiceImpl")
+                   userDetailsServiceBeanName = "userDetailsServiceImpl")
   void testCheckAuthenticationSuccess() {
     LoginAndCheckRs checkRs = authService.check();
     assertThat(checkRs.isResult()).isTrue();

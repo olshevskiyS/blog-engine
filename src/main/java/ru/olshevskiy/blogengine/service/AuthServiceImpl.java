@@ -59,7 +59,8 @@ public class AuthServiceImpl implements AuthService {
   public LoginAndCheckRs check() {
     log.info("Start request getCheckAuthorization");
     confirmAuthentication();
-    org.springframework.security.core.userdetails.User currentUser = SecurityUtils.getCurrentUser();
+    org.springframework.security.core.userdetails.User currentUser =
+            SecurityUtils.getCurrentSecurityUser();
     LoginAndCheckRs checkRs = getLoginAndCheckRs(currentUser.getUsername());
     log.info("Finish request getCheckAuthorization");
     return checkRs;

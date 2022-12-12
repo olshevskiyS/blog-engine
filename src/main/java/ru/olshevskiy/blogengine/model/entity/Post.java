@@ -45,7 +45,7 @@ public class Post {
   private ModerationStatus moderationStatus;
 
   @Column(name = "moderator_id", insertable = false, updatable = false)
-  private int moderatorId;
+  private Integer moderatorId;
 
   @Column(name = "user_id", nullable = false, insertable = false, updatable = false)
   private int userId;
@@ -85,9 +85,5 @@ public class Post {
     this.title = title;
     this.text = text;
     moderationStatus = ModerationStatus.NEW;
-  }
-
-  private enum ModerationStatus {
-    NEW, ACCEPTED, DECLINED
   }
 }
