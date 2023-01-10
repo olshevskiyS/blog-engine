@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>ru.olshevskiy</groupId>
+    <artifactId>blog-engine</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <groupId>ru.olshevskiy</groupId>
+  <artifactId>blog-engine-impl</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <name>blog-engine-impl</name>
+  <description>impl module blog-engine</description>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+  <dependencies>
+    <dependency>
+      <groupId>ru.olshevskiy</groupId>
+      <artifactId>blog-engine-api</artifactId>
+      <version>${revision}${sha1}${changelist}</version>
+    </dependency>
+    <dependency>
+      <groupId>ru.olshevskiy</groupId>
+      <artifactId>blog-engine-db</artifactId>
+      <version>${revision}${sha1}${changelist}</version>
+    </dependency>
+    <dependency>
+      <groupId>ru.olshevskiy</groupId>
+      <artifactId>blog-engine-domain</artifactId>
+      <version>${revision}${sha1}${changelist}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+    <testSourceDirectory>${project.basedir}/src/test/java</testSourceDirectory>
+    <finalName>blog-engine</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>repackage</id>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>ru.olshevskiy.blogengine.BlogEngineApplication</mainClass>
+          <layout>JAR</layout>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>

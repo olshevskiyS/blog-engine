@@ -1,0 +1,56 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  datasource:
+    url: ${URL_DB:jdbc:mysql://localhost:3306/blogdb?serverTimezone=Europe/Moscow}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${USER_DB:root}
+    password: ${PASS_DB:pass}
+
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        default_schema: ${SCHEMA_DB:blogdb}
+    open-in-view: false
+
+  flyway:
+    enabled: ${FLY_ENABLE:true}
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+blog:
+  title: GalvanoBlog
+  subtitle: Записки гальванотехника
+  phone: +7 999 777-77-77
+  email: solshevskiy@gmail.com
+  copyright: Сергей Ольшевский
+  copyrightFrom: 2021
+  post:
+    announceLength: 150
+  captcha:
+    width: 100
+    height: 35
+    prefix: "data:image/png;base64,\u0020"
+    valid-time: 1
+  min-password-length: 6
+  security:
+    remember-me-key: blogengine
+    remember-me-validity-seconds: 86400
+
+springdoc:
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLE:true}
+  writer-with-default-pretty-printer: true
+
+swagger:
+  schema-title: API schema
+  schema-version: 1.0.0
+  schema-description: Multi-module Spring Boot Project Blog Engine
+  path: ${SWAGGER_PATH:http://localhost:8080}

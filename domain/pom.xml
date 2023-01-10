@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>blog-engine-domain</artifactId>
+	<packaging>jar</packaging>
+	<name>Domain Module Blog Engine Project</name>
+
+	<parent>
+		<groupId>ru.olshevskiy</groupId>
+		<artifactId>blog-engine</artifactId>
+		<version>${revision}${sha1}${changelist}</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>blog-engine-dto</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<sourceDirectory>${project.basedir}/srs/main/java</sourceDirectory>
+		<testSourceDirectory>${project.basedir}/srs/test/java</testSourceDirectory>
+	</build>
+</project>
