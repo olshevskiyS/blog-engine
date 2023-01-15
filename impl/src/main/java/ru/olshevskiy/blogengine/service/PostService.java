@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.olshevskiy.blogengine.dto.ErrorDescription;
 import ru.olshevskiy.blogengine.dto.PostDto;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
 import ru.olshevskiy.blogengine.dto.response.PostByIdRs;
 import ru.olshevskiy.blogengine.dto.response.PostsByDateRs;
@@ -156,6 +157,26 @@ public class PostService {
     return myPostsRs;
   }
 
+  /**
+   * PostService. Getting moderation posts of the current moderator method.
+   */
+  public ModerationPostsRs getModerationPosts(int offset, int limit, String status) {
+    log.info("Start request getModerationPosts with offset = " + offset
+            + ", limit = " + limit + ", status = " + status);
+    ModerationPostsRs moderationPostsRs = new ModerationPostsRs();
+    int pageNumber = offset / limit;
+    PageRequest pageRequest = PageRequest.of(
+            pageNumber, limit, Sort.by(Sort.Direction.DESC, "time"));
+    Page<PostView> page = getModerationPostsDependingOnModerationStatus(status,
+            SecurityUtils.getCurrentUserId(), pageRequest);
+    List<PostDto> postsList = page.getContent().stream()
+            .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
+    moderationPostsRs.setCount(page.getTotalElements())
+                     .setPosts(postsList);
+    log.info("Finish request getModerationPosts");
+    return moderationPostsRs;
+  }
+
   private Sort sortingMode(String mode) {
     Sort sort;
     switch (mode) {
@@ -209,6 +230,22 @@ public class PostService {
       break;
       default: page = postRepository.getMyActivePostsDependingOnStatus(
               userId, ModerationStatus.ACCEPTED, pageRequest);
+    }
+    return page;
+  }
+
+  private Page<PostView> getModerationPostsDependingOnModerationStatus(
+          String status, int moderatorId, PageRequest pageRequest) {
+    Page<PostView> page;
+    switch (status) {
+      case "new": page = postRepository.getModerationPostsDependingOnStatus(
+              moderatorId, ModerationStatus.NEW, pageRequest);
+      break;
+      case "declined": page = postRepository.getModerationPostsDependingOnStatus(
+              moderatorId, ModerationStatus.DECLINED, pageRequest);
+      break;
+      default: page = postRepository.getModerationPostsDependingOnStatus(
+              moderatorId, ModerationStatus.ACCEPTED, pageRequest);
     }
     return page;
   }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
 import ru.olshevskiy.blogengine.dto.response.PostByIdRs;
 import ru.olshevskiy.blogengine.dto.response.PostsByDateRs;
@@ -104,12 +105,12 @@ public interface ApiPostController {
   @Operation(summary = "Список моих постов")
   @ApiResponses({
       @ApiResponse(responseCode = "200",
-                  description = "Успешный запрос",
-                  content = @Content(mediaType = "application/json",
-                          schema = @Schema(implementation = MyPostsRs.class))),
+                   description = "Успешный запрос",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = MyPostsRs.class))),
       @ApiResponse(responseCode = "401",
-                  description = "Пользователь не аутентифицирован",
-                  content = @Content(mediaType = "application/json"))
+                   description = "Пользователь не аутентифицирован",
+                   content = @Content(mediaType = "application/json"))
   })
   ResponseEntity<MyPostsRs> getMyPosts(
           @Parameter(description = "Сдвиг от 0 для постраничного вывода")
@@ -118,4 +119,25 @@ public interface ApiPostController {
             @RequestParam(defaultValue = "10") int limit,
           @Parameter(description = "Статус модерации")
             @RequestParam String status);
+
+  @GetMapping("/moderation")
+  @PreAuthorize("hasAuthority('user:moderate')")
+  @Operation(summary = "Список постов на модерацию")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+                   description = "Успешный запрос",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = ModerationPostsRs.class))),
+      @ApiResponse(responseCode = "401",
+                   description = "Пользователь не аутентифицирован",
+                   content = @Content(mediaType = "application/json"))
+  })
+  ResponseEntity<ModerationPostsRs> getModerationPosts(
+          @Parameter(description = "Сдвиг от 0 для постраничного вывода")
+            @RequestParam(defaultValue = "0") int offset,
+          @Parameter(description = "Количество постов, которое надо вывести")
+            @RequestParam(defaultValue = "10") int limit,
+          @Parameter(description = "Статус модерации")
+            @RequestParam String status
+  );
 }

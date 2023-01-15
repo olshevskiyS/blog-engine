@@ -11,6 +11,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
 import ru.olshevskiy.blogengine.dto.response.PostByIdRs;
 import ru.olshevskiy.blogengine.dto.response.PostsByDateRs;
@@ -153,5 +154,17 @@ public class PostServiceIntegrationTest extends InitTestContainer {
     assertThat(myPostsRs3.getCount()).isEqualTo(1L);
     MyPostsRs myPostsRs4 = postService.getMyPosts(0, 10, "published");
     assertThat(myPostsRs4.getCount()).isEqualTo(1L);
+  }
+
+  @Test
+  @WithUserDetails(value = "user01@email.com",
+          userDetailsServiceBeanName = "userDetailsServiceImpl")
+  void testGetModerationPosts() {
+    ModerationPostsRs moderationPostsRs1 = postService.getModerationPosts(0, 10, "new");
+    assertThat(moderationPostsRs1.getCount()).isEqualTo(1L);
+    ModerationPostsRs moderationPostsRs2 = postService.getModerationPosts(0, 10, "declined");
+    assertThat(moderationPostsRs2.getCount()).isEqualTo(1L);
+    ModerationPostsRs moderationPostsRs3 = postService.getModerationPosts(0, 10, "accepted");
+    assertThat(moderationPostsRs3.getCount()).isEqualTo(5L);
   }
 }

@@ -3,6 +3,7 @@ package ru.olshevskiy.blogengine.exception;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import ru.olshevskiy.blogengine.exception.ex.PostNotFoundException;
  *
  * @author Sergey Olshevskiy
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalException {
 
@@ -51,9 +53,11 @@ public class GlobalException {
    * IncorrectCredentialsException handler.
    */
   @ExceptionHandler(IncorrectCredentialsException.class)
-  public ResponseEntity<IncorrectCredentialsDto> handleIncorrectCredentialsException() {
+  public ResponseEntity<IncorrectCredentialsDto> handleIncorrectCredentialsException(
+         IncorrectCredentialsException ex) {
     IncorrectCredentialsDto result = new IncorrectCredentialsDto();
     result.setResult(false);
+    log.info(ex.getMessage());
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 

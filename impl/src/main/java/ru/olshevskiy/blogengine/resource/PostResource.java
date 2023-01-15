@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
 import ru.olshevskiy.blogengine.dto.response.PostByIdRs;
 import ru.olshevskiy.blogengine.dto.response.PostsByDateRs;
@@ -51,5 +52,12 @@ public class PostResource implements ApiPostController {
   @Override
   public ResponseEntity<MyPostsRs> getMyPosts(int offset, int limit, String status) {
     return new ResponseEntity<>(postService.getMyPosts(offset, limit, status), HttpStatus.OK);
+  }
+
+  @Override
+  public ResponseEntity<ModerationPostsRs> getModerationPosts(
+          int offset, int limit, String status) {
+    return new ResponseEntity<>(postService.getModerationPosts(offset, limit, status),
+                                HttpStatus.OK);
   }
 }

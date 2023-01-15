@@ -62,7 +62,8 @@ public class AuthService {
     log.info("Start request getCheckAuthorization");
     if (SecurityUtils.userIsNotAuthorized()) {
       log.info("User isn't authorized");
-      throw new IncorrectCredentialsException("Finish request getCheckAuthorization");
+      throw new IncorrectCredentialsException(
+              "Finish request getCheckAuthorization with exception");
     }
     org.springframework.security.core.userdetails.User currentUser =
             SecurityUtils.getCurrentSecurityUser();
@@ -118,7 +119,7 @@ public class AuthService {
     LogoutRs logoutRs = new LogoutRs();
     logoutRs.setResult(true);
     if (SecurityUtils.userIsNotAuthorized()) {
-      log.info("Finish request logout");
+      log.info("User isn't authorized. Finish request logout with exception");
       return logoutRs;
     }
     try {
