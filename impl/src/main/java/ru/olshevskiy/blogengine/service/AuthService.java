@@ -1,6 +1,5 @@
 package ru.olshevskiy.blogengine.service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,6 +55,41 @@ public class AuthService {
   private final UserUserDtoMapper userUserDtoMapper;
 
   /**
+   * AuthService. New user registration method.
+   */
+  public RegistrationRs register(RegistrationRq registrationRq) {
+    log.info("Start request register");
+    RegistrationRs registrationRs = new RegistrationRs();
+    GlobalSetting globalSetting = globalSettingRepository.findByCode("MULTIUSER_MODE");
+    checkRegistrationInfo(globalSetting, registrationRq);
+    User newUser = createNewUser(registrationRq);
+    userRepository.save(newUser);
+    registrationRs.setResult(true);
+    log.info("Finish request register");
+    return registrationRs;
+  }
+
+  private void checkRegistrationInfo(GlobalSetting globalSetting, RegistrationRq registrationRq) {
+    if (globalSetting.getValue().equals("NO")) {
+      throw new MultiuserModeException();
+    }
+    Optional<User> user = userRepository.findByEmail(registrationRq.getEmail());
+    if (user.isPresent()) {
+      throw new EmailDuplicateException();
+    }
+    Optional<CaptchaCode> captcha = captchaRepository.findByCode(registrationRq.getCaptcha());
+    if (captcha.isEmpty() || !captcha.get().getSecretCode()
+            .equals(registrationRq.getCaptchaSecret())) {
+      throw new InvalidCaptchaCodeException();
+    }
+  }
+
+  private User createNewUser(RegistrationRq registrationRq) {
+    return new User(registrationRq.getName(), registrationRq.getEmail())
+            .setPassword(passwordEncoder.encode(registrationRq.getPassword()));
+  }
+
+  /**
    * AuthService. Check authorization of the current user method.
    */
   public LoginAndCheckRs check() {
@@ -70,21 +104,6 @@ public class AuthService {
     LoginAndCheckRs checkRs = getLoginAndCheckRs(currentUser.getUsername());
     log.info("Finish request getCheckAuthorization");
     return checkRs;
-  }
-
-  /**
-   * AuthService. New user registration method.
-   */
-  public RegistrationRs register(RegistrationRq registrationRq) {
-    log.info("Start request register");
-    RegistrationRs registrationRs = new RegistrationRs();
-    GlobalSetting globalSetting = globalSettingRepository.findByCode("MULTIUSER_MODE");
-    checkRegistrationInfo(globalSetting, registrationRq);
-    User newUser = createNewUser(registrationRq);
-    userRepository.save(newUser);
-    registrationRs.setResult(true);
-    log.info("Finish request register");
-    return registrationRs;
   }
 
   /**
@@ -111,6 +130,15 @@ public class AuthService {
     return loginRs;
   }
 
+  private LoginAndCheckRs getLoginAndCheckRs(String email) {
+    User currentUser = userRepository.findByEmail(email).orElseThrow(() ->
+            new UsernameNotFoundException(String.format(
+                    ErrorDescription.USER_NOT_FOUND, email)));
+    return new LoginAndCheckRs().setResult(true)
+            .setUser(userUserDtoMapper.userToUserDto(currentUser,
+                    postRepository.getModerationPostsCount(currentUser.getId())));
+  }
+
   /**
    * AuthService. User logout method.
    */
@@ -131,38 +159,5 @@ public class AuthService {
     }
     log.info("Finish request logout");
     return logoutRs;
-  }
-
-  private LoginAndCheckRs getLoginAndCheckRs(String email) {
-    User currentUser = userRepository.findByEmail(email).orElseThrow(() ->
-            new UsernameNotFoundException(String.format(
-                    ErrorDescription.USER_NOT_FOUND, email)));
-    return new LoginAndCheckRs().setResult(true)
-            .setUser(userUserDtoMapper.userToUserDto(currentUser,
-                    postRepository.getModerationPostsCount(currentUser.getId())));
-  }
-
-  private void checkRegistrationInfo(GlobalSetting globalSetting, RegistrationRq registrationRq) {
-    if (globalSetting.getValue().equals("NO")) {
-      throw new MultiuserModeException();
-    }
-    Optional<User> user = userRepository.findByEmail(registrationRq.getEmail());
-    if (user.isPresent()) {
-      throw new EmailDuplicateException();
-    }
-    Optional<CaptchaCode> captcha = captchaRepository.findByCode(registrationRq.getCaptcha());
-    if (captcha.isEmpty() || !captcha.get().getSecretCode()
-            .equals(registrationRq.getCaptchaSecret())) {
-      throw new InvalidCaptchaCodeException();
-    }
-  }
-
-  private User createNewUser(RegistrationRq registrationRq) {
-    return new User()
-            .setName(registrationRq.getName())
-            .setEmail(registrationRq.getEmail())
-            .setIsModerator((byte) 0)
-            .setRegTime(LocalDateTime.now())
-            .setPassword(passwordEncoder.encode(registrationRq.getPassword()));
   }
 }

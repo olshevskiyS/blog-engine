@@ -34,6 +34,8 @@ blog:
   copyrightFrom: 2021
   post:
     announceLength: 150
+    titleLength: 3
+    textLength: 50
   captcha:
     width: 100
     height: 35

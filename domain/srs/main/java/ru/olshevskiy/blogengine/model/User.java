@@ -66,10 +66,12 @@ public class User {
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
   private Set<PostComment> postComments = new HashSet<>();
 
-  User(String name, String email, String password) {
+  /**
+   * New user constructor.
+   */
+  public User(String name, String email) {
     this.name = name;
     this.email = email;
-    this.password = password;
     regTime = LocalDateTime.now();
   }
 }

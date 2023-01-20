@@ -18,6 +18,6 @@ public class Error {
   @Schema(description = "Статус ответа", example = "false")
   private boolean result;
 
-  @Schema(description = "Описание ошибки", example = "captcha: Код с картинки введён неверно")
+  @Schema(description = "Описание ошибки", example = "ошибка: описание причины ошибки")
   private Map<String, String> errors;
 }

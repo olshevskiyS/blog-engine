@@ -33,10 +33,22 @@ import ru.olshevskiy.blogengine.exception.ex.PostNotFoundException;
 public class GlobalException {
 
   private static int minPasswordLength;
+  private static int minTitleLength;
+  private static int minTextLength;
 
   @Value("${blog.min-password-length}")
   public void setMinPasswordLength(int length) {
     minPasswordLength = length;
+  }
+
+  @Value("${blog.post.titleLength}")
+  public void setMinTitleLength(int length) {
+    minTitleLength = length;
+  }
+
+  @Value("${blog.post.textLength}")
+  public void setMinTextLength(int length) {
+    minTextLength = length;
   }
 
   @ExceptionHandler(PostNotFoundException.class)
@@ -105,6 +117,14 @@ public class GlobalException {
         case "password":
           errorsDescription.put("password",
                   String.format(ErrorDescription.PASSWORD_LENGTH_TOO_SMALL, minPasswordLength));
+          break;
+        case "title":
+          errorsDescription.put("title",
+                  String.format(ErrorDescription.POST_TITLE_TOO_SMALL, minTitleLength));
+          break;
+        case "text":
+          errorsDescription.put("text",
+                  String.format(ErrorDescription.POST_TEXT_TOO_SMALL, minTextLength));
           break;
         default: {
           errorsDescription.put("name", ErrorDescription.NAME_LENGTH_TOO_SMALL);

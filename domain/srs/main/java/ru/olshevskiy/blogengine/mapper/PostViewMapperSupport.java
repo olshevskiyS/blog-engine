@@ -1,7 +1,7 @@
 package ru.olshevskiy.blogengine.mapper;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.olshevskiy.blogengine.model.Post;
@@ -23,7 +23,7 @@ public class PostViewMapperSupport {
   }
 
   static long convertTimeToSeconds(LocalDateTime time) {
-    return time.atOffset(ZoneOffset.UTC).toInstant().getEpochSecond();
+    return time.atZone(ZoneId.systemDefault()).toInstant().getEpochSecond();
   }
 
   static String getAnnounceFromText(PostView postView) {

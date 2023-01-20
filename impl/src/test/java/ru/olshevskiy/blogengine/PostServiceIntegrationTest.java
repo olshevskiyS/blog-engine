@@ -48,10 +48,10 @@ public class PostServiceIntegrationTest extends InitTestContainer {
   void testGetPostsWithVariousSortingMode() {
     GetPostsRs postsRs1 = postService.getPosts(0, 10, "recent");
     assertThat(postsRs1.getCount()).isEqualTo(5L);
-    assertThat(postsRs1.getPosts().get(0).getTimestamp()).isEqualTo(1642457295L);
+    assertThat(postsRs1.getPosts().get(0).getTimestamp()).isEqualTo(1642446495L);
 
     GetPostsRs postsRs2 = postService.getPosts(0, 10, "early");
-    assertThat(postsRs2.getPosts().get(0).getTimestamp()).isEqualTo(1639818770L);
+    assertThat(postsRs2.getPosts().get(0).getTimestamp()).isEqualTo(1639807970L);
 
     GetPostsRs postsRs3 = postService.getPosts(0, 10, "popular");
     assertThat(postsRs3.getPosts().get(0).getId()).isEqualTo(5);
@@ -67,7 +67,7 @@ public class PostServiceIntegrationTest extends InitTestContainer {
     GetPostsRs postsRs = postService.getPosts(2, 2, "recent");
     assertThat(postsRs.getPosts().size()).isEqualTo(2);
     assertThat(postsRs.getPosts().get(0).getId()).isEqualTo(3);
-    assertThat(postsRs.getPosts().get(0).getTimestamp()).isEqualTo(1639854154L);
+    assertThat(postsRs.getPosts().get(0).getTimestamp()).isEqualTo(1639843354L);
   }
 
   @Test

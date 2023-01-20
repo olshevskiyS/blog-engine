@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.olshevskiy.blogengine.dto.TagDto;
 import ru.olshevskiy.blogengine.dto.response.TagsByQueryRs;
 import ru.olshevskiy.blogengine.model.Tag;
@@ -24,6 +25,7 @@ import ru.olshevskiy.blogengine.repository.TagRepository;
  */
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class TagService {
 

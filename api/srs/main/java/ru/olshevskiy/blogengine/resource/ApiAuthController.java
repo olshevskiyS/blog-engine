@@ -53,7 +53,7 @@ public interface ApiAuthController {
   @PostMapping("/register")
   @Operation(summary = "Регистрация нового пользователя")
   @ApiResponses({
-      @ApiResponse(responseCode = "200",
+      @ApiResponse(responseCode = "201",
                    description = "Успешная регистрация",
                    content = @Content(mediaType = "application/json",
                    schema = @Schema(implementation = RegistrationRs.class))),

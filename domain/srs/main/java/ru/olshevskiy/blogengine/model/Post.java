@@ -20,6 +20,7 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * Post.
@@ -30,6 +31,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
+@Accessors(chain = true)
 @Table(name = "posts")
 public class Post {
 
@@ -80,8 +82,10 @@ public class Post {
           mappedBy = "posts", fetch = FetchType.LAZY)
   private Set<Tag> tags = new HashSet<>();
 
-  Post(int userId, String title, String text) {
-    this.userId = userId;
+  /**
+   * New post constructor.
+   */
+  public Post(String title, String text) {
     this.title = title;
     this.text = text;
     moderationStatus = ModerationStatus.NEW;

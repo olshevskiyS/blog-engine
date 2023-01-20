@@ -1,6 +1,10 @@
 package ru.olshevskiy.blogengine.service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.olshevskiy.blogengine.dto.ErrorDescription;
 import ru.olshevskiy.blogengine.dto.PostDto;
+import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
+import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
@@ -25,9 +31,11 @@ import ru.olshevskiy.blogengine.exception.ex.PostNotFoundException;
 import ru.olshevskiy.blogengine.mapper.PostViewPostDtoMapper;
 import ru.olshevskiy.blogengine.model.ModerationStatus;
 import ru.olshevskiy.blogengine.model.Post;
+import ru.olshevskiy.blogengine.model.Tag;
 import ru.olshevskiy.blogengine.model.User;
 import ru.olshevskiy.blogengine.projection.PostView;
 import ru.olshevskiy.blogengine.repository.PostRepository;
+import ru.olshevskiy.blogengine.repository.TagRepository;
 import ru.olshevskiy.blogengine.repository.UserRepository;
 import ru.olshevskiy.blogengine.security.SecurityUtils;
 
@@ -45,6 +53,7 @@ public class PostService {
   private final PostRepository postRepository;
   private final PostViewPostDtoMapper postViewPostDtoMapper;
   private final UserRepository userRepository;
+  private final TagRepository tagRepository;
 
   /**
    * PostService. Getting all active posts method.
@@ -62,6 +71,22 @@ public class PostService {
            .setPosts(postsList);
     log.info("Finish request getPosts");
     return postsRs;
+  }
+
+  private Sort sortingMode(String mode) {
+    Sort sort;
+    switch (mode) {
+      case "early": sort = Sort.by(Sort.Direction.ASC, "time");
+      break;
+      case "popular": sort = JpaSort.unsafe(Sort.Direction.DESC, "size(p.comments)")
+              .and(Sort.by(Sort.Direction.DESC, "time"));
+      break;
+      case "best": sort = JpaSort.unsafe(Sort.Direction.DESC, "(likeCount)")
+              .and(Sort.by(Sort.Direction.DESC, "time"));
+      break;
+      default: sort = Sort.by(Sort.Direction.DESC, "time");
+    }
+    return sort;
   }
 
   /**
@@ -137,6 +162,20 @@ public class PostService {
     return postByIdRs;
   }
 
+  private Post updateCurrentPostViewCount(Post currentPost) {
+    if (SecurityUtils.userIsNotAuthorized()) {
+      currentPost.setViewCount(currentPost.getViewCount() + 1);
+      return postRepository.save(currentPost);
+    }
+    User currentUser = getCurrentUser();
+    if (currentPost.getUserId() != currentUser.getId() && currentUser.getIsModerator() == 0) {
+      currentPost.setViewCount(currentPost.getViewCount() + 1);
+      return postRepository.save(currentPost);
+    } else {
+      return currentPost;
+    }
+  }
+
   /**
    * PostService. Getting all posts of the current user method.
    */
@@ -155,6 +194,24 @@ public class PostService {
              .setPosts(postsList);
     log.info("Finish request getMyPosts");
     return myPostsRs;
+  }
+
+  private Page<PostView> getMyPostsDependingOnModerationStatus(String status, int userId,
+                                                               PageRequest pageRequest) {
+    Page<PostView> page;
+    switch (status) {
+      case "inactive": page = postRepository.getMyInactivePosts(userId, pageRequest);
+      break;
+      case "pending": page = postRepository.getMyActivePostsDependingOnStatus(
+              userId, ModerationStatus.NEW, pageRequest);
+      break;
+      case "declined": page = postRepository.getMyActivePostsDependingOnStatus(
+              userId, ModerationStatus.DECLINED, pageRequest);
+      break;
+      default: page = postRepository.getMyActivePostsDependingOnStatus(
+              userId, ModerationStatus.ACCEPTED, pageRequest);
+    }
+    return page;
   }
 
   /**
@@ -177,63 +234,6 @@ public class PostService {
     return moderationPostsRs;
   }
 
-  private Sort sortingMode(String mode) {
-    Sort sort;
-    switch (mode) {
-      case "early": sort = Sort.by(Sort.Direction.ASC, "time");
-      break;
-      case "popular": sort = JpaSort.unsafe(Sort.Direction.DESC, "size(p.comments)")
-              .and(Sort.by(Sort.Direction.DESC, "time"));
-      break;
-      case "best": sort = JpaSort.unsafe(Sort.Direction.DESC, "(likeCount)")
-              .and(Sort.by(Sort.Direction.DESC, "time"));
-      break;
-      default: sort = Sort.by(Sort.Direction.DESC, "time");
-    }
-    return sort;
-  }
-
-  private User getCurrentUser() {
-    org.springframework.security.core.userdetails.User principal =
-            (org.springframework.security.core.userdetails.User) SecurityContextHolder
-            .getContext().getAuthentication().getPrincipal();
-    return userRepository.findByEmail(principal.getUsername()).orElseThrow(
-            () -> new UsernameNotFoundException(String.format(
-            ErrorDescription.USER_NOT_FOUND, principal.getUsername())));
-  }
-
-  private Post updateCurrentPostViewCount(Post currentPost) {
-    if (SecurityUtils.userIsNotAuthorized()) {
-      currentPost.setViewCount(currentPost.getViewCount() + 1);
-      return postRepository.save(currentPost);
-    }
-    User currentUser = getCurrentUser();
-    if (currentPost.getUserId() != currentUser.getId() && currentUser.getIsModerator() == 0) {
-      currentPost.setViewCount(currentPost.getViewCount() + 1);
-      return postRepository.save(currentPost);
-    } else {
-      return currentPost;
-    }
-  }
-
-  private Page<PostView> getMyPostsDependingOnModerationStatus(String status, int userId,
-                                                               PageRequest pageRequest) {
-    Page<PostView> page;
-    switch (status) {
-      case "inactive": page = postRepository.getMyInactivePosts(userId, pageRequest);
-      break;
-      case "pending": page = postRepository.getMyActivePostsDependingOnStatus(
-              userId, ModerationStatus.NEW, pageRequest);
-      break;
-      case "declined": page = postRepository.getMyActivePostsDependingOnStatus(
-              userId, ModerationStatus.DECLINED, pageRequest);
-      break;
-      default: page = postRepository.getMyActivePostsDependingOnStatus(
-              userId, ModerationStatus.ACCEPTED, pageRequest);
-    }
-    return page;
-  }
-
   private Page<PostView> getModerationPostsDependingOnModerationStatus(
           String status, int moderatorId, PageRequest pageRequest) {
     Page<PostView> page;
@@ -248,5 +248,59 @@ public class PostService {
               moderatorId, ModerationStatus.ACCEPTED, pageRequest);
     }
     return page;
+  }
+
+  /**
+   * PostService. Create a new post method.
+   */
+  public CreatePostRs createPost(CreatePostRq createPostRq) {
+    log.info("Start request createPost");
+    User currentUser = getCurrentUser();
+    Post newPost = createNewPost(createPostRq, currentUser);
+    Post savedPost = postRepository.save(newPost);
+    addTagsForNewPost(createPostRq, savedPost);
+    log.info("Finish request createPost id = " + savedPost.getId()
+            + " by a user id = " + currentUser.getId());
+    return new CreatePostRs().setResult(true);
+  }
+
+  private Post createNewPost(CreatePostRq createPostRq, User currentUser) {
+    Post newPost = new Post(createPostRq.getTitle(), createPostRq.getText())
+                   .setIsActive(createPostRq.getActive())
+                   .setUserId(currentUser.getId())
+                   .setUser(currentUser);
+    Instant now = Instant.now();
+    if (createPostRq.getTimestamp() <= now.getEpochSecond()) {
+      newPost.setTime(LocalDateTime.ofInstant(now, ZoneId.systemDefault()));
+    } else {
+      newPost.setTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(
+              createPostRq.getTimestamp()), ZoneId.systemDefault()));
+    }
+    return newPost;
+  }
+
+  private void addTagsForNewPost(CreatePostRq createPostRq, Post savedPost) {
+    for (String tagName : createPostRq.getTags()) {
+      Optional<Tag> optionalTag = tagRepository.findByName(tagName);
+      if (optionalTag.isPresent()) {
+        Tag tag = optionalTag.get();
+        savedPost.getTags().add(tag);
+        tag.getPosts().add(savedPost);
+      } else {
+        Tag newTag = new Tag(tagName);
+        tagRepository.save(newTag);
+        savedPost.getTags().add(newTag);
+        newTag.getPosts().add(savedPost);
+      }
+    }
+  }
+
+  private User getCurrentUser() {
+    org.springframework.security.core.userdetails.User principal =
+            (org.springframework.security.core.userdetails.User) SecurityContextHolder
+            .getContext().getAuthentication().getPrincipal();
+    return userRepository.findByEmail(principal.getUsername()).orElseThrow(
+            () -> new UsernameNotFoundException(String.format(
+            ErrorDescription.USER_NOT_FOUND, principal.getUsername())));
   }
 }
