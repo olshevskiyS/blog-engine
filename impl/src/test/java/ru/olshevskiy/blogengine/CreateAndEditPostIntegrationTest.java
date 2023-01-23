@@ -16,7 +16,9 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.transaction.annotation.Transactional;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
+import ru.olshevskiy.blogengine.dto.request.EditPostRq;
 import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
+import ru.olshevskiy.blogengine.dto.response.EditPostRs;
 import ru.olshevskiy.blogengine.model.ModerationStatus;
 import ru.olshevskiy.blogengine.model.Post;
 import ru.olshevskiy.blogengine.model.Tag;
@@ -49,6 +51,7 @@ public class CreateAndEditPostIntegrationTest extends InitTestContainer {
   private UserRepository userRepository;
 
   CreatePostRq createPostRq;
+  EditPostRq editPostRq;
 
   @BeforeEach
   void setup() {
@@ -62,6 +65,18 @@ public class CreateAndEditPostIntegrationTest extends InitTestContainer {
                     add("цинкование");
                     add("пост");
                   }}
+        );
+
+    editPostRq = new EditPostRq();
+    editPostRq.setTimestamp(1894681026L)
+              .setActive((byte) 0)
+              .setTitle("1")
+              .setText("2")
+              .setTags(new ArrayList<>() {{
+                  add("цинкование");
+                  add("правила");
+                  add("новый");
+                }}
         );
   }
 
@@ -91,5 +106,47 @@ public class CreateAndEditPostIntegrationTest extends InitTestContainer {
     assertThat(author.getPosts().contains(newPost)).isTrue();
     assertThat(author.getPosts().size()).isEqualTo(4);
     assertThat(newPost.getUserId()).isEqualTo(2);
+  }
+
+  @Test
+  @WithUserDetails(value = "user02@email.com",
+          userDetailsServiceBeanName = "userDetailsServiceImpl")
+  void testEditPostByUser() {
+    Post originalPost = postRepository.getById(3);
+    assertThat(originalPost.getModerationStatus()).isEqualTo(ModerationStatus.ACCEPTED);
+    assertThat(originalPost.getTags().size()).isEqualTo(2);
+
+    EditPostRs editPostRs = postService.editPost(3, editPostRq);
+    assertThat(editPostRs.isResult()).isTrue();
+
+    Post updatedPost = postRepository.getById(3);
+    assertThat(updatedPost.getTime().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond())
+            .isEqualTo(1894681026L);
+    assertThat(updatedPost.getIsActive()).isEqualTo((byte) 0);
+    assertThat(updatedPost.getText()).isEqualTo("2");
+    assertThat(updatedPost.getModerationStatus()).isEqualTo(ModerationStatus.NEW);
+    assertThat(updatedPost.getTags().size()).isEqualTo(3);
+
+    Tag newTag = tagRepository.getById(5);
+    assertThat(newTag.getName()).isEqualTo("новый");
+    assertThat(newTag.getPosts().contains(updatedPost)).isTrue();
+    assertThat(updatedPost.getTags().contains(newTag)).isTrue();
+  }
+
+
+  @Test
+  @WithUserDetails(value = "user01@email.com",
+          userDetailsServiceBeanName = "userDetailsServiceImpl")
+  void testEditPostByModerator() {
+    Post originalPost = postRepository.getById(3);
+    assertThat(originalPost.getModerationStatus()).isEqualTo(ModerationStatus.ACCEPTED);
+
+    EditPostRs editPostRs = postService.editPost(3, editPostRq);
+    assertThat(editPostRs.isResult()).isTrue();
+
+    Post updatedPost = postRepository.getById(3);
+    assertThat(updatedPost.getTitle()).isEqualTo("1");
+    assertThat(updatedPost.getModerationStatus()).isEqualTo(ModerationStatus.ACCEPTED);
+
   }
 }

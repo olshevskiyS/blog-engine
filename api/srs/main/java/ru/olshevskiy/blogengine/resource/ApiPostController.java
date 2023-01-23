@@ -13,12 +13,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.olshevskiy.blogengine.dto.Error;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
+import ru.olshevskiy.blogengine.dto.request.EditPostRq;
 import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
+import ru.olshevskiy.blogengine.dto.response.EditPostRs;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
@@ -163,4 +166,24 @@ public interface ApiPostController {
                    content = @Content(mediaType = "application/json"))
   })
   ResponseEntity<CreatePostRs> createPost(@Valid @RequestBody CreatePostRq createPostRq);
+
+  @PutMapping("/{id}")
+  @PreAuthorize("hasAuthority('user:write')")
+  @Operation(summary = "Редактирование поста")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+                  description = "Успешное редактирование поста",
+                  content = @Content(mediaType = "application/json",
+                          schema = @Schema(implementation = EditPostRs.class))),
+      @ApiResponse(responseCode = "400",
+                  description = "Введены неверные данные",
+                  content = @Content(mediaType = "application/json",
+                          schema = @Schema(implementation = Error.class))),
+      @ApiResponse(responseCode = "401",
+                  description = "Пользователь не аутентифицирован",
+                  content = @Content(mediaType = "application/json"))
+  })
+  ResponseEntity<EditPostRs> editPost(@Parameter(description = "Идентификатор поста")
+                                      @PathVariable("id") int id,
+                                      @Valid @RequestBody EditPostRq editPostRq);
 }

@@ -3,8 +3,11 @@ package ru.olshevskiy.blogengine.service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.olshevskiy.blogengine.dto.ErrorDescription;
 import ru.olshevskiy.blogengine.dto.PostDto;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
+import ru.olshevskiy.blogengine.dto.request.EditPostRq;
 import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
+import ru.olshevskiy.blogengine.dto.response.EditPostRs;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
@@ -256,42 +261,86 @@ public class PostService {
   public CreatePostRs createPost(CreatePostRq createPostRq) {
     log.info("Start request createPost");
     User currentUser = getCurrentUser();
-    Post newPost = createNewPost(createPostRq, currentUser);
+    Post newPost = new Post(createPostRq.getTitle(), createPostRq.getText())
+            .setIsActive(createPostRq.getActive())
+            .setUserId(currentUser.getId())
+            .setUser(currentUser);
+    updatePostTimestamp(createPostRq.getTimestamp(), newPost);
     Post savedPost = postRepository.save(newPost);
-    addTagsForNewPost(createPostRq, savedPost);
+    if (!createPostRq.getTags().isEmpty()) {
+      addTagsForPost(createPostRq.getTags(), savedPost);
+    }
     log.info("Finish request createPost id = " + savedPost.getId()
             + " by a user id = " + currentUser.getId());
     return new CreatePostRs().setResult(true);
   }
 
-  private Post createNewPost(CreatePostRq createPostRq, User currentUser) {
-    Post newPost = new Post(createPostRq.getTitle(), createPostRq.getText())
-                   .setIsActive(createPostRq.getActive())
-                   .setUserId(currentUser.getId())
-                   .setUser(currentUser);
+  private void updatePostTimestamp(long givenTimestamp, Post updatedPost) {
     Instant now = Instant.now();
-    if (createPostRq.getTimestamp() <= now.getEpochSecond()) {
-      newPost.setTime(LocalDateTime.ofInstant(now, ZoneId.systemDefault()));
+    if (givenTimestamp <= now.getEpochSecond()) {
+      updatedPost.setTime(LocalDateTime.ofInstant(now, ZoneId.systemDefault()));
     } else {
-      newPost.setTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(
-              createPostRq.getTimestamp()), ZoneId.systemDefault()));
+      updatedPost.setTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(
+              givenTimestamp), ZoneId.systemDefault()));
     }
-    return newPost;
   }
 
-  private void addTagsForNewPost(CreatePostRq createPostRq, Post savedPost) {
-    for (String tagName : createPostRq.getTags()) {
+  private void addTagsForPost(List<String> givenTagsNames, Post updatedPost) {
+    for (String tagName : givenTagsNames) {
       Optional<Tag> optionalTag = tagRepository.findByName(tagName);
       if (optionalTag.isPresent()) {
         Tag tag = optionalTag.get();
-        savedPost.getTags().add(tag);
-        tag.getPosts().add(savedPost);
+        updatedPost.getTags().add(tag);
+        tag.getPosts().add(updatedPost);
       } else {
         Tag newTag = new Tag(tagName);
         tagRepository.save(newTag);
-        savedPost.getTags().add(newTag);
-        newTag.getPosts().add(savedPost);
+        updatedPost.getTags().add(newTag);
+        newTag.getPosts().add(updatedPost);
       }
+    }
+  }
+
+  /**
+   * PostService. Edit post by id method.
+   */
+  public EditPostRs editPost(int id, EditPostRq editPostRq) {
+    log.info("Start request editPost id " + id);
+    User currentUser = getCurrentUser();
+    Post currentPost = postRepository.getById(id);
+    currentPost.setIsActive(editPostRq.getActive())
+               .setTitle(editPostRq.getTitle())
+               .setText(editPostRq.getText());
+    if (currentUser.getId() == currentPost.getUserId()) {
+      currentPost.setModerationStatus(ModerationStatus.NEW);
+    }
+    updatePostTimestamp(editPostRq.getTimestamp(), currentPost);
+    updateTagsForPost(editPostRq.getTags(), currentPost);
+    log.info("Finish request editPost id " + id);
+    return new EditPostRs().setResult(true);
+  }
+
+  private void updateTagsForPost(List<String> listOfGivenTagsNames, Post currentPost) {
+    if (!listOfGivenTagsNames.isEmpty() && !currentPost.getTags().isEmpty()) {
+      List<String> tagsToAdd = new ArrayList<>();
+      Set<Tag> tagsToDelete = new HashSet<>();
+      for (String givenTagName : listOfGivenTagsNames) {
+        for (Tag postTag : currentPost.getTags()) {
+          if (!givenTagName.equals(postTag.getName())) {
+            tagsToAdd.add(givenTagName);
+          }
+          if (!listOfGivenTagsNames.contains(postTag.getName())) {
+            tagsToDelete.add(postTag);
+          }
+        }
+      }
+      addTagsForPost(tagsToAdd, currentPost);
+      for (Tag tag : tagsToDelete) {
+        currentPost.getTags().remove(tag);
+        tag.getPosts().remove(currentPost);
+      }
+    } else if (!listOfGivenTagsNames.isEmpty() && currentPost.getTags().isEmpty()) {
+      addTagsForPost(listOfGivenTagsNames, currentPost);
     }
   }
 
