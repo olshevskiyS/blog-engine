@@ -5,12 +5,23 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.olshevskiy.blogengine.dto.Error;
+import ru.olshevskiy.blogengine.dto.request.EditProfileWithPhotoRq;
+import ru.olshevskiy.blogengine.dto.request.EditProfileWithoutPhotoRq;
 import ru.olshevskiy.blogengine.dto.response.CalendarRs;
+import ru.olshevskiy.blogengine.dto.response.EditProfileRs;
 import ru.olshevskiy.blogengine.dto.response.GlobalSettingsRs;
 import ru.olshevskiy.blogengine.dto.response.InitRs;
 import ru.olshevskiy.blogengine.dto.response.TagsByQueryRs;
@@ -57,4 +68,40 @@ public interface ApiGeneralController {
                schema = @Schema(implementation = CalendarRs.class)))
   ResponseEntity<CalendarRs> getCalendar(@Parameter(description = "Заданный год")
                                          @RequestParam(required = false) String year);
+
+  @PostMapping(value = "/profile/my",
+               consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+               produces = MediaType.APPLICATION_JSON_VALUE)
+  @PreAuthorize("hasAuthority('user:write')")
+  @Operation(summary = "Редактирование профиля текущего пользователя")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+                   description = "Успешный запрос",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = EditProfileRs.class))),
+      @ApiResponse(responseCode = "400",
+                   description = "Введены неверные (некорректные) данные",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = Error.class)))
+  })
+  ResponseEntity<EditProfileRs> editProfileWithPhoto(@ModelAttribute @Valid
+                                                     EditProfileWithPhotoRq editProfileRq);
+
+  @PostMapping(value = "/profile/my",
+               consumes = MediaType.APPLICATION_JSON_VALUE,
+               produces = MediaType.APPLICATION_JSON_VALUE)
+  @PreAuthorize("hasAuthority('user:write')")
+  @Operation(summary = "Редактирование профиля текущего пользователя")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+                   description = "Успешный запрос",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = EditProfileRs.class))),
+      @ApiResponse(responseCode = "400",
+                   description = "Введены неверные (некорректные) данные",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = Error.class)))
+  })
+  ResponseEntity<EditProfileRs> editProfileWithoutPhoto(@RequestBody @Valid
+                                                        EditProfileWithoutPhotoRq editProfileRq);
 }

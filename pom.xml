@@ -59,6 +59,7 @@
 		<javax.validation.version>2.0.1.Final</javax.validation.version>
 		<swagger-annotations.version>2.1.12</swagger-annotations.version>
 		<springdoc-openapi-ui.version>1.6.3</springdoc-openapi-ui.version>
+		<com.cloudinary.version>1.30.0</com.cloudinary.version>
 
 		<!-- Plugins properties -->
 		<flyway-maven-plugin.version>8.4.2</flyway-maven-plugin.version>
@@ -177,6 +178,16 @@
 				<groupId>org.springdoc</groupId>
 				<artifactId>springdoc-openapi-ui</artifactId>
 				<version>${springdoc-openapi-ui.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.cloudinary</groupId>
+				<artifactId>cloudinary-core</artifactId>
+				<version>${com.cloudinary.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.cloudinary</groupId>
+				<artifactId>cloudinary-http44</artifactId>
+				<version>${com.cloudinary.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

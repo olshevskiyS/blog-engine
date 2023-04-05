@@ -17,4 +17,6 @@ public class ErrorDescription {
                                               + " должен быть не менее %d символов";
   public static String POST_TEXT_TOO_SMALL = "Текст поста слишком короткий, "
                                              + "должен быть не менее %d символов";
+  public static String IMAGE_SIZE_TOO_LARGE = "Размер файла превышает допустимый размер - %s";
+  public static String INVALID_IMAGE_EXTENSION = "Файл не формата изображения: jpg, png";
 }

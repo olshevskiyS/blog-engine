@@ -15,11 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.JpaSort;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.olshevskiy.blogengine.dto.ErrorDescription;
 import ru.olshevskiy.blogengine.dto.PostDto;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
 import ru.olshevskiy.blogengine.dto.request.EditPostRq;
@@ -41,7 +38,6 @@ import ru.olshevskiy.blogengine.model.User;
 import ru.olshevskiy.blogengine.projection.PostView;
 import ru.olshevskiy.blogengine.repository.PostRepository;
 import ru.olshevskiy.blogengine.repository.TagRepository;
-import ru.olshevskiy.blogengine.repository.UserRepository;
 import ru.olshevskiy.blogengine.security.SecurityUtils;
 
 /**
@@ -57,7 +53,6 @@ public class PostService {
 
   private final PostRepository postRepository;
   private final PostViewPostDtoMapper postViewPostDtoMapper;
-  private final UserRepository userRepository;
   private final TagRepository tagRepository;
 
   /**
@@ -172,7 +167,7 @@ public class PostService {
       currentPost.setViewCount(currentPost.getViewCount() + 1);
       return postRepository.save(currentPost);
     }
-    User currentUser = getCurrentUser();
+    User currentUser = SecurityUtils.getCurrentUser();
     if (currentPost.getUserId() != currentUser.getId() && currentUser.getIsModerator() == 0) {
       currentPost.setViewCount(currentPost.getViewCount() + 1);
       return postRepository.save(currentPost);
@@ -192,7 +187,7 @@ public class PostService {
     PageRequest pageRequest = PageRequest.of(
             pageNumber, limit, Sort.by(Sort.Direction.DESC, "time"));
     Page<PostView> page = getMyPostsDependingOnModerationStatus(status,
-            SecurityUtils.getCurrentUserId(), pageRequest);
+            SecurityUtils.getCurrentUser().getId(), pageRequest);
     List<PostDto> postsList = page.getContent().stream()
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
     myPostsRs.setCount(page.getTotalElements())
@@ -230,7 +225,7 @@ public class PostService {
     PageRequest pageRequest = PageRequest.of(
             pageNumber, limit, Sort.by(Sort.Direction.DESC, "time"));
     Page<PostView> page = getModerationPostsDependingOnModerationStatus(status,
-            SecurityUtils.getCurrentUserId(), pageRequest);
+            SecurityUtils.getCurrentUser().getId(), pageRequest);
     List<PostDto> postsList = page.getContent().stream()
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
     moderationPostsRs.setCount(page.getTotalElements())
@@ -260,7 +255,7 @@ public class PostService {
    */
   public CreatePostRs createPost(CreatePostRq createPostRq) {
     log.info("Start request createPost");
-    User currentUser = getCurrentUser();
+    User currentUser = SecurityUtils.getCurrentUser();
     Post newPost = new Post(createPostRq.getTitle(), createPostRq.getText())
             .setIsActive(createPostRq.getActive())
             .setUserId(currentUser.getId())
@@ -306,7 +301,7 @@ public class PostService {
    */
   public EditPostRs editPost(int id, EditPostRq editPostRq) {
     log.info("Start request editPost id " + id);
-    User currentUser = getCurrentUser();
+    User currentUser = SecurityUtils.getCurrentUser();
     Post currentPost = postRepository.getById(id);
     currentPost.setIsActive(editPostRq.getActive())
                .setTitle(editPostRq.getTitle())
@@ -342,14 +337,5 @@ public class PostService {
     } else if (!listOfGivenTagsNames.isEmpty() && currentPost.getTags().isEmpty()) {
       addTagsForPost(listOfGivenTagsNames, currentPost);
     }
-  }
-
-  private User getCurrentUser() {
-    org.springframework.security.core.userdetails.User principal =
-            (org.springframework.security.core.userdetails.User) SecurityContextHolder
-            .getContext().getAuthentication().getPrincipal();
-    return userRepository.findByEmail(principal.getUsername()).orElseThrow(
-            () -> new UsernameNotFoundException(String.format(
-            ErrorDescription.USER_NOT_FOUND, principal.getUsername())));
   }
 }

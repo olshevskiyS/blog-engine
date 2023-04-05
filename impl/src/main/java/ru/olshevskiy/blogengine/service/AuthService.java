@@ -100,7 +100,8 @@ public class AuthService {
               "Finish request getCheckAuthorization with exception");
     }
     org.springframework.security.core.userdetails.User currentUser =
-            SecurityUtils.getCurrentSecurityUser();
+            (org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal();
     LoginAndCheckRs checkRs = getLoginAndCheckRs(currentUser.getUsername());
     log.info("Finish request getCheckAuthorization");
     return checkRs;

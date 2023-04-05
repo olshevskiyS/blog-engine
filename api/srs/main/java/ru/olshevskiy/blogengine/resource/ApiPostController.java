@@ -174,11 +174,11 @@ public interface ApiPostController {
       @ApiResponse(responseCode = "200",
                   description = "Успешное редактирование поста",
                   content = @Content(mediaType = "application/json",
-                          schema = @Schema(implementation = EditPostRs.class))),
+                  schema = @Schema(implementation = EditPostRs.class))),
       @ApiResponse(responseCode = "400",
                   description = "Введены неверные данные",
                   content = @Content(mediaType = "application/json",
-                          schema = @Schema(implementation = Error.class))),
+                  schema = @Schema(implementation = Error.class))),
       @ApiResponse(responseCode = "401",
                   description = "Пользователь не аутентифицирован",
                   content = @Content(mediaType = "application/json"))

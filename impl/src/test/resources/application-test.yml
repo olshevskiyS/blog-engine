@@ -11,3 +11,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+
+cloudinary-url: cloudinary://enter your cloudinary_url
+cloudinary-download-folder: test/

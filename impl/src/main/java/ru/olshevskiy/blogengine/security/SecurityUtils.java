@@ -29,18 +29,13 @@ public class SecurityUtils {
     return auth == null || auth.getPrincipal() instanceof String;
   }
 
-  public static User getCurrentSecurityUser() {
-    return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-  }
-
   /**
-   * SecurityUtils. Getting a current user id method.
+   * SecurityUtils. Getting a current user method.
    */
-  public static int getCurrentUserId() {
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    ru.olshevskiy.blogengine.model.User currentUser = userRepository.findByEmail(
-            principal.getUsername()).orElseThrow(() -> new UsernameNotFoundException(
-            String.format(ErrorDescription.USER_NOT_FOUND, principal.getUsername())));
-    return currentUser.getId();
+  public static ru.olshevskiy.blogengine.model.User getCurrentUser() {
+    String userName = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                      .getUsername();
+    return userRepository.findByEmail(userName).orElseThrow(() -> new UsernameNotFoundException(
+           String.format(ErrorDescription.USER_NOT_FOUND, userName)));
   }
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import ru.olshevskiy.blogengine.dto.response.RegistrationRs;
 import ru.olshevskiy.blogengine.exception.ex.EmailDuplicateException;
 import ru.olshevskiy.blogengine.exception.ex.IncorrectCredentialsException;
 import ru.olshevskiy.blogengine.exception.ex.InvalidCaptchaCodeException;
+import ru.olshevskiy.blogengine.exception.ex.InvalidImageExtensionException;
 import ru.olshevskiy.blogengine.exception.ex.MultiuserModeException;
 import ru.olshevskiy.blogengine.exception.ex.PostNotFoundException;
 
@@ -32,24 +34,17 @@ import ru.olshevskiy.blogengine.exception.ex.PostNotFoundException;
 @RestControllerAdvice
 public class GlobalException {
 
-  private static int minPasswordLength;
-  private static int minTitleLength;
-  private static int minTextLength;
-
   @Value("${blog.min-password-length}")
-  public void setMinPasswordLength(int length) {
-    minPasswordLength = length;
-  }
+  private int minPasswordLength;
 
   @Value("${blog.post.titleLength}")
-  public void setMinTitleLength(int length) {
-    minTitleLength = length;
-  }
+  private int minTitleLength;
 
   @Value("${blog.post.textLength}")
-  public void setMinTextLength(int length) {
-    minTextLength = length;
-  }
+  private int minTextLength;
+
+  @Value("${spring.servlet.multipart.max-file-size}")
+  private String maxImageSize;
 
   @ExceptionHandler(PostNotFoundException.class)
   public ResponseEntity<PostByIdRs> handlePostNotFoundException() {
@@ -131,6 +126,31 @@ public class GlobalException {
         }
       }
     }
+    error.setErrors(errorsDescription);
+    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * FileSizeLimitExceededException handler.
+   */
+  @ExceptionHandler(SizeLimitExceededException.class)
+  public ResponseEntity<Error> handleFileSizeLimitExceededException() {
+    Error error = new Error().setResult(false);
+    Map<String, String> errorsDescription = new HashMap<>();
+    errorsDescription.put("photo",
+            String.format(ErrorDescription.IMAGE_SIZE_TOO_LARGE, maxImageSize));
+    error.setErrors(errorsDescription);
+    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * InvalidImageExtensionException handler.
+   */
+  @ExceptionHandler(InvalidImageExtensionException.class)
+  public ResponseEntity<Error> handleInvalidImageExtensionException() {
+    Error error = new Error().setResult(false);
+    Map<String, String> errorsDescription = new HashMap<>();
+    errorsDescription.put("photo", ErrorDescription.INVALID_IMAGE_EXTENSION);
     error.setErrors(errorsDescription);
     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
   }
