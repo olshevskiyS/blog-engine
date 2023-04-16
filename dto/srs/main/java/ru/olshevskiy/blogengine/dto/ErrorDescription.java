@@ -19,4 +19,8 @@ public class ErrorDescription {
                                              + "должен быть не менее %d символов";
   public static String IMAGE_SIZE_TOO_LARGE = "Размер файла превышает допустимый размер - %s";
   public static String INVALID_IMAGE_EXTENSION = "Файл не формата изображения: jpg, png";
+  public static String COMMENT_TEXT_TOO_SMALL =
+          "Текст комментария не установлен или слишком короткий";
+  public static String POST_NOT_FOUND = "Данный пост не существует";
+  public static String COMMENT_NOT_FOUND = "Данный комментарий не существует";
 }

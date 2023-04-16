@@ -17,9 +17,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.olshevskiy.blogengine.dto.ErrorDescription;
 import ru.olshevskiy.blogengine.dto.PostDto;
+import ru.olshevskiy.blogengine.dto.request.AddPostCommentRq;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
 import ru.olshevskiy.blogengine.dto.request.EditPostRq;
+import ru.olshevskiy.blogengine.dto.response.AddPostCommentRs;
 import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
 import ru.olshevskiy.blogengine.dto.response.EditPostRs;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
@@ -29,13 +32,16 @@ import ru.olshevskiy.blogengine.dto.response.PostByIdRs;
 import ru.olshevskiy.blogengine.dto.response.PostsByDateRs;
 import ru.olshevskiy.blogengine.dto.response.PostsByQueryRs;
 import ru.olshevskiy.blogengine.dto.response.PostsByTagRs;
-import ru.olshevskiy.blogengine.exception.ex.PostNotFoundException;
+import ru.olshevskiy.blogengine.exception.ex.InvalidCommentException;
+import ru.olshevskiy.blogengine.exception.ex.WrongParamInputException;
 import ru.olshevskiy.blogengine.mapper.PostViewPostDtoMapper;
 import ru.olshevskiy.blogengine.model.ModerationStatus;
 import ru.olshevskiy.blogengine.model.Post;
+import ru.olshevskiy.blogengine.model.PostComment;
 import ru.olshevskiy.blogengine.model.Tag;
 import ru.olshevskiy.blogengine.model.User;
 import ru.olshevskiy.blogengine.projection.PostView;
+import ru.olshevskiy.blogengine.repository.PostCommentRepository;
 import ru.olshevskiy.blogengine.repository.PostRepository;
 import ru.olshevskiy.blogengine.repository.TagRepository;
 import ru.olshevskiy.blogengine.security.SecurityUtils;
@@ -54,6 +60,7 @@ public class PostService {
   private final PostRepository postRepository;
   private final PostViewPostDtoMapper postViewPostDtoMapper;
   private final TagRepository tagRepository;
+  private final PostCommentRepository postCommentRepository;
 
   /**
    * PostService. Getting all active posts method.
@@ -154,10 +161,14 @@ public class PostService {
    */
   public PostByIdRs getPostById(int id) {
     log.info("Start request getPostById, id = " + id);
-    PostView postView = postRepository.getPostById(id).orElseThrow(PostNotFoundException::new);
-    Post updatedPost = updateCurrentPostViewCount(postView.getPost());
+    Optional<PostView> optionalPostView = postRepository.getPostById(id);
+    if (optionalPostView.isEmpty()) {
+      log.info("Post not found. Finish request getPostById with exception");
+      throw new WrongParamInputException(ErrorDescription.POST_NOT_FOUND);
+    }
+    Post updatedPost = updateCurrentPostViewCount(optionalPostView.get().getPost());
     PostByIdRs postByIdRs = postViewPostDtoMapper.postViewToPostById(
-            postView, updatedPost.getViewCount());
+            optionalPostView.get(), updatedPost.getViewCount());
     log.info("Finish request getPostById = " + id);
     return postByIdRs;
   }
@@ -337,5 +348,57 @@ public class PostService {
     } else if (!listOfGivenTagsNames.isEmpty() && currentPost.getTags().isEmpty()) {
       addTagsForPost(listOfGivenTagsNames, currentPost);
     }
+  }
+
+  /**
+   * PostService. Add comment for post or parent comment.
+   */
+  public AddPostCommentRs addPostComment(AddPostCommentRq addPostCommentRq) {
+    log.info("Start request addPostComment for post with id " + addPostCommentRq.getPostId());
+    checkLengthCommentText(addPostCommentRq.getText());
+    User currentUser = SecurityUtils.getCurrentUser();
+    Post currentPost = getCurrentPost(addPostCommentRq.getPostId());
+    PostComment newPostComment = new PostComment(
+            currentUser.getId(), currentPost.getId(), addPostCommentRq.getText());
+    newPostComment.setUser(currentUser);
+    newPostComment.setPost(currentPost);
+    PostComment currentParentPostComment = checkAndGetCurrentParentComment(
+            addPostCommentRq.getParentId());
+    if (currentParentPostComment != null) {
+      newPostComment.setParentId(currentParentPostComment.getId());
+      newPostComment.setParentComment(currentParentPostComment);
+    }
+    PostComment savedPostComment = postCommentRepository.save(newPostComment);
+    log.info("Finish request addPostComment, new comment id " + savedPostComment.getId());
+    return new AddPostCommentRs().setId(savedPostComment.getId());
+  }
+
+  private void checkLengthCommentText(String textComment) {
+    if (textComment.length() < 3) {
+      log.info("Comment's text is too small. Finish request addPostComment with exception");
+      throw new InvalidCommentException();
+    }
+  }
+
+  private Post getCurrentPost(int requestedPostId) {
+    Optional<Post> optionalPost = postRepository.findById(requestedPostId);
+    if (optionalPost.isEmpty()) {
+      log.info("Post not found. Finish request addPostComment with exception");
+      throw new WrongParamInputException(ErrorDescription.POST_NOT_FOUND);
+    }
+    return optionalPost.get();
+  }
+
+  private PostComment checkAndGetCurrentParentComment(Integer requestedParentCommentId) {
+    if (requestedParentCommentId == null) {
+      return null;
+    }
+    Optional<PostComment> optionalPostComment = postCommentRepository
+            .findById(requestedParentCommentId);
+    if (optionalPostComment.isEmpty()) {
+      log.info("Post's comment not found. Finish request addPostComment with exception");
+      throw new WrongParamInputException(ErrorDescription.COMMENT_NOT_FOUND);
+    }
+    return optionalPostComment.get();
   }
 }

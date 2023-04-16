@@ -3,6 +3,7 @@ package ru.olshevskiy.blogengine.resource;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,8 +19,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.olshevskiy.blogengine.dto.Error;
+import ru.olshevskiy.blogengine.dto.InvalidInput;
+import ru.olshevskiy.blogengine.dto.request.AddPostCommentRq;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
 import ru.olshevskiy.blogengine.dto.request.EditPostRq;
+import ru.olshevskiy.blogengine.dto.response.AddPostCommentRs;
 import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
 import ru.olshevskiy.blogengine.dto.response.EditPostRs;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
@@ -35,11 +39,11 @@ import ru.olshevskiy.blogengine.dto.response.PostsByTagRs;
  *
  * @author Sergey Olshevskiy
  */
-@RequestMapping("/api/post")
+@RequestMapping("/api")
 @Tag(name = "Post Service", description = "Работа с постами")
 public interface ApiPostController {
 
-  @GetMapping("")
+  @GetMapping("/post")
   @Operation(summary = "Список постов для главной страницы")
   @ApiResponse(responseCode = "200",
                description = "Успешный запрос",
@@ -53,7 +57,7 @@ public interface ApiPostController {
           @Parameter(description = "Режим вывода (сортировка)")
             @RequestParam(defaultValue = "recent") String mode);
 
-  @GetMapping("/search")
+  @GetMapping("/post/search")
   @Operation(summary = "Поиск постов")
   @ApiResponse(responseCode = "200",
                description = "Успешный запрос",
@@ -67,7 +71,7 @@ public interface ApiPostController {
           @Parameter(description = "Поисковый запрос")
             @RequestParam String query);
 
-  @GetMapping("/byDate")
+  @GetMapping("/post/byDate")
   @Operation(summary = "Список постов за указанную дату")
   @ApiResponse(responseCode = "200",
                description = "Успешный запрос",
@@ -81,7 +85,7 @@ public interface ApiPostController {
           @Parameter(description = "Дата, по которой нужно вывести посты")
             @RequestParam String date);
 
-  @GetMapping("/byTag")
+  @GetMapping("/post/byTag")
   @Operation(summary = "Список постов по тэгу")
   @ApiResponse(responseCode = "200",
                description = "Успешный запрос",
@@ -95,21 +99,22 @@ public interface ApiPostController {
           @Parameter(description = "Тэг, по которому нужно вывести посты")
             @RequestParam String tag);
 
-  @GetMapping("/{id}")
+  @GetMapping("/post/{id}")
   @Operation(summary = "Получение поста по идентификатору")
   @ApiResponses({
       @ApiResponse(responseCode = "200",
                    description = "Успешный запрос",
                    content = @Content(mediaType = "application/json",
                    schema = @Schema(implementation = PostByIdRs.class))),
-      @ApiResponse(responseCode = "404",
+      @ApiResponse(responseCode = "400",
                    description = "Пост не найден",
-                   content = @Content(mediaType = "application/json"))
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = InvalidInput.class)))
   })
   ResponseEntity<PostByIdRs> getPostById(@Parameter(description = "Идентификатор поста")
                                          @PathVariable("id") int id);
 
-  @GetMapping("/my")
+  @GetMapping("/post/my")
   @PreAuthorize("hasAuthority('user:write')")
   @Operation(summary = "Список моих постов")
   @ApiResponses({
@@ -129,7 +134,7 @@ public interface ApiPostController {
           @Parameter(description = "Статус модерации")
             @RequestParam String status);
 
-  @GetMapping("/moderation")
+  @GetMapping("/post/moderation")
   @PreAuthorize("hasAuthority('user:moderate')")
   @Operation(summary = "Список постов на модерацию")
   @ApiResponses({
@@ -149,7 +154,7 @@ public interface ApiPostController {
           @Parameter(description = "Статус модерации")
             @RequestParam String status);
 
-  @PostMapping("")
+  @PostMapping("/post")
   @PreAuthorize("hasAuthority('user:write')")
   @Operation(summary = "Добавление поста")
   @ApiResponses({
@@ -167,7 +172,7 @@ public interface ApiPostController {
   })
   ResponseEntity<CreatePostRs> createPost(@Valid @RequestBody CreatePostRq createPostRq);
 
-  @PutMapping("/{id}")
+  @PutMapping("/post/{id}")
   @PreAuthorize("hasAuthority('user:write')")
   @Operation(summary = "Редактирование поста")
   @ApiResponses({
@@ -186,4 +191,39 @@ public interface ApiPostController {
   ResponseEntity<EditPostRs> editPost(@Parameter(description = "Идентификатор поста")
                                       @PathVariable("id") int id,
                                       @Valid @RequestBody EditPostRq editPostRq);
+
+  @PostMapping("/comment")
+  @PreAuthorize("hasAuthority('user:write')")
+  @Operation(summary = "Отправка комментария к посту")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+                   description = "Успешное добавление комментария",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = AddPostCommentRs.class))),
+      @ApiResponse(responseCode = "400",
+                   description = "Введены неверные данные",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(oneOf = {Error.class, InvalidInput.class}),
+                   examples = {@ExampleObject(name = "Текст комментария не установлен"
+                                              + " или слишком короткий",
+                                              value = addPostCommentInvalidInputResponsesExampleOne,
+                                              summary = "Некорректный комментарий"),
+                               @ExampleObject(name = "Запрашиваемые пост и/или комментарий"
+                                              + " не существуют",
+                                              value = addPostCommentInvalidInputResponsesExampleTwo,
+                                              summary = "Неверный параметр на входе")})),
+      @ApiResponse(responseCode = "401",
+                   description = "Пользователь не аутентифицирован",
+                   content = @Content(mediaType = "application/json"))
+  })
+  ResponseEntity<AddPostCommentRs> addPostComment(@RequestBody AddPostCommentRq addPostCommentRq);
+
+  String addPostCommentInvalidInputResponsesExampleOne = "{\n"
+          + "  \"result\": false,\n"
+          + "  \"errors\": \"ошибка: описание причины ошибки\"\n"
+          + "}";
+
+  String addPostCommentInvalidInputResponsesExampleTwo = "{\n"
+          + "  \"message\": \"описание ошибки\"\n"
+          + "}";
 }

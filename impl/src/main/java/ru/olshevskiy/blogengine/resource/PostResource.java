@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import ru.olshevskiy.blogengine.dto.request.AddPostCommentRq;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
 import ru.olshevskiy.blogengine.dto.request.EditPostRq;
+import ru.olshevskiy.blogengine.dto.response.AddPostCommentRs;
 import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
 import ru.olshevskiy.blogengine.dto.response.EditPostRs;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
@@ -73,5 +75,10 @@ public class PostResource implements ApiPostController {
   @Override
   public ResponseEntity<EditPostRs> editPost(int id, EditPostRq editPostRq) {
     return new ResponseEntity<>(postService.editPost(id, editPostRq), HttpStatus.OK);
+  }
+
+  @Override
+  public ResponseEntity<AddPostCommentRs> addPostComment(AddPostCommentRq addPostCommentRq) {
+    return new ResponseEntity<>(postService.addPostComment(addPostCommentRq), HttpStatus.CREATED);
   }
 }

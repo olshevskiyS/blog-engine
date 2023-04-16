@@ -64,7 +64,10 @@ public class PostComment {
   @OneToMany(mappedBy = "parentComment", fetch = FetchType.LAZY, orphanRemoval = true)
   private Set<PostComment> childrenPosts = new HashSet<>();
 
-  PostComment(int userId, int postId, String text) {
+  /**
+   * New comment for post constructor.
+   */
+  public PostComment(int userId, int postId, String text) {
     this.userId = userId;
     this.postId = postId;
     this.text = text;

@@ -16,14 +16,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.olshevskiy.blogengine.dto.Error;
 import ru.olshevskiy.blogengine.dto.ErrorDescription;
 import ru.olshevskiy.blogengine.dto.IncorrectCredentialsDto;
-import ru.olshevskiy.blogengine.dto.response.PostByIdRs;
+import ru.olshevskiy.blogengine.dto.InvalidInput;
 import ru.olshevskiy.blogengine.dto.response.RegistrationRs;
 import ru.olshevskiy.blogengine.exception.ex.EmailDuplicateException;
 import ru.olshevskiy.blogengine.exception.ex.IncorrectCredentialsException;
 import ru.olshevskiy.blogengine.exception.ex.InvalidCaptchaCodeException;
+import ru.olshevskiy.blogengine.exception.ex.InvalidCommentException;
 import ru.olshevskiy.blogengine.exception.ex.InvalidImageExtensionException;
 import ru.olshevskiy.blogengine.exception.ex.MultiuserModeException;
-import ru.olshevskiy.blogengine.exception.ex.PostNotFoundException;
+import ru.olshevskiy.blogengine.exception.ex.WrongParamInputException;
 
 /**
  * GlobalException.
@@ -45,11 +46,6 @@ public class GlobalException {
 
   @Value("${spring.servlet.multipart.max-file-size}")
   private String maxImageSize;
-
-  @ExceptionHandler(PostNotFoundException.class)
-  public ResponseEntity<PostByIdRs> handlePostNotFoundException() {
-    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-  }
 
   @ExceptionHandler(MultiuserModeException.class)
   public ResponseEntity<RegistrationRs> handleMultiuserModeException() {
@@ -151,6 +147,28 @@ public class GlobalException {
     Error error = new Error().setResult(false);
     Map<String, String> errorsDescription = new HashMap<>();
     errorsDescription.put("photo", ErrorDescription.INVALID_IMAGE_EXTENSION);
+    error.setErrors(errorsDescription);
+    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * WrongParamInputException handler.
+   */
+  @ExceptionHandler(WrongParamInputException.class)
+  public ResponseEntity<InvalidInput> handleWrongParamInputException(WrongParamInputException ex) {
+    InvalidInput invalidInput = new InvalidInput();
+    invalidInput.setMessage(ex.getMessage());
+    return new ResponseEntity<>(invalidInput, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * InvalidCommentException handler.
+   */
+  @ExceptionHandler(InvalidCommentException.class)
+  public ResponseEntity<Error> handleInvalidCommentException() {
+    Error error = new Error().setResult(false);
+    Map<String, String> errorsDescription = new HashMap<>();
+    errorsDescription.put("text", ErrorDescription.COMMENT_TEXT_TOO_SMALL);
     error.setErrors(errorsDescription);
     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
   }
