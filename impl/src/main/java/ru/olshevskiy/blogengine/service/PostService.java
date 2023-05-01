@@ -3,6 +3,7 @@ package ru.olshevskiy.blogengine.service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,10 +23,12 @@ import ru.olshevskiy.blogengine.dto.PostDto;
 import ru.olshevskiy.blogengine.dto.request.AddPostCommentRq;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
 import ru.olshevskiy.blogengine.dto.request.EditPostRq;
+import ru.olshevskiy.blogengine.dto.request.ModerationPostRq;
 import ru.olshevskiy.blogengine.dto.response.AddPostCommentRs;
 import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
 import ru.olshevskiy.blogengine.dto.response.EditPostRs;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.dto.response.ModerationPostRs;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
 import ru.olshevskiy.blogengine.dto.response.PostByIdRs;
@@ -44,6 +47,7 @@ import ru.olshevskiy.blogengine.projection.PostView;
 import ru.olshevskiy.blogengine.repository.PostCommentRepository;
 import ru.olshevskiy.blogengine.repository.PostRepository;
 import ru.olshevskiy.blogengine.repository.TagRepository;
+import ru.olshevskiy.blogengine.repository.UserRepository;
 import ru.olshevskiy.blogengine.security.SecurityUtils;
 
 /**
@@ -61,6 +65,7 @@ public class PostService {
   private final PostViewPostDtoMapper postViewPostDtoMapper;
   private final TagRepository tagRepository;
   private final PostCommentRepository postCommentRepository;
+  private final UserRepository userRepository;
 
   /**
    * PostService. Getting all active posts method.
@@ -271,6 +276,12 @@ public class PostService {
             .setIsActive(createPostRq.getActive())
             .setUserId(currentUser.getId())
             .setUser(currentUser);
+    if (newPost.getIsActive() == 1) {
+      if (currentUser.getIsModerator() == 1) {
+        newPost.setModerationStatus(ModerationStatus.ACCEPTED);
+      }
+      assignModeratorForPost(newPost, currentUser);
+    }
     updatePostTimestamp(createPostRq.getTimestamp(), newPost);
     Post savedPost = postRepository.save(newPost);
     if (!createPostRq.getTags().isEmpty()) {
@@ -281,13 +292,26 @@ public class PostService {
     return new CreatePostRs().setResult(true);
   }
 
+  private void assignModeratorForPost(Post currentPost, User currentUser) {
+    User moderatorForPost;
+    if (currentUser.getIsModerator() == 1) {
+      moderatorForPost = currentUser;
+    } else {
+      List<User> allModerators = userRepository.findAllByIsModeratorEquals((byte) 1);
+      int selectedId = (int) (Math.random() * allModerators.size());
+      moderatorForPost = allModerators.get(selectedId);
+    }
+    currentPost.setModeratorId(moderatorForPost.getId())
+               .setModerator(moderatorForPost);
+  }
+
   private void updatePostTimestamp(long givenTimestamp, Post updatedPost) {
     Instant now = Instant.now();
     if (givenTimestamp <= now.getEpochSecond()) {
-      updatedPost.setTime(LocalDateTime.ofInstant(now, ZoneId.systemDefault()));
+      updatedPost.setTime(LocalDateTime.ofInstant(now, ZoneId.ofOffset("UTC", ZoneOffset.UTC)));
     } else {
-      updatedPost.setTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(
-              givenTimestamp), ZoneId.systemDefault()));
+      updatedPost.setTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(givenTimestamp),
+              ZoneId.ofOffset("UTC", ZoneOffset.UTC)));
     }
   }
 
@@ -312,18 +336,28 @@ public class PostService {
    */
   public EditPostRs editPost(int id, EditPostRq editPostRq) {
     log.info("Start request editPost id " + id);
-    User currentUser = SecurityUtils.getCurrentUser();
     Post currentPost = postRepository.getById(id);
+    User currentUser = SecurityUtils.getCurrentUser();
+    if (currentPost.getIsActive() == 0 && editPostRq.getActive() == 1) {
+      assignModeratorForPost(currentPost, currentUser);
+    }
     currentPost.setIsActive(editPostRq.getActive())
                .setTitle(editPostRq.getTitle())
                .setText(editPostRq.getText());
-    if (currentUser.getId() == currentPost.getUserId()) {
-      currentPost.setModerationStatus(ModerationStatus.NEW);
-    }
+    updateModerationStatusForPost(currentPost, currentUser);
     updatePostTimestamp(editPostRq.getTimestamp(), currentPost);
     updateTagsForPost(editPostRq.getTags(), currentPost);
     log.info("Finish request editPost id " + id);
     return new EditPostRs().setResult(true);
+  }
+
+  private void updateModerationStatusForPost(Post currentPost, User currentUser) {
+    if (currentUser.getId() == currentPost.getUserId()) {
+      currentPost.setModerationStatus(ModerationStatus.NEW);
+    }
+    if (currentUser.getIsModerator() == 1) {
+      currentPost.setModerationStatus(ModerationStatus.ACCEPTED);
+    }
   }
 
   private void updateTagsForPost(List<String> listOfGivenTagsNames, Post currentPost) {
@@ -351,13 +385,13 @@ public class PostService {
   }
 
   /**
-   * PostService. Add comment for post or parent comment.
+   * PostService. Add comment for post or parent comment method.
    */
   public AddPostCommentRs addPostComment(AddPostCommentRq addPostCommentRq) {
     log.info("Start request addPostComment for post with id " + addPostCommentRq.getPostId());
     checkLengthCommentText(addPostCommentRq.getText());
     User currentUser = SecurityUtils.getCurrentUser();
-    Post currentPost = getCurrentPost(addPostCommentRq.getPostId());
+    Post currentPost = getPostForComment(addPostCommentRq.getPostId());
     PostComment newPostComment = new PostComment(
             currentUser.getId(), currentPost.getId(), addPostCommentRq.getText());
     newPostComment.setUser(currentUser);
@@ -380,7 +414,7 @@ public class PostService {
     }
   }
 
-  private Post getCurrentPost(int requestedPostId) {
+  private Post getPostForComment(int requestedPostId) {
     Optional<Post> optionalPost = postRepository.findById(requestedPostId);
     if (optionalPost.isEmpty()) {
       log.info("Post not found. Finish request addPostComment with exception");
@@ -400,5 +434,26 @@ public class PostService {
       throw new WrongParamInputException(ErrorDescription.COMMENT_NOT_FOUND);
     }
     return optionalPostComment.get();
+  }
+
+  /**
+   * PostService. Moderate the post method.
+   */
+  public ModerationPostRs moderatePost(ModerationPostRq moderationPostRq) {
+    log.info("Start request moderatePost with id " + moderationPostRq.getPostId());
+    Optional<Post> optionalPost = postRepository.findById(moderationPostRq.getPostId());
+    if (optionalPost.isEmpty()) {
+      log.info("Post not found. Request moderatePost failed");
+      return new ModerationPostRs().setResult(false);
+    }
+    Post currentPost = optionalPost.get();
+    if (moderationPostRq.getDecision().equals("accept")) {
+      currentPost.setModerationStatus(ModerationStatus.ACCEPTED);
+    } else {
+      currentPost.setModerationStatus(ModerationStatus.DECLINED);
+    }
+    postRepository.save(currentPost);
+    log.info("Finish request moderatePost. Status: " + moderationPostRq.getDecision());
+    return new ModerationPostRs().setResult(true);
   }
 }

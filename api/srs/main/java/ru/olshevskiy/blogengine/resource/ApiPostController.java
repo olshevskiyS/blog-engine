@@ -23,10 +23,12 @@ import ru.olshevskiy.blogengine.dto.InvalidInput;
 import ru.olshevskiy.blogengine.dto.request.AddPostCommentRq;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
 import ru.olshevskiy.blogengine.dto.request.EditPostRq;
+import ru.olshevskiy.blogengine.dto.request.ModerationPostRq;
 import ru.olshevskiy.blogengine.dto.response.AddPostCommentRs;
 import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
 import ru.olshevskiy.blogengine.dto.response.EditPostRs;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.dto.response.ModerationPostRs;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
 import ru.olshevskiy.blogengine.dto.response.PostByIdRs;
@@ -217,6 +219,17 @@ public interface ApiPostController {
                    content = @Content(mediaType = "application/json"))
   })
   ResponseEntity<AddPostCommentRs> addPostComment(@RequestBody AddPostCommentRq addPostCommentRq);
+
+  @PostMapping("/moderation")
+  @PreAuthorize("hasAuthority('user:moderate')")
+  @Operation(summary = "Модерация поста")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+                   description = "Ответ в случае успешной или неуспешной модерации поста",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = ModerationPostRs.class)))
+  })
+  ResponseEntity<ModerationPostRs> moderatePost(@RequestBody ModerationPostRq moderationPostRq);
 
   String addPostCommentInvalidInputResponsesExampleOne = "{\n"
           + "  \"result\": false,\n"

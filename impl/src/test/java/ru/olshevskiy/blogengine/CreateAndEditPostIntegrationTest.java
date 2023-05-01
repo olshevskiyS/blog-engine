@@ -2,7 +2,7 @@ package ru.olshevskiy.blogengine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,13 +50,13 @@ public class CreateAndEditPostIntegrationTest extends InitTestContainer {
   @Autowired
   private UserRepository userRepository;
 
-  CreatePostRq createPostRq;
-  EditPostRq editPostRq;
+  CreatePostRq createPostRq1 = new CreatePostRq();
+  CreatePostRq createPostRq2 = new CreatePostRq();
+  EditPostRq editPostRq = new EditPostRq();
 
   @BeforeEach
   void setup() {
-    createPostRq = new CreatePostRq();
-    createPostRq.setTimestamp(1894681025L)
+    createPostRq1.setTimestamp(1894681025L)
                 .setActive((byte) 1)
                 .setTitle("Новый пост")
                 .setText("Публикация записей на стене - один из основных вариантов, чтобы"
@@ -67,7 +67,12 @@ public class CreateAndEditPostIntegrationTest extends InitTestContainer {
                   }}
         );
 
-    editPostRq = new EditPostRq();
+    createPostRq2.setTimestamp(1894681035L)
+                 .setActive((byte) 0)
+                 .setTitle("Новый пост 2")
+                 .setText("Текст поста")
+                 .setTags(new ArrayList<>());
+
     editPostRq.setTimestamp(1894681026L)
               .setActive((byte) 0)
               .setTitle("1")
@@ -83,18 +88,17 @@ public class CreateAndEditPostIntegrationTest extends InitTestContainer {
   @Test
   @WithUserDetails(value = "user02@email.com",
           userDetailsServiceBeanName = "userDetailsServiceImpl")
-  void testCreateNewPost() {
-    CreatePostRs createPostRs = postService.createPost(createPostRq);
+  void testCreateNewActivePostByUser() {
+    CreatePostRs createPostRs = postService.createPost(createPostRq1);
     assertThat(createPostRs.isResult()).isTrue();
 
     Post newPost = postRepository.getById(9);
-    assertThat(newPost.getTime().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond())
-               .isEqualTo(1894681025L);
+    assertThat(newPost.getTime().toEpochSecond(ZoneOffset.UTC)).isEqualTo(1894681025L);
     assertThat(newPost.getIsActive()).isEqualTo((byte) 1);
     assertThat(newPost.getTitle()).isEqualTo("Новый пост");
     assertThat(newPost.getModerationStatus()).isEqualTo(ModerationStatus.NEW);
     assertThat(newPost.getViewCount()).isEqualTo(0);
-    assertThat(newPost.getModerator()).isNull();
+    assertThat(newPost.getModerator()).isNotNull();
 
     Tag newTag = tagRepository.getById(5);
     assertThat(newTag.getName()).isEqualTo("пост");
@@ -111,6 +115,45 @@ public class CreateAndEditPostIntegrationTest extends InitTestContainer {
   @Test
   @WithUserDetails(value = "user02@email.com",
           userDetailsServiceBeanName = "userDetailsServiceImpl")
+  void testCreateNewHiddenPostByUser() {
+    CreatePostRs createPostRs = postService.createPost(createPostRq2);
+    assertThat(createPostRs.isResult()).isTrue();
+
+    Post newPost = postRepository.getById(9);
+    assertThat(newPost.getIsActive()).isEqualTo((byte) 0);
+    assertThat(newPost.getModerationStatus()).isEqualTo(ModerationStatus.NEW);
+    assertThat(newPost.getModerator()).isNull();
+  }
+
+  @Test
+  @WithUserDetails(value = "user01@email.com",
+          userDetailsServiceBeanName = "userDetailsServiceImpl")
+  void testCreateNewActivePostByModerator() {
+    CreatePostRs createPostRs = postService.createPost(createPostRq1);
+    assertThat(createPostRs.isResult()).isTrue();
+
+    Post newPost = postRepository.getById(9);
+    assertThat(newPost.getIsActive()).isEqualTo((byte) 1);
+    assertThat(newPost.getModerationStatus()).isEqualTo(ModerationStatus.ACCEPTED);
+    assertThat(newPost.getModerator().getId()).isEqualTo(1);
+  }
+
+  @Test
+  @WithUserDetails(value = "user01@email.com",
+          userDetailsServiceBeanName = "userDetailsServiceImpl")
+  void testCreateNewHiddenPostByModerator() {
+    CreatePostRs createPostRs = postService.createPost(createPostRq2);
+    assertThat(createPostRs.isResult()).isTrue();
+
+    Post newPost = postRepository.getById(9);
+    assertThat(newPost.getIsActive()).isEqualTo((byte) 0);
+    assertThat(newPost.getModerationStatus()).isEqualTo(ModerationStatus.NEW);
+    assertThat(newPost.getModerator()).isNull();
+  }
+
+  @Test
+  @WithUserDetails(value = "user02@email.com",
+          userDetailsServiceBeanName = "userDetailsServiceImpl")
   void testEditPostByUser() {
     Post originalPost = postRepository.getById(3);
     assertThat(originalPost.getModerationStatus()).isEqualTo(ModerationStatus.ACCEPTED);
@@ -120,8 +163,7 @@ public class CreateAndEditPostIntegrationTest extends InitTestContainer {
     assertThat(editPostRs.isResult()).isTrue();
 
     Post updatedPost = postRepository.getById(3);
-    assertThat(updatedPost.getTime().atZone(ZoneId.systemDefault()).toInstant().getEpochSecond())
-            .isEqualTo(1894681026L);
+    assertThat(updatedPost.getTime().toEpochSecond(ZoneOffset.UTC)).isEqualTo(1894681026L);
     assertThat(updatedPost.getIsActive()).isEqualTo((byte) 0);
     assertThat(updatedPost.getText()).isEqualTo("2");
     assertThat(updatedPost.getModerationStatus()).isEqualTo(ModerationStatus.NEW);
@@ -132,7 +174,6 @@ public class CreateAndEditPostIntegrationTest extends InitTestContainer {
     assertThat(newTag.getPosts().contains(updatedPost)).isTrue();
     assertThat(updatedPost.getTags().contains(newTag)).isTrue();
   }
-
 
   @Test
   @WithUserDetails(value = "user01@email.com",

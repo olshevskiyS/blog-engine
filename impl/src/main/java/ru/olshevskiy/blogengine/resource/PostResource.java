@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.olshevskiy.blogengine.dto.request.AddPostCommentRq;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
 import ru.olshevskiy.blogengine.dto.request.EditPostRq;
+import ru.olshevskiy.blogengine.dto.request.ModerationPostRq;
 import ru.olshevskiy.blogengine.dto.response.AddPostCommentRs;
 import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
 import ru.olshevskiy.blogengine.dto.response.EditPostRs;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.dto.response.ModerationPostRs;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
 import ru.olshevskiy.blogengine.dto.response.PostByIdRs;
@@ -80,5 +82,10 @@ public class PostResource implements ApiPostController {
   @Override
   public ResponseEntity<AddPostCommentRs> addPostComment(AddPostCommentRq addPostCommentRq) {
     return new ResponseEntity<>(postService.addPostComment(addPostCommentRq), HttpStatus.CREATED);
+  }
+
+  @Override
+  public ResponseEntity<ModerationPostRs> moderatePost(ModerationPostRq moderationPostRq) {
+    return new ResponseEntity<>(postService.moderatePost(moderationPostRq), HttpStatus.OK);
   }
 }
