@@ -60,6 +60,8 @@
 		<swagger-annotations.version>2.1.12</swagger-annotations.version>
 		<springdoc-openapi-ui.version>1.6.3</springdoc-openapi-ui.version>
 		<com.cloudinary.version>1.30.0</com.cloudinary.version>
+		<greenmail-junit5.version>1.6.6</greenmail-junit5.version>
+		<org.awaitility.version>4.1.1</org.awaitility.version>
 
 		<!-- Plugins properties -->
 		<flyway-maven-plugin.version>8.4.2</flyway-maven-plugin.version>
@@ -130,6 +132,23 @@
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-test</artifactId>
 				<version>${org.springframework.security.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-mail</artifactId>
+				<version>${org.springframework.boot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.icegreen</groupId>
+				<artifactId>greenmail-junit5</artifactId>
+				<version>${greenmail-junit5.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.awaitility</groupId>
+				<artifactId>awaitility</artifactId>
+				<version>${org.awaitility.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>

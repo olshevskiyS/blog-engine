@@ -1,17 +1,22 @@
 package ru.olshevskiy.blogengine.resource;
 
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 
 /**
  * DefaultResource.
  *
  * @author Sergey Olshevskiy
  */
-@RestController
+@Controller
 public class DefaultResource implements DefaultController {
 
   @Override
   public String index() {
     return "index";
+  }
+
+  @Override
+  public String redirectToIndex(String path) {
+    return "forward:/";
   }
 }

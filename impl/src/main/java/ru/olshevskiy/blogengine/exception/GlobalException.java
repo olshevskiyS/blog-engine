@@ -23,7 +23,9 @@ import ru.olshevskiy.blogengine.exception.ex.IncorrectCredentialsException;
 import ru.olshevskiy.blogengine.exception.ex.InvalidCaptchaCodeException;
 import ru.olshevskiy.blogengine.exception.ex.InvalidCommentException;
 import ru.olshevskiy.blogengine.exception.ex.InvalidImageExtensionException;
+import ru.olshevskiy.blogengine.exception.ex.InvalidVerificationCodeException;
 import ru.olshevskiy.blogengine.exception.ex.MultiuserModeException;
+import ru.olshevskiy.blogengine.exception.ex.VerificationCodeOutdatedException;
 import ru.olshevskiy.blogengine.exception.ex.WrongParamInputException;
 
 /**
@@ -69,11 +71,7 @@ public class GlobalException {
    */
   @ExceptionHandler(EmailDuplicateException.class)
   public ResponseEntity<Error> handleEmailDuplicateException() {
-    Map<String, String> errorsDescription = new HashMap<>();
-    errorsDescription.put("email", ErrorDescription.EMAIL_DUPLICATE);
-    Error error = new Error()
-            .setResult(false)
-            .setErrors(errorsDescription);
+    Error error = formErrorInfo("email", ErrorDescription.EMAIL_DUPLICATE);
     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
   }
 
@@ -82,11 +80,7 @@ public class GlobalException {
    */
   @ExceptionHandler(InvalidCaptchaCodeException.class)
   public ResponseEntity<Error> handleInvalidCaptchaCodeException() {
-    Map<String, String> errorsDescription = new HashMap<>();
-    errorsDescription.put("captcha", ErrorDescription.INVALID_CAPTCHA_CODE);
-    Error error = new Error()
-            .setResult(false)
-            .setErrors(errorsDescription);
+    Error error = formErrorInfo("captcha", ErrorDescription.INVALID_CAPTCHA_CODE);
     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
   }
 
@@ -131,11 +125,8 @@ public class GlobalException {
    */
   @ExceptionHandler(SizeLimitExceededException.class)
   public ResponseEntity<Error> handleFileSizeLimitExceededException() {
-    Error error = new Error().setResult(false);
-    Map<String, String> errorsDescription = new HashMap<>();
-    errorsDescription.put("photo",
+    Error error = formErrorInfo("photo",
             String.format(ErrorDescription.IMAGE_SIZE_TOO_LARGE, maxImageSize));
-    error.setErrors(errorsDescription);
     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
   }
 
@@ -144,10 +135,7 @@ public class GlobalException {
    */
   @ExceptionHandler(InvalidImageExtensionException.class)
   public ResponseEntity<Error> handleInvalidImageExtensionException() {
-    Error error = new Error().setResult(false);
-    Map<String, String> errorsDescription = new HashMap<>();
-    errorsDescription.put("photo", ErrorDescription.INVALID_IMAGE_EXTENSION);
-    error.setErrors(errorsDescription);
+    Error error = formErrorInfo("photo", ErrorDescription.INVALID_IMAGE_EXTENSION);
     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
   }
 
@@ -166,10 +154,35 @@ public class GlobalException {
    */
   @ExceptionHandler(InvalidCommentException.class)
   public ResponseEntity<Error> handleInvalidCommentException() {
-    Error error = new Error().setResult(false);
-    Map<String, String> errorsDescription = new HashMap<>();
-    errorsDescription.put("text", ErrorDescription.COMMENT_TEXT_TOO_SMALL);
-    error.setErrors(errorsDescription);
+    Error error = formErrorInfo("text", ErrorDescription.COMMENT_TEXT_TOO_SMALL);
     return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * InvalidVerificationCodeException handler.
+   */
+  @ExceptionHandler(InvalidVerificationCodeException.class)
+  public ResponseEntity<Error> handleInvalidVerificationCodeException() {
+    Error error = formErrorInfo("code", ErrorDescription.INVALID_VERIFICATION_CODE);
+    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * VerificationCodeOutdatedException handler.
+   */
+  @ExceptionHandler(VerificationCodeOutdatedException.class)
+  public ResponseEntity<Error> handleVerificationCodeOutdatedException(
+          VerificationCodeOutdatedException ex) {
+    Error error = formErrorInfo("code",
+            String.format(ErrorDescription.VERIFICATION_CODE_OUTDATED, ex.getMessage()));
+    return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+  }
+
+  private Error formErrorInfo(String errorSubject, String errorDescription) {
+    Error error = new Error().setResult(false);
+    Map<String, String> errorInfo = new HashMap<>();
+    errorInfo.put(errorSubject, errorDescription);
+    error.setErrors(errorInfo);
+    return error;
   }
 }

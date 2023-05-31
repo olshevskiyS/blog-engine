@@ -2,14 +2,14 @@ package ru.olshevskiy.blogengine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
@@ -25,12 +25,8 @@ import ru.olshevskiy.blogengine.service.PostService;
  *
  * @author Sergey Olshevskiy
  */
-@SpringBootTest
-@ActiveProfiles("test")
-@Sql(scripts = "/create-test-data.sql")
-@Sql(scripts = "/clean-test-data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-@AutoConfigureTestDatabase(replace = Replace.NONE)
-public class PostServiceIntegrationTest extends InitTestContainer {
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+public class PostServiceIntegrationTest extends BaseIntegrationTestWithTestContainer {
 
   @Autowired
   private PostService postService;
@@ -48,10 +44,14 @@ public class PostServiceIntegrationTest extends InitTestContainer {
   void testGetPostsWithVariousSortingMode() {
     GetPostsRs postsRs1 = postService.getPosts(0, 10, "recent");
     assertThat(postsRs1.getCount()).isEqualTo(5L);
-    assertThat(postsRs1.getPosts().get(0).getTimestamp()).isEqualTo(1642446495L);
+    LocalDateTime dateTheMostRecentPost = LocalDateTime.of(2022, Month.JANUARY, 17, 22, 8, 15);
+    assertThat(postsRs1.getPosts().get(0).getTimestamp())
+            .isEqualTo(dateTheMostRecentPost.toEpochSecond(ZoneOffset.UTC));
 
     GetPostsRs postsRs2 = postService.getPosts(0, 10, "early");
-    assertThat(postsRs2.getPosts().get(0).getTimestamp()).isEqualTo(1639807970L);
+    LocalDateTime dateTheMostEarlyPost = LocalDateTime.of(2021, Month.DECEMBER, 18, 9, 12, 50);
+    assertThat(postsRs2.getPosts().get(0).getTimestamp())
+            .isEqualTo(dateTheMostEarlyPost.toEpochSecond(ZoneOffset.UTC));
 
     GetPostsRs postsRs3 = postService.getPosts(0, 10, "popular");
     assertThat(postsRs3.getPosts().get(0).getId()).isEqualTo(5);
@@ -67,7 +67,9 @@ public class PostServiceIntegrationTest extends InitTestContainer {
     GetPostsRs postsRs = postService.getPosts(2, 2, "recent");
     assertThat(postsRs.getPosts().size()).isEqualTo(2);
     assertThat(postsRs.getPosts().get(0).getId()).isEqualTo(3);
-    assertThat(postsRs.getPosts().get(0).getTimestamp()).isEqualTo(1639843354L);
+    LocalDateTime dateFirstPostOnPage = LocalDateTime.of(2021, Month.DECEMBER, 18, 19, 2, 34);
+    assertThat(postsRs.getPosts().get(0).getTimestamp())
+            .isEqualTo(dateFirstPostOnPage.toEpochSecond(ZoneOffset.UTC));
   }
 
   @Test

@@ -7,13 +7,8 @@ import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.transaction.annotation.Transactional;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
 import ru.olshevskiy.blogengine.dto.request.EditPostRq;
@@ -34,12 +29,8 @@ import ru.olshevskiy.blogengine.service.PostService;
  * @author Sergey Olshevskiy
  */
 @SpringBootTest
-@ActiveProfiles("test")
-@Sql(scripts = "/create-test-data.sql")
-@Sql(scripts = "/clean-test-data.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
-@AutoConfigureTestDatabase(replace = Replace.NONE)
 @Transactional
-public class CreateAndEditPostIntegrationTest extends InitTestContainer {
+public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTestContainer {
 
   @Autowired
   private PostService postService;

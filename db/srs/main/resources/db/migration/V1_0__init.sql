@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) NOT NULL,
   password VARCHAR(255) NOT NULL,
   code VARCHAR(255),
+  code_create_time TIMESTAMP,
   photo TEXT,
   PRIMARY KEY (id)
 )ENGINE=InnoDB DEFAULT CHARSET=UTF8MB4;

@@ -23,4 +23,8 @@ public class ErrorDescription {
           "Текст комментария не установлен или слишком короткий";
   public static String POST_NOT_FOUND = "Данный пост не существует";
   public static String COMMENT_NOT_FOUND = "Данный комментарий не существует";
+  public static String INVALID_VERIFICATION_CODE = "Неверный код восстановления пароля";
+  public static String VERIFICATION_CODE_OUTDATED =
+          "<p>Ссылка для восстановления пароля устарела.</p>"
+          + "<a href=\"%s\">Запросить ссылку повторно</a>";
 }

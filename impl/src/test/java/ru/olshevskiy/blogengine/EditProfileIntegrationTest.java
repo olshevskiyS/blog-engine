@@ -7,18 +7,13 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -41,13 +36,9 @@ import ru.olshevskiy.blogengine.utils.TestImage;
  * @author Sergey Olshevskiy
  */
 @SpringBootTest
-@ActiveProfiles("test")
 @Transactional
-@Sql(scripts = "/create-test-data.sql")
-@Sql(scripts = "/clean-test-data.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
-@AutoConfigureTestDatabase(replace = Replace.NONE)
 @TestPropertySource(properties = "cloudinary.download-folder=test/")
-public class EditProfileIntegrationTest extends InitTestContainer {
+public class EditProfileIntegrationTest extends BaseIntegrationTestWithTestContainer {
 
   @Autowired
   private WebApplicationContext context;

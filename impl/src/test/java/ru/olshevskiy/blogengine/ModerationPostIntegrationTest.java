@@ -5,12 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.transaction.annotation.Transactional;
 import ru.olshevskiy.blogengine.dto.request.ModerationPostRq;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostRs;
@@ -20,17 +15,13 @@ import ru.olshevskiy.blogengine.repository.PostRepository;
 import ru.olshevskiy.blogengine.service.PostService;
 
 /**
- * ModerationPostUnitTest.
+ * ModerationPostIntegrationTest.
  *
  * @author Sergey Olshevskiy
  */
 @SpringBootTest
-@ActiveProfiles("test")
-@Sql(scripts = "/create-test-data.sql")
-@Sql(scripts = "/clean-test-data.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
 @Transactional
-@AutoConfigureTestDatabase(replace = Replace.NONE)
-public class ModerationPostUnitTest extends InitTestContainer {
+public class ModerationPostIntegrationTest extends BaseIntegrationTestWithTestContainer {
 
   ModerationPostRq moderationPostRq1 = new ModerationPostRq();
   ModerationPostRq moderationPostRq2 = new ModerationPostRq();

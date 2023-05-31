@@ -31,6 +31,16 @@ spring:
       max-request-size: 6MB
       enabled: true
 
+  mail:
+    host: smtp.yandex.ru
+    port: 465
+    username: enter your mail_server_username
+    password: enter your mail_server_password
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
 blog:
   title: GalvanoBlog
   subtitle: Записки гальванотехника
@@ -51,6 +61,12 @@ blog:
   security:
     remember-me-key: blogengine
     remember-me-validity-seconds: 86400
+  password-restore:
+    message-subject: Ссылка для восстановления пароля
+    link-pattern-restore: http://%s:%s/login/change-password/%s
+    message-text: <p>Добрый день, %s!</p><p>Вы отправили запрос на сброс своего пароля.</p><p>Нажмите на ссылку ниже, чтобы изменить свой пароль:</p><p><a href="%s">Сменить пароль</a></p><br><p>Проигнорируйте это письмо, если Вы помните свой пароль, или не Вы отправили этот запрос.</p>
+    verification-code-time: 600
+    link-pattern-repeat: http://%s:%s/login/restore-password
 
 springdoc:
   swagger-ui:

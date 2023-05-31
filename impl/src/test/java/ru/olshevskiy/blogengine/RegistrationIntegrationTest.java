@@ -6,13 +6,8 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import ru.olshevskiy.blogengine.dto.request.RegistrationRq;
 import ru.olshevskiy.blogengine.dto.response.RegistrationRs;
 import ru.olshevskiy.blogengine.model.User;
@@ -25,11 +20,7 @@ import ru.olshevskiy.blogengine.service.AuthService;
  * @author Sergey Olshevskiy
  */
 @SpringBootTest
-@ActiveProfiles("test")
-@Sql(scripts = "/create-test-data.sql")
-@Sql(scripts = "/clean-test-data.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
-@AutoConfigureTestDatabase(replace = Replace.NONE)
-public class RegistrationIntegrationTest extends InitTestContainer {
+public class RegistrationIntegrationTest extends BaseIntegrationTestWithTestContainer {
 
   @Autowired
   private AuthService authService;

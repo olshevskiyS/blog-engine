@@ -51,6 +51,9 @@ public class User {
   @Column(name = "code")
   private String code;
 
+  @Column(name = "code_create_time")
+  private LocalDateTime codeCreateTime;
+
   @Column(name = "photo", columnDefinition = "text")
   private String photo;
 

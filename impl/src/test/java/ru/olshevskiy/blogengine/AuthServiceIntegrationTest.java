@@ -11,17 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.olshevskiy.blogengine.dto.request.LoginRq;
 import ru.olshevskiy.blogengine.dto.response.LoginAndCheckRs;
@@ -35,11 +30,7 @@ import ru.olshevskiy.blogengine.service.AuthService;
  * @author Sergey Olshevskiy
  */
 @SpringBootTest
-@ActiveProfiles("test")
-@Sql(scripts = "/create-test-data.sql")
-@Sql(scripts = "/clean-test-data.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
-@AutoConfigureTestDatabase(replace = Replace.NONE)
-public class AuthServiceIntegrationTest extends InitTestContainer {
+public class AuthServiceIntegrationTest extends BaseIntegrationTestWithTestContainer {
 
   @Autowired
   private AuthService authService;

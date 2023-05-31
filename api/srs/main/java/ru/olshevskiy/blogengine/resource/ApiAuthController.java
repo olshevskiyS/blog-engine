@@ -17,12 +17,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.olshevskiy.blogengine.dto.Error;
 import ru.olshevskiy.blogengine.dto.IncorrectCredentialsDto;
+import ru.olshevskiy.blogengine.dto.InvalidInput;
+import ru.olshevskiy.blogengine.dto.request.ChangePassRq;
 import ru.olshevskiy.blogengine.dto.request.LoginRq;
 import ru.olshevskiy.blogengine.dto.request.RegistrationRq;
+import ru.olshevskiy.blogengine.dto.request.RestorePassRq;
 import ru.olshevskiy.blogengine.dto.response.CaptchaRs;
+import ru.olshevskiy.blogengine.dto.response.ChangePassRs;
 import ru.olshevskiy.blogengine.dto.response.LoginAndCheckRs;
 import ru.olshevskiy.blogengine.dto.response.LogoutRs;
 import ru.olshevskiy.blogengine.dto.response.RegistrationRs;
+import ru.olshevskiy.blogengine.dto.response.RestorePassRs;
 
 /**
  * ApiAuthController.
@@ -98,6 +103,34 @@ public interface ApiAuthController {
                content = @Content(mediaType = "application/json",
                schema = @Schema(implementation = LogoutRs.class)))
   ResponseEntity<LogoutRs> logout(HttpServletRequest request, HttpServletResponse response);
+
+  @PostMapping("/restore")
+  @Operation(summary = "Восстановление пароля")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+                   description = "Ссылка восстановления отправлена или логин не найден",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = RestorePassRs.class))),
+      @ApiResponse(responseCode = "400",
+                   description = "Неккоректный формат почтового адреса",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = InvalidInput.class)))
+  })
+  ResponseEntity<RestorePassRs> restorePassword(@RequestBody RestorePassRq restorePassRq);
+
+  @PostMapping("/password")
+  @Operation(summary = "Изменение пароля")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+                   description = "Пароль успешно изменен",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = ChangePassRs.class))),
+      @ApiResponse(responseCode = "400",
+                   description = "Введены неверные данные или истекло время действия ссылки",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = Error.class)))
+  })
+  ResponseEntity<ChangePassRs> changePassword(@RequestBody ChangePassRq changePassRq);
 
   String loginAndCheckResponsesExampleOne = "{\n"
           + "    \"result\": true,\n"
