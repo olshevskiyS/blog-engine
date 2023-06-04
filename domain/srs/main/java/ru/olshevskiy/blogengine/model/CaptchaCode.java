@@ -1,6 +1,8 @@
 package ru.olshevskiy.blogengine.model;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -38,9 +40,12 @@ public class CaptchaCode {
   @Column(name = "secret_code", nullable = false, columnDefinition = "tinytext")
   private String secretCode;
 
-  CaptchaCode(String code, String secretCode) {
+  /**
+   * New captchaCode constructor.
+   */
+  public CaptchaCode(String code, String secretCode) {
     this.code = code;
     this.secretCode = secretCode;
-    time = LocalDateTime.now();
+    time = LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.UTC));
   }
 }

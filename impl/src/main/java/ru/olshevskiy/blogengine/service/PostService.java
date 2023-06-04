@@ -22,12 +22,17 @@ import ru.olshevskiy.blogengine.dto.ErrorDescription;
 import ru.olshevskiy.blogengine.dto.PostDto;
 import ru.olshevskiy.blogengine.dto.request.AddPostCommentRq;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
+import ru.olshevskiy.blogengine.dto.request.DislikePostRq;
 import ru.olshevskiy.blogengine.dto.request.EditPostRq;
+import ru.olshevskiy.blogengine.dto.request.LikePostRq;
 import ru.olshevskiy.blogengine.dto.request.ModerationPostRq;
+import ru.olshevskiy.blogengine.dto.request.PostVoteRq;
 import ru.olshevskiy.blogengine.dto.response.AddPostCommentRs;
 import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
+import ru.olshevskiy.blogengine.dto.response.DislikePostRs;
 import ru.olshevskiy.blogengine.dto.response.EditPostRs;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.dto.response.LikePostRs;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostRs;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
@@ -41,11 +46,13 @@ import ru.olshevskiy.blogengine.mapper.PostViewPostDtoMapper;
 import ru.olshevskiy.blogengine.model.ModerationStatus;
 import ru.olshevskiy.blogengine.model.Post;
 import ru.olshevskiy.blogengine.model.PostComment;
+import ru.olshevskiy.blogengine.model.PostVote;
 import ru.olshevskiy.blogengine.model.Tag;
 import ru.olshevskiy.blogengine.model.User;
 import ru.olshevskiy.blogengine.projection.PostView;
 import ru.olshevskiy.blogengine.repository.PostCommentRepository;
 import ru.olshevskiy.blogengine.repository.PostRepository;
+import ru.olshevskiy.blogengine.repository.PostVoteRepository;
 import ru.olshevskiy.blogengine.repository.TagRepository;
 import ru.olshevskiy.blogengine.repository.UserRepository;
 import ru.olshevskiy.blogengine.security.SecurityUtils;
@@ -66,6 +73,7 @@ public class PostService {
   private final TagRepository tagRepository;
   private final PostCommentRepository postCommentRepository;
   private final UserRepository userRepository;
+  private final PostVoteRepository postVoteRepository;
 
   /**
    * PostService. Getting all active posts method.
@@ -442,8 +450,7 @@ public class PostService {
   public ModerationPostRs moderatePost(ModerationPostRq moderationPostRq) {
     log.info("Start request moderatePost with id " + moderationPostRq.getPostId());
     Optional<Post> optionalPost = postRepository.findById(moderationPostRq.getPostId());
-    if (optionalPost.isEmpty()) {
-      log.info("Post not found. Request moderatePost failed");
+    if (postDoNotExistsByRequest("moderatePost", optionalPost)) {
       return new ModerationPostRs().setResult(false);
     }
     Post currentPost = optionalPost.get();
@@ -455,5 +462,99 @@ public class PostService {
     postRepository.save(currentPost);
     log.info("Finish request moderatePost. Status: " + moderationPostRq.getDecision());
     return new ModerationPostRs().setResult(true);
+  }
+
+  private boolean postDoNotExistsByRequest(String request, Optional<Post> postOptional) {
+    if (postOptional.isEmpty()) {
+      log.info("Post not found. Request " + request + " failed");
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * PostService. Like the post method.
+   */
+  public LikePostRs like(LikePostRq likePostRq) {
+    log.info("Start request like for post id " + likePostRq.getPostId());
+    User currentUser = SecurityUtils.getCurrentUser();
+    Optional<PostVote> postVoteOptional = postVoteRepository
+            .findByPostIdAndUserId(likePostRq.getPostId(), currentUser.getId());
+    if (postVoteOptional.isEmpty()) {
+      Optional<Post> optionalPost = postRepository.findById(likePostRq.getPostId());
+      if (postDoNotExistsByRequest("like", optionalPost)) {
+        return (LikePostRs) new LikePostRs().setResult(false);
+      }
+      createAndSaveNewVote(likePostRq, currentUser, optionalPost.get());
+    } else {
+      PostVote currentPostVote = postVoteOptional.get();
+      if (voteIsRepeated(likePostRq, currentPostVote)) {
+        return (LikePostRs) new LikePostRs().setResult(false);
+      }
+      replaceAndSaveExistingVote(likePostRq, currentPostVote);
+    }
+    log.info("Finish request like");
+    return (LikePostRs) new LikePostRs().setResult(true);
+  }
+
+  /**
+   * PostService. Dislike the post method.
+   */
+  public DislikePostRs dislike(DislikePostRq dislikePostRq) {
+    log.info("Start request dislike for post id " + dislikePostRq.getPostId());
+    User currentUser = SecurityUtils.getCurrentUser();
+    Optional<PostVote> postVoteOptional = postVoteRepository
+            .findByPostIdAndUserId(dislikePostRq.getPostId(), currentUser.getId());
+    if (postVoteOptional.isEmpty()) {
+      Optional<Post> optionalPost = postRepository.findById(dislikePostRq.getPostId());
+      if (postDoNotExistsByRequest("dislike", optionalPost)) {
+        return (DislikePostRs) new DislikePostRs().setResult(false);
+      }
+      createAndSaveNewVote(dislikePostRq, currentUser, optionalPost.get());
+    } else {
+      PostVote currentPostVote = postVoteOptional.get();
+      if (voteIsRepeated(dislikePostRq, currentPostVote)) {
+        return (DislikePostRs) new DislikePostRs().setResult(false);
+      }
+      replaceAndSaveExistingVote(dislikePostRq, currentPostVote);
+    }
+    log.info("Finish request dislike");
+    return (DislikePostRs) new DislikePostRs().setResult(true);
+  }
+
+  private void createAndSaveNewVote(PostVoteRq request, User currentUser, Post currentPost) {
+    byte value = determineVoteValueDependingOnRequest(request);
+    PostVote newPostVote = new PostVote(currentUser.getId(), currentPost.getId(), value);
+    newPostVote.setUser(currentUser)
+               .setPost(currentPost);
+    postVoteRepository.save(newPostVote);
+  }
+
+  private byte determineVoteValueDependingOnRequest(PostVoteRq request) {
+    byte value = -1;
+    if (request instanceof LikePostRq) {
+      value = 1;
+    }
+    return value;
+  }
+
+  private boolean voteIsRepeated(PostVoteRq request, PostVote currentPostVote) {
+    byte value = determineVoteValueDependingOnRequest(request);
+    StringBuilder requestName = new StringBuilder("dislike");
+    if (value == 1) {
+      requestName.replace(0, 7, "like");
+    }
+    if (currentPostVote.getValue() == value) {
+      log.info("Repeat vote. Request " + requestName + " failed");
+      return true;
+    }
+    return false;
+  }
+
+  private void replaceAndSaveExistingVote(PostVoteRq request, PostVote currentPostVote) {
+    byte value = determineVoteValueDependingOnRequest(request);
+    currentPostVote.setValue(value)
+                   .setTime(LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.UTC)));
+    postVoteRepository.save(currentPostVote);
   }
 }

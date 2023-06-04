@@ -1,6 +1,8 @@
 package ru.olshevskiy.blogengine.model;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -71,6 +73,6 @@ public class PostComment {
     this.userId = userId;
     this.postId = postId;
     this.text = text;
-    time = LocalDateTime.now();
+    time = LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.UTC));
   }
 }

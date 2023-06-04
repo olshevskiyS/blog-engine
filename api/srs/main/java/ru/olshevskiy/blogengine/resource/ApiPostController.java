@@ -22,12 +22,16 @@ import ru.olshevskiy.blogengine.dto.Error;
 import ru.olshevskiy.blogengine.dto.InvalidInput;
 import ru.olshevskiy.blogengine.dto.request.AddPostCommentRq;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
+import ru.olshevskiy.blogengine.dto.request.DislikePostRq;
 import ru.olshevskiy.blogengine.dto.request.EditPostRq;
+import ru.olshevskiy.blogengine.dto.request.LikePostRq;
 import ru.olshevskiy.blogengine.dto.request.ModerationPostRq;
 import ru.olshevskiy.blogengine.dto.response.AddPostCommentRs;
 import ru.olshevskiy.blogengine.dto.response.CreatePostRs;
+import ru.olshevskiy.blogengine.dto.response.DislikePostRs;
 import ru.olshevskiy.blogengine.dto.response.EditPostRs;
 import ru.olshevskiy.blogengine.dto.response.GetPostsRs;
+import ru.olshevskiy.blogengine.dto.response.LikePostRs;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostRs;
 import ru.olshevskiy.blogengine.dto.response.ModerationPostsRs;
 import ru.olshevskiy.blogengine.dto.response.MyPostsRs;
@@ -230,6 +234,28 @@ public interface ApiPostController {
                    schema = @Schema(implementation = ModerationPostRs.class)))
   })
   ResponseEntity<ModerationPostRs> moderatePost(@RequestBody ModerationPostRq moderationPostRq);
+
+  @PostMapping("/post/like")
+  @PreAuthorize("hasAuthority('user:write')")
+  @Operation(summary = "Лайк поста")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+                   description = "Ответ в случае успешного или неуспешного лайка",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = LikePostRs.class)))
+  })
+  ResponseEntity<LikePostRs> like(@RequestBody LikePostRq likePostRq);
+
+  @PostMapping("/post/dislike")
+  @PreAuthorize("hasAuthority('user:write')")
+  @Operation(summary = "Дизлайк поста")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+                   description = "Ответ в случае успешного или неуспешного дизлайка",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = DislikePostRs.class)))
+  })
+  ResponseEntity<DislikePostRs> dislike(@RequestBody DislikePostRq dislikePostRq);
 
   String addPostCommentInvalidInputResponsesExampleOne = "{\n"
           + "  \"result\": false,\n"

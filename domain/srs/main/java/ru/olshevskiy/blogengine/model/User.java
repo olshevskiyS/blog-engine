@@ -1,6 +1,8 @@
 package ru.olshevskiy.blogengine.model;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
@@ -75,6 +77,6 @@ public class User {
   public User(String name, String email) {
     this.name = name;
     this.email = email;
-    regTime = LocalDateTime.now();
+    regTime = LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.UTC));
   }
 }

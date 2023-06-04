@@ -1,6 +1,8 @@
 package ru.olshevskiy.blogengine.model;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +15,7 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /**
  * PostVote.
@@ -23,6 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
+@Accessors(chain = true)
 @Table(name = "post_votes")
 public class PostVote {
 
@@ -50,10 +54,13 @@ public class PostVote {
   @JoinColumn(name = "post_id")
   private Post post;
 
-  PostVote(int userId, int postId, byte value) {
+  /**
+   * New postVote constructor.
+   */
+  public PostVote(int userId, int postId, byte value) {
     this.userId = userId;
     this.postId = postId;
     this.value = value;
-    time = LocalDateTime.now();
+    time = LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.UTC));
   }
 }

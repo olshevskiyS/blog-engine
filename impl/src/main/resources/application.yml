@@ -34,8 +34,8 @@ spring:
   mail:
     host: smtp.yandex.ru
     port: 465
-    username: enter your mail_server_username
-    password: enter your mail_server_password
+    username: Test4test2022@yandex.ru
+    password: qaysvclhmzwgqezw
 
   mvc:
     pathmatch:
@@ -80,7 +80,7 @@ swagger:
   path: ${SWAGGER_PATH:http://localhost:8080}
 
 cloudinary:
-  url: ${CLOUDINARY_URL:cloudinary://enter your cloudinary_url}
+  url: ${CLOUDINARY_URL:cloudinary://134695888526851:KE9MgzsJisMn0B5izwBuXYK1Lsc@dhtldn8id}
   download-folder: "upload/"
   transformation:
     width-image: 36

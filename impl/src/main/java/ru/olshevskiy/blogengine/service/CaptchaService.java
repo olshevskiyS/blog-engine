@@ -3,6 +3,8 @@ package ru.olshevskiy.blogengine.service;
 import com.github.cage.Cage;
 import com.github.cage.image.Painter;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,11 +55,9 @@ public class CaptchaService {
     CaptchaRs captchaRs = new CaptchaRs();
     captchaRs.setSecret(secretCode)
              .setImage(image);
-    CaptchaCode captcha = new CaptchaCode();
-    captcha.setTime(LocalDateTime.now())
-           .setCode(code)
-           .setSecretCode(secretCode);
-    captchaRepository.deleteByTimeBefore(LocalDateTime.now().minusHours(validTime));
+    CaptchaCode captcha = new CaptchaCode(code, secretCode);
+    captchaRepository.deleteByTimeBefore(LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.UTC))
+            .minusHours(validTime));
     captchaRepository.save(captcha);
     log.info("Finish request getCaptcha");
     return captchaRs;
