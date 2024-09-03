@@ -20,10 +20,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import ru.olshevskiy.blogengine.dto.Error;
 import ru.olshevskiy.blogengine.dto.request.EditProfileWithPhotoRq;
 import ru.olshevskiy.blogengine.dto.request.EditProfileWithoutPhotoRq;
+import ru.olshevskiy.blogengine.dto.response.AllStatisticsRs;
 import ru.olshevskiy.blogengine.dto.response.CalendarRs;
 import ru.olshevskiy.blogengine.dto.response.EditProfileRs;
 import ru.olshevskiy.blogengine.dto.response.GlobalSettingsRs;
 import ru.olshevskiy.blogengine.dto.response.InitRs;
+import ru.olshevskiy.blogengine.dto.response.MyStatisticsRs;
 import ru.olshevskiy.blogengine.dto.response.TagsByQueryRs;
 
 /**
@@ -104,4 +106,26 @@ public interface ApiGeneralController {
   })
   ResponseEntity<EditProfileRs> editProfileWithoutPhoto(@RequestBody @Valid
                                                         EditProfileWithoutPhotoRq editProfileRq);
+
+  @GetMapping("/statistics/my")
+  @PreAuthorize("hasAuthority('user:write')")
+  @Operation(summary = "Моя статистика")
+  @ApiResponse(responseCode = "200",
+               description = "Успешный запрос",
+               content = @Content(mediaType = "application/json",
+               schema = @Schema(implementation = MyStatisticsRs.class)))
+  ResponseEntity<MyStatisticsRs> getMyStatistics();
+
+  @GetMapping("/statistics/all")
+  @Operation(summary = "Статистика по всему блогу")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+                   description = "Успешный запрос",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = AllStatisticsRs.class))),
+      @ApiResponse(responseCode = "401",
+                   description = "Пользователь не аутентифицирован",
+                   content = @Content(mediaType = "application/json"))
+  })
+  ResponseEntity<AllStatisticsRs> getAllStatistics();
 }

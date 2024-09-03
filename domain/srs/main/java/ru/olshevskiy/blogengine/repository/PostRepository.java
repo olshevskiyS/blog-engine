@@ -1,5 +1,6 @@
 package ru.olshevskiy.blogengine.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
           + "AND p.moderationStatus = 'ACCEPTED' "
           + "AND p.time <= now()";
 
+  @Query(value = (selectPosts + "LEFT JOIN p.votes v GROUP BY p"))
+  List<PostView> getAllPosts();
+
   @Query(value = ("SELECT count(*) FROM Post p " + primaryCriterionGettingAllPosts))
   int getCountActivePosts();
 
@@ -49,6 +53,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
   @Query(value = (selectPosts + "LEFT JOIN p.votes v WHERE p.id = :id GROUP BY p"))
   Optional<PostView> getPostById(@Param("id") int id);
+
+  @Query(value = (selectPosts + "LEFT JOIN p.votes v " + primaryCriterionGettingAllPosts
+          + " AND p.userId = :userId GROUP BY p"))
+  List<PostView> getAllMyActivePosts(@Param("userId") int userId);
 
   @Query(value = (selectPosts + "LEFT JOIN p.votes v WHERE p.userId = :userId AND p.isActive = 0 "
           + "GROUP BY p"))

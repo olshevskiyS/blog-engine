@@ -6,10 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import ru.olshevskiy.blogengine.dto.request.EditProfileWithPhotoRq;
 import ru.olshevskiy.blogengine.dto.request.EditProfileWithoutPhotoRq;
+import ru.olshevskiy.blogengine.dto.response.AllStatisticsRs;
 import ru.olshevskiy.blogengine.dto.response.CalendarRs;
 import ru.olshevskiy.blogengine.dto.response.EditProfileRs;
 import ru.olshevskiy.blogengine.dto.response.GlobalSettingsRs;
 import ru.olshevskiy.blogengine.dto.response.InitRs;
+import ru.olshevskiy.blogengine.dto.response.MyStatisticsRs;
 import ru.olshevskiy.blogengine.dto.response.TagsByQueryRs;
 import ru.olshevskiy.blogengine.service.GeneralService;
 import ru.olshevskiy.blogengine.service.ProfileService;
@@ -61,5 +63,15 @@ public class GeneralResource implements ApiGeneralController {
                                        EditProfileWithoutPhotoRq editProfileRq) {
     return new ResponseEntity<>(profileService.editProfileWithoutPhoto(editProfileRq),
                                 HttpStatus.OK);
+  }
+
+  @Override
+  public ResponseEntity<MyStatisticsRs> getMyStatistics() {
+    return new ResponseEntity<>(generalService.getMyStatistics(), HttpStatus.OK);
+  }
+
+  @Override
+  public ResponseEntity<AllStatisticsRs> getAllStatistics() {
+    return new ResponseEntity<>(generalService.getAllStatistics(), HttpStatus.OK);
   }
 }

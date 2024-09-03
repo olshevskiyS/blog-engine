@@ -17,7 +17,6 @@ import ru.olshevskiy.blogengine.dto.Error;
 import ru.olshevskiy.blogengine.dto.ErrorDescription;
 import ru.olshevskiy.blogengine.dto.IncorrectCredentialsDto;
 import ru.olshevskiy.blogengine.dto.InvalidInput;
-import ru.olshevskiy.blogengine.dto.response.RegistrationRs;
 import ru.olshevskiy.blogengine.exception.ex.EmailDuplicateException;
 import ru.olshevskiy.blogengine.exception.ex.IncorrectCredentialsException;
 import ru.olshevskiy.blogengine.exception.ex.InvalidCaptchaCodeException;
@@ -25,6 +24,8 @@ import ru.olshevskiy.blogengine.exception.ex.InvalidCommentException;
 import ru.olshevskiy.blogengine.exception.ex.InvalidImageExtensionException;
 import ru.olshevskiy.blogengine.exception.ex.InvalidVerificationCodeException;
 import ru.olshevskiy.blogengine.exception.ex.MultiuserModeException;
+import ru.olshevskiy.blogengine.exception.ex.StatisticsIsPublicException;
+import ru.olshevskiy.blogengine.exception.ex.UnauthorizedUserException;
 import ru.olshevskiy.blogengine.exception.ex.VerificationCodeOutdatedException;
 import ru.olshevskiy.blogengine.exception.ex.WrongParamInputException;
 
@@ -50,8 +51,19 @@ public class GlobalException {
   private String maxImageSize;
 
   @ExceptionHandler(MultiuserModeException.class)
-  public ResponseEntity<RegistrationRs> handleMultiuserModeException() {
+  public ResponseEntity<Void> handleMultiuserModeException() {
     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(StatisticsIsPublicException.class)
+  public ResponseEntity<Void> handleStatisticsIsPublicException() {
+    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+  }
+
+  @ExceptionHandler(UnauthorizedUserException.class)
+  public ResponseEntity<Void> handleUnauthorizedUserException() {
+    log.info("Operation is not available: user is not authorized");
+    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
   }
 
   /**

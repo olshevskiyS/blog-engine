@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import ru.olshevskiy.blogengine.dto.ErrorDescription;
+import ru.olshevskiy.blogengine.exception.ex.UnauthorizedUserException;
 import ru.olshevskiy.blogengine.repository.UserRepository;
 
 /**
@@ -33,6 +34,9 @@ public class SecurityUtils {
    * SecurityUtils. Getting a current user method.
    */
   public static ru.olshevskiy.blogengine.model.User getCurrentUser() {
+    if (userIsNotAuthorized()) {
+      throw new UnauthorizedUserException();
+    }
     String userName = ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                       .getUsername();
     return userRepository.findByEmail(userName).orElseThrow(() -> new UsernameNotFoundException(

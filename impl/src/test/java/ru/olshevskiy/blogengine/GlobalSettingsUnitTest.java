@@ -17,12 +17,12 @@ import ru.olshevskiy.blogengine.repository.GlobalSettingRepository;
 import ru.olshevskiy.blogengine.service.GeneralService;
 
 /**
- * GeneralServiceUnitTest.
+ * GlobalSettingsUnitTest.
  *
  * @author Sergey Olshevskiy
  */
 @ExtendWith(MockitoExtension.class)
-public class GeneralServiceUnitTest {
+public class GlobalSettingsUnitTest {
 
   @InjectMocks
   private GeneralService generalService;
