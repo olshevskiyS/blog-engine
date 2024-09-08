@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import javax.annotation.Resource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +59,8 @@ public class ImageStorageServiceIntegrationTest {
   }
 
   private File loadTestFileFromResourcesFolder() {
-    return new File(Objects.requireNonNull(this.getClass().getClassLoader()
-                    .getResource("testImage.jpg")).getFile());
+    String basePath = new File("").getAbsolutePath();
+    String targetPath = basePath.concat("\\src\\test\\resources\\testImage.jpg");
+    return new File(targetPath);
   }
 }

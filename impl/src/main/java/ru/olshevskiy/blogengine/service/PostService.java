@@ -43,6 +43,7 @@ import ru.olshevskiy.blogengine.dto.response.PostsByTagRs;
 import ru.olshevskiy.blogengine.exception.ex.InvalidCommentException;
 import ru.olshevskiy.blogengine.exception.ex.WrongParamInputException;
 import ru.olshevskiy.blogengine.mapper.PostViewPostDtoMapper;
+import ru.olshevskiy.blogengine.model.GlobalSetting;
 import ru.olshevskiy.blogengine.model.ModerationStatus;
 import ru.olshevskiy.blogengine.model.Post;
 import ru.olshevskiy.blogengine.model.PostComment;
@@ -50,6 +51,7 @@ import ru.olshevskiy.blogengine.model.PostVote;
 import ru.olshevskiy.blogengine.model.Tag;
 import ru.olshevskiy.blogengine.model.User;
 import ru.olshevskiy.blogengine.projection.PostView;
+import ru.olshevskiy.blogengine.repository.GlobalSettingRepository;
 import ru.olshevskiy.blogengine.repository.PostCommentRepository;
 import ru.olshevskiy.blogengine.repository.PostRepository;
 import ru.olshevskiy.blogengine.repository.PostVoteRepository;
@@ -74,6 +76,7 @@ public class PostService {
   private final PostCommentRepository postCommentRepository;
   private final UserRepository userRepository;
   private final PostVoteRepository postVoteRepository;
+  private final GlobalSettingRepository globalSettingRepository;
 
   /**
    * PostService. Getting all active posts method.
@@ -288,6 +291,7 @@ public class PostService {
       if (currentUser.getIsModerator() == 1) {
         newPost.setModerationStatus(ModerationStatus.ACCEPTED);
       }
+      checkingPostPremoderationModeIsActive(currentUser, newPost);
       assignModeratorForPost(newPost, currentUser);
     }
     updatePostTimestamp(createPostRq.getTimestamp(), newPost);
@@ -320,6 +324,13 @@ public class PostService {
     } else {
       updatedPost.setTime(LocalDateTime.ofInstant(Instant.ofEpochSecond(givenTimestamp),
               ZoneId.ofOffset("UTC", ZoneOffset.UTC)));
+    }
+  }
+
+  private void checkingPostPremoderationModeIsActive(User currentUser, Post currentPost) {
+    GlobalSetting globalSetting = globalSettingRepository.findByCode("POST_PREMODERATION");
+    if (currentUser.getIsModerator() == 0 && globalSetting.getValue().equals("NO")) {
+      currentPost.setModerationStatus(ModerationStatus.ACCEPTED);
     }
   }
 

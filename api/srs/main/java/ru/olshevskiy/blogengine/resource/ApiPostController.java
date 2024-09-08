@@ -183,16 +183,16 @@ public interface ApiPostController {
   @Operation(summary = "Редактирование поста")
   @ApiResponses({
       @ApiResponse(responseCode = "200",
-                  description = "Успешное редактирование поста",
-                  content = @Content(mediaType = "application/json",
-                  schema = @Schema(implementation = EditPostRs.class))),
+                   description = "Успешное редактирование поста",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = EditPostRs.class))),
       @ApiResponse(responseCode = "400",
-                  description = "Введены неверные данные",
-                  content = @Content(mediaType = "application/json",
-                  schema = @Schema(implementation = Error.class))),
+                   description = "Введены неверные данные",
+                   content = @Content(mediaType = "application/json",
+                   schema = @Schema(implementation = Error.class))),
       @ApiResponse(responseCode = "401",
-                  description = "Пользователь не аутентифицирован",
-                  content = @Content(mediaType = "application/json"))
+                   description = "Пользователь не аутентифицирован",
+                   content = @Content(mediaType = "application/json"))
   })
   ResponseEntity<EditPostRs> editPost(@Parameter(description = "Идентификатор поста")
                                       @PathVariable("id") int id,
@@ -227,34 +227,28 @@ public interface ApiPostController {
   @PostMapping("/moderation")
   @PreAuthorize("hasAuthority('user:moderate')")
   @Operation(summary = "Модерация поста")
-  @ApiResponses({
-      @ApiResponse(responseCode = "200",
-                   description = "Ответ в случае успешной или неуспешной модерации поста",
-                   content = @Content(mediaType = "application/json",
-                   schema = @Schema(implementation = ModerationPostRs.class)))
-  })
+  @ApiResponse(responseCode = "200",
+               description = "Ответ в случае успешной или неуспешной модерации поста",
+               content = @Content(mediaType = "application/json",
+               schema = @Schema(implementation = ModerationPostRs.class)))
   ResponseEntity<ModerationPostRs> moderatePost(@RequestBody ModerationPostRq moderationPostRq);
 
   @PostMapping("/post/like")
   @PreAuthorize("hasAuthority('user:write')")
   @Operation(summary = "Лайк поста")
-  @ApiResponses({
-      @ApiResponse(responseCode = "200",
-                   description = "Ответ в случае успешного или неуспешного лайка",
-                   content = @Content(mediaType = "application/json",
-                   schema = @Schema(implementation = LikePostRs.class)))
-  })
+  @ApiResponse(responseCode = "200",
+               description = "Ответ в случае успешного или неуспешного лайка",
+               content = @Content(mediaType = "application/json",
+               schema = @Schema(implementation = LikePostRs.class)))
   ResponseEntity<LikePostRs> like(@RequestBody LikePostRq likePostRq);
 
   @PostMapping("/post/dislike")
   @PreAuthorize("hasAuthority('user:write')")
   @Operation(summary = "Дизлайк поста")
-  @ApiResponses({
-      @ApiResponse(responseCode = "200",
-                   description = "Ответ в случае успешного или неуспешного дизлайка",
-                   content = @Content(mediaType = "application/json",
-                   schema = @Schema(implementation = DislikePostRs.class)))
-  })
+  @ApiResponse(responseCode = "200",
+               description = "Ответ в случае успешного или неуспешного дизлайка",
+               content = @Content(mediaType = "application/json",
+               schema = @Schema(implementation = DislikePostRs.class)))
   ResponseEntity<DislikePostRs> dislike(@RequestBody DislikePostRq dislikePostRq);
 
   String addPostCommentInvalidInputResponsesExampleOne = "{\n"

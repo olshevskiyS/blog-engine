@@ -2,6 +2,7 @@ package ru.olshevskiy.blogengine;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 import ru.olshevskiy.blogengine.dto.request.CreatePostRq;
 import ru.olshevskiy.blogengine.dto.request.EditPostRq;
@@ -43,28 +45,36 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
 
   CreatePostRq createPostRq1 = new CreatePostRq();
   CreatePostRq createPostRq2 = new CreatePostRq();
+  CreatePostRq createPostRq3 = new CreatePostRq();
   EditPostRq editPostRq = new EditPostRq();
+  long timeOfPostponedPost = Instant.now().plusSeconds(3540).getEpochSecond();
 
   @BeforeEach
   void setup() {
-    createPostRq1.setTimestamp(1894681025L)
-                .setActive((byte) 1)
-                .setTitle("Новый пост")
-                .setText("Публикация записей на стене - один из основных вариантов, чтобы"
-                         + " поделиться со своей аудиторией новой информацией")
-                .setTags(new ArrayList<>() {{
-                    add("цинкование");
-                    add("пост");
-                  }}
+    createPostRq1.setTimestamp(Instant.now().minusSeconds(3630).getEpochSecond())
+                 .setActive((byte) 1)
+                 .setTitle("Новый пост")
+                 .setText("Публикация записей на стене - один из основных вариантов, чтобы"
+                     + " поделиться со своей аудиторией новой информацией")
+                 .setTags(new ArrayList<>() {{
+                     add("цинкование");
+                     add("пост");
+                   }}
         );
 
-    createPostRq2.setTimestamp(1894681035L)
+    createPostRq2.setTimestamp(Instant.now().minusSeconds(2490).getEpochSecond())
                  .setActive((byte) 0)
                  .setTitle("Новый пост 2")
                  .setText("Текст поста")
                  .setTags(new ArrayList<>());
 
-    editPostRq.setTimestamp(1894681026L)
+    createPostRq3.setTimestamp(timeOfPostponedPost)
+                 .setActive((byte) 1)
+                 .setTitle("Новый пост 3")
+                 .setText("Текст поста")
+                 .setTags(new ArrayList<>());
+
+    editPostRq.setTimestamp(Instant.now().minusSeconds(4170).getEpochSecond())
               .setActive((byte) 0)
               .setTitle("1")
               .setText("2")
@@ -79,15 +89,29 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
   @Test
   @WithUserDetails(value = "user02@email.com",
           userDetailsServiceBeanName = "userDetailsServiceImpl")
-  void testCreateNewActivePostByUser() {
+  void testCreateNewActivePostByUserIfPostPremoderationModeIsActive() {
     CreatePostRs createPostRs = postService.createPost(createPostRq1);
     assertThat(createPostRs.isResult()).isTrue();
+    performChecksForTestCreateNewActivePostByUser(ModerationStatus.NEW);
+  }
 
+  @Test
+  @WithUserDetails(value = "user02@email.com",
+          userDetailsServiceBeanName = "userDetailsServiceImpl")
+  @Sql(statements = "UPDATE global_settings SET value = 'NO' WHERE code = 'POST_PREMODERATION';")
+  void testCreateNewActivePostByUserIfPostPremoderationModeIsNotActive() {
+    CreatePostRs createPostRs = postService.createPost(createPostRq1);
+    assertThat(createPostRs.isResult()).isTrue();
+    performChecksForTestCreateNewActivePostByUser(ModerationStatus.ACCEPTED);
+  }
+
+  private void performChecksForTestCreateNewActivePostByUser(ModerationStatus moderationStatus) {
     Post newPost = postRepository.getById(9);
-    assertThat(newPost.getTime().toEpochSecond(ZoneOffset.UTC)).isEqualTo(1894681025L);
+    assertThat(newPost.getTime().toEpochSecond(ZoneOffset.UTC))
+            .isEqualTo(Instant.now().getEpochSecond());
     assertThat(newPost.getIsActive()).isEqualTo((byte) 1);
     assertThat(newPost.getTitle()).isEqualTo("Новый пост");
-    assertThat(newPost.getModerationStatus()).isEqualTo(ModerationStatus.NEW);
+    assertThat(newPost.getModerationStatus()).isEqualTo(moderationStatus);
     assertThat(newPost.getViewCount()).isEqualTo(0);
     assertThat(newPost.getModerator()).isNotNull();
 
@@ -114,6 +138,18 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
     assertThat(newPost.getIsActive()).isEqualTo((byte) 0);
     assertThat(newPost.getModerationStatus()).isEqualTo(ModerationStatus.NEW);
     assertThat(newPost.getModerator()).isNull();
+  }
+
+  @Test
+  @WithUserDetails(value = "user02@email.com",
+          userDetailsServiceBeanName = "userDetailsServiceImpl")
+  void testCreateNewActivePostponedPostByUser() {
+    CreatePostRs createPostRs = postService.createPost(createPostRq3);
+    assertThat(createPostRs.isResult()).isTrue();
+
+    Post newPost = postRepository.getById(9);
+    assertThat(newPost.getTime().toEpochSecond(ZoneOffset.UTC)).isEqualTo(timeOfPostponedPost);
+    assertThat(newPost.getTitle()).isEqualTo("Новый пост 3");
   }
 
   @Test
@@ -154,7 +190,8 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
     assertThat(editPostRs.isResult()).isTrue();
 
     Post updatedPost = postRepository.getById(3);
-    assertThat(updatedPost.getTime().toEpochSecond(ZoneOffset.UTC)).isEqualTo(1894681026L);
+    assertThat(updatedPost.getTime().toEpochSecond(ZoneOffset.UTC))
+            .isEqualTo(Instant.now().getEpochSecond());
     assertThat(updatedPost.getIsActive()).isEqualTo((byte) 0);
     assertThat(updatedPost.getText()).isEqualTo("2");
     assertThat(updatedPost.getModerationStatus()).isEqualTo(ModerationStatus.NEW);

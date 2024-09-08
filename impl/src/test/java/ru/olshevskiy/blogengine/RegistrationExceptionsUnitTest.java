@@ -39,7 +39,7 @@ public class RegistrationExceptionsUnitTest {
   @Mock
   private CaptchaRepository captchaRepository;
 
-  RegistrationRq registrationRq = new RegistrationRq();
+  private final RegistrationRq registrationRq = new RegistrationRq();
 
   {
     registrationRq.setEmail("user04@email.com")

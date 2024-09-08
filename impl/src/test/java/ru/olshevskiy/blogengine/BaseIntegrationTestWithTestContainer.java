@@ -7,6 +7,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+import org.springframework.test.context.jdbc.SqlMergeMode;
 import org.testcontainers.containers.MySQLContainer;
 
 /**
@@ -15,6 +16,7 @@ import org.testcontainers.containers.MySQLContainer;
  * @author Sergey Olshevskiy
  */
 @ActiveProfiles("test")
+@SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
 @Sql(scripts = "/create-test-data.sql")
 @Sql(scripts = "/clean-test-data.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
 @AutoConfigureTestDatabase(replace = Replace.NONE)
