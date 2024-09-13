@@ -2,6 +2,7 @@ package ru.olshevskiy.blogengine.service;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -9,9 +10,10 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.olshevskiy.blogengine.dto.request.SetGlobalSettingsRq;
 import ru.olshevskiy.blogengine.dto.response.AllStatisticsRs;
 import ru.olshevskiy.blogengine.dto.response.CalendarRs;
-import ru.olshevskiy.blogengine.dto.response.GlobalSettingsRs;
+import ru.olshevskiy.blogengine.dto.response.GetGlobalSettingsRs;
 import ru.olshevskiy.blogengine.dto.response.MyStatisticsRs;
 import ru.olshevskiy.blogengine.dto.response.StatisticsRs;
 import ru.olshevskiy.blogengine.exception.ex.StatisticsIsPublicException;
@@ -40,20 +42,46 @@ public class GeneralService {
   /**
    * GeneralService. Getting global settings method.
    */
-  public GlobalSettingsRs getGlobalSettings() {
+  public GetGlobalSettingsRs getGlobalSettings() {
     log.info("Start request getGlobalSettings");
-    GlobalSettingsRs globalSettingsRs = new GlobalSettingsRs();
     Map<String, Boolean> globalSettings = new HashMap<>();
     globalSettingRepository.findAll().forEach(setting -> {
       boolean value;
       value = setting.getValue().equals("YES");
       globalSettings.put(setting.getCode(), value);
     });
+    GetGlobalSettingsRs globalSettingsRs = new GetGlobalSettingsRs();
     globalSettingsRs.setMultiuserMode(globalSettings.get("MULTIUSER_MODE"))
-            .setPostPremoderation(globalSettings.get("POST_PREMODERATION"))
-            .setStatisticsIsPublic(globalSettings.get("STATISTICS_IS_PUBLIC"));
+                    .setPostPremoderation(globalSettings.get("POST_PREMODERATION"))
+                    .setStatisticsIsPublic(globalSettings.get("STATISTICS_IS_PUBLIC"));
     log.info("Finish request getGlobalSettings");
     return globalSettingsRs;
+  }
+
+  /**
+   * GeneralService. Set global settings method.
+   */
+  public void setGlobalSettings(SetGlobalSettingsRq setGlobalSettingsRq) {
+    log.info("Start request setGlobalSettings: MULTIUSER_MODE - "
+            + setGlobalSettingsRq.isMultiuserMode() + ", POST_PREMODERATION - "
+            + setGlobalSettingsRq.isPostPremoderation() + ", STATISTICS_IS_PUBLIC - "
+            + setGlobalSettingsRq.isStatisticsIsPublic());
+    Map<String, Boolean> newValuesOfSettings = setGlobalSettingsRq.toMap();
+    List<GlobalSetting> listOfSavedSettings = new ArrayList<>();
+    globalSettingRepository.findAll().forEach(setting -> {
+      updateValueOfSetting(newValuesOfSettings, setting);
+      listOfSavedSettings.add(setting);
+    });
+    globalSettingRepository.saveAll(listOfSavedSettings);
+    log.info("Finish request setGlobalSettings");
+  }
+
+  private void updateValueOfSetting(Map<String, Boolean> newValuesOfSettings, GlobalSetting setting) {
+    if (newValuesOfSettings.get(setting.getCode())) {
+      setting.setValue("YES");
+    } else {
+      setting.setValue("NO");
+    }
   }
 
   /**

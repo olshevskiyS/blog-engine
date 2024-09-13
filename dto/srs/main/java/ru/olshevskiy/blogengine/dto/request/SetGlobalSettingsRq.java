@@ -1,19 +1,21 @@
-package ru.olshevskiy.blogengine.dto.response;
+package ru.olshevskiy.blogengine.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * GlobalSettingsRs.
+ * SetGlobalSettingsRq.
  *
  * @author Sergey Olshevskiy
  */
 @Data
 @Accessors(chain = true)
-@Schema(description = "Настройки блога")
-public class GlobalSettingsRs {
+@Schema(description = "Установка новых настроек блога")
+public class SetGlobalSettingsRq {
 
   @JsonProperty("MULTIUSER_MODE")
   @Schema(description = "Разрешение регистрации новых пользователей", example = "true")
@@ -26,4 +28,15 @@ public class GlobalSettingsRs {
   @JsonProperty("STATISTICS_IS_PUBLIC")
   @Schema(description = "Разрешение на получение данных статистики блога", example = "true")
   private boolean statisticsIsPublic;
+
+  /**
+   * SetGlobalSettingsRq. Convert settings to map method
+   */
+  public Map<String, Boolean> toMap() {
+    Map<String, Boolean> map = new HashMap<>();
+    map.put("MULTIUSER_MODE", multiuserMode);
+    map.put("POST_PREMODERATION", postPremoderation);
+    map.put("STATISTICS_IS_PUBLIC", statisticsIsPublic);
+    return map;
+  }
 }

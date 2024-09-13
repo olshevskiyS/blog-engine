@@ -6,10 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import ru.olshevskiy.blogengine.dto.request.EditProfileWithPhotoRq;
 import ru.olshevskiy.blogengine.dto.request.EditProfileWithoutPhotoRq;
+import ru.olshevskiy.blogengine.dto.request.SetGlobalSettingsRq;
 import ru.olshevskiy.blogengine.dto.response.AllStatisticsRs;
 import ru.olshevskiy.blogengine.dto.response.CalendarRs;
 import ru.olshevskiy.blogengine.dto.response.EditProfileRs;
-import ru.olshevskiy.blogengine.dto.response.GlobalSettingsRs;
+import ru.olshevskiy.blogengine.dto.response.GetGlobalSettingsRs;
 import ru.olshevskiy.blogengine.dto.response.InitRs;
 import ru.olshevskiy.blogengine.dto.response.MyStatisticsRs;
 import ru.olshevskiy.blogengine.dto.response.TagsByQueryRs;
@@ -37,8 +38,14 @@ public class GeneralResource implements ApiGeneralController {
   }
 
   @Override
-  public ResponseEntity<GlobalSettingsRs> getGlobalSettings() {
+  public ResponseEntity<GetGlobalSettingsRs> getGlobalSettings() {
     return new ResponseEntity<>(generalService.getGlobalSettings(), HttpStatus.OK);
+  }
+
+  @Override
+  public ResponseEntity<Void> setGlobalSettings(SetGlobalSettingsRq setGlobalSettingsRq) {
+    generalService.setGlobalSettings(setGlobalSettingsRq);
+    return new ResponseEntity<>(HttpStatus.OK);
   }
 
   @Override

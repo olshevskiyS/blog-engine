@@ -14,16 +14,18 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.olshevskiy.blogengine.dto.Error;
 import ru.olshevskiy.blogengine.dto.request.EditProfileWithPhotoRq;
 import ru.olshevskiy.blogengine.dto.request.EditProfileWithoutPhotoRq;
+import ru.olshevskiy.blogengine.dto.request.SetGlobalSettingsRq;
 import ru.olshevskiy.blogengine.dto.response.AllStatisticsRs;
 import ru.olshevskiy.blogengine.dto.response.CalendarRs;
 import ru.olshevskiy.blogengine.dto.response.EditProfileRs;
-import ru.olshevskiy.blogengine.dto.response.GlobalSettingsRs;
+import ru.olshevskiy.blogengine.dto.response.GetGlobalSettingsRs;
 import ru.olshevskiy.blogengine.dto.response.InitRs;
 import ru.olshevskiy.blogengine.dto.response.MyStatisticsRs;
 import ru.olshevskiy.blogengine.dto.response.TagsByQueryRs;
@@ -50,8 +52,16 @@ public interface ApiGeneralController {
   @ApiResponse(responseCode = "200",
                description = "Успешный запрос",
                content = @Content(mediaType = "application/json",
-               schema = @Schema(implementation = GlobalSettingsRs.class)))
-  ResponseEntity<GlobalSettingsRs> getGlobalSettings();
+               schema = @Schema(implementation = GetGlobalSettingsRs.class)))
+  ResponseEntity<GetGlobalSettingsRs> getGlobalSettings();
+
+  @PutMapping("/settings")
+  @PreAuthorize("hasAuthority('user:moderate')")
+  @Operation(summary = "Сохранение настроек блога")
+  @ApiResponse(responseCode = "200",
+               description = "Успешный запрос",
+               content = @Content(mediaType = "application/json"))
+  ResponseEntity<Void> setGlobalSettings(@RequestBody SetGlobalSettingsRq setGlobalSettingsRq);
 
   @GetMapping("/tag")
   @Operation(summary = "Получение списка тэгов")

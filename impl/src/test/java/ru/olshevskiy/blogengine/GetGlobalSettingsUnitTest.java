@@ -11,22 +11,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import ru.olshevskiy.blogengine.dto.response.GlobalSettingsRs;
+import ru.olshevskiy.blogengine.dto.response.GetGlobalSettingsRs;
 import ru.olshevskiy.blogengine.model.GlobalSetting;
 import ru.olshevskiy.blogengine.repository.GlobalSettingRepository;
 import ru.olshevskiy.blogengine.service.GeneralService;
 
 /**
- * GlobalSettingsUnitTest.
+ * GetGlobalSettingsUnitTest.
  *
  * @author Sergey Olshevskiy
  */
 @ExtendWith(MockitoExtension.class)
-public class GlobalSettingsUnitTest {
+public class GetGlobalSettingsUnitTest {
 
   @InjectMocks
   private GeneralService generalService;
-
   @Mock
   private GlobalSettingRepository globalSettingRepository;
 
@@ -41,11 +40,11 @@ public class GlobalSettingsUnitTest {
 
   @Test
   void testGetGlobalSettings() {
-    GlobalSettingsRs assignedGlobalSettingRs = new GlobalSettingsRs();
+    GetGlobalSettingsRs assignedGlobalSettingRs = new GetGlobalSettingsRs();
     assignedGlobalSettingRs.setMultiuserMode(true)
             .setPostPremoderation(false)
             .setStatisticsIsPublic(false);
-    GlobalSettingsRs expectedGlobalSettingRs = generalService.getGlobalSettings();
+    GetGlobalSettingsRs expectedGlobalSettingRs = generalService.getGlobalSettings();
     assertThat(expectedGlobalSettingRs).isEqualTo(assignedGlobalSettingRs);
   }
 }
