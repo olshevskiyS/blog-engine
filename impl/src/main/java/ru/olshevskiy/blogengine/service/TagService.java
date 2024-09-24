@@ -36,7 +36,7 @@ public class TagService {
    * TagService. Getting tags by query method.
    */
   public TagsByQueryRs getTagsByQuery(String query) {
-    log.info("Start request getTagsByQuery on query = " + query);
+    log.info("Start request getTagsByQuery on query = {}", query);
     if (query == null) {
       query = "";
     }

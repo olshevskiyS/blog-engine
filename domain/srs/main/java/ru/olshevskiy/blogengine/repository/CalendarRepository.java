@@ -1,10 +1,10 @@
 package ru.olshevskiy.blogengine.repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Tuple;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;

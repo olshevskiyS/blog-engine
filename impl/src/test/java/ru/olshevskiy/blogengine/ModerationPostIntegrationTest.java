@@ -46,26 +46,26 @@ public class ModerationPostIntegrationTest extends BaseIntegrationTestWithTestCo
 
   @Test
   void testAcceptPost() {
-    Post currentPostBeforeModeration = postRepository.getById(4);
+    Post currentPostBeforeModeration = postRepository.getReferenceById(4);
     assertThat(currentPostBeforeModeration.getModerationStatus()).isEqualTo(ModerationStatus.NEW);
 
     ModerationPostRs moderationPostRs = postService.moderatePost(moderationPostRq1);
     assertThat(moderationPostRs.isResult()).isTrue();
 
-    Post moderatedPost = postRepository.getById(4);
+    Post moderatedPost = postRepository.getReferenceById(4);
     assertThat(moderatedPost.getModerationStatus()).isEqualTo(ModerationStatus.ACCEPTED);
   }
 
   @Test
   void testDeclinePost() {
-    Post currentPostBeforeModeration = postRepository.getById(7);
+    Post currentPostBeforeModeration = postRepository.getReferenceById(7);
     assertThat(currentPostBeforeModeration.getModerationStatus())
             .isEqualTo(ModerationStatus.ACCEPTED);
 
     ModerationPostRs moderationPostRs = postService.moderatePost(moderationPostRq2);
     assertThat(moderationPostRs.isResult()).isTrue();
 
-    Post moderatedPost = postRepository.getById(7);
+    Post moderatedPost = postRepository.getReferenceById(7);
     assertThat(moderatedPost.getModerationStatus()).isEqualTo(ModerationStatus.DECLINED);
   }
 

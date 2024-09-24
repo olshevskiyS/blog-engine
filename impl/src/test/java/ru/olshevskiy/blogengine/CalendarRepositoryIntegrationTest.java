@@ -24,7 +24,7 @@ public class CalendarRepositoryIntegrationTest extends BaseIntegrationTestWithTe
   void testGetYearsAllActivePosts() {
     List<Integer> years = calendarRepository.getYearsAllActivePosts();
     assertThat(years.size()).isEqualTo(2);
-    assertThat(years.get(0)).isEqualTo(2021);
+    assertThat(years.getFirst()).isEqualTo(2021);
   }
 
   @Test

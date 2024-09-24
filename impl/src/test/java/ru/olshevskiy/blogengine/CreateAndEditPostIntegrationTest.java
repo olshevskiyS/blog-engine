@@ -106,7 +106,7 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
   }
 
   private void performChecksForTestCreateNewActivePostByUser(ModerationStatus moderationStatus) {
-    Post newPost = postRepository.getById(9);
+    Post newPost = postRepository.getReferenceById(9);
     assertThat(newPost.getTime().toEpochSecond(ZoneOffset.UTC))
             .isEqualTo(Instant.now().getEpochSecond());
     assertThat(newPost.getIsActive()).isEqualTo((byte) 1);
@@ -115,13 +115,13 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
     assertThat(newPost.getViewCount()).isEqualTo(0);
     assertThat(newPost.getModerator()).isNotNull();
 
-    Tag newTag = tagRepository.getById(5);
+    Tag newTag = tagRepository.getReferenceById(5);
     assertThat(newTag.getName()).isEqualTo("пост");
     assertThat(newTag.getPosts().contains(newPost)).isTrue();
     assertThat(newPost.getTags().size()).isEqualTo(2);
     assertThat(newPost.getTags().contains(newTag)).isTrue();
 
-    User author = userRepository.getById(2);
+    User author = userRepository.getReferenceById(2);
     assertThat(author.getPosts().contains(newPost)).isTrue();
     assertThat(author.getPosts().size()).isEqualTo(4);
     assertThat(newPost.getUserId()).isEqualTo(2);
@@ -134,7 +134,7 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
     CreatePostRs createPostRs = postService.createPost(createPostRq2);
     assertThat(createPostRs.isResult()).isTrue();
 
-    Post newPost = postRepository.getById(9);
+    Post newPost = postRepository.getReferenceById(9);
     assertThat(newPost.getIsActive()).isEqualTo((byte) 0);
     assertThat(newPost.getModerationStatus()).isEqualTo(ModerationStatus.NEW);
     assertThat(newPost.getModerator()).isNull();
@@ -147,7 +147,7 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
     CreatePostRs createPostRs = postService.createPost(createPostRq3);
     assertThat(createPostRs.isResult()).isTrue();
 
-    Post newPost = postRepository.getById(9);
+    Post newPost = postRepository.getReferenceById(9);
     assertThat(newPost.getTime().toEpochSecond(ZoneOffset.UTC)).isEqualTo(timeOfPostponedPost);
     assertThat(newPost.getTitle()).isEqualTo("Новый пост 3");
   }
@@ -159,7 +159,7 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
     CreatePostRs createPostRs = postService.createPost(createPostRq1);
     assertThat(createPostRs.isResult()).isTrue();
 
-    Post newPost = postRepository.getById(9);
+    Post newPost = postRepository.getReferenceById(9);
     assertThat(newPost.getIsActive()).isEqualTo((byte) 1);
     assertThat(newPost.getModerationStatus()).isEqualTo(ModerationStatus.ACCEPTED);
     assertThat(newPost.getModerator().getId()).isEqualTo(1);
@@ -172,7 +172,7 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
     CreatePostRs createPostRs = postService.createPost(createPostRq2);
     assertThat(createPostRs.isResult()).isTrue();
 
-    Post newPost = postRepository.getById(9);
+    Post newPost = postRepository.getReferenceById(9);
     assertThat(newPost.getIsActive()).isEqualTo((byte) 0);
     assertThat(newPost.getModerationStatus()).isEqualTo(ModerationStatus.NEW);
     assertThat(newPost.getModerator()).isNull();
@@ -182,14 +182,14 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
   @WithUserDetails(value = "user02@email.com",
           userDetailsServiceBeanName = "userDetailsServiceImpl")
   void testEditPostByUser() {
-    Post originalPost = postRepository.getById(3);
+    Post originalPost = postRepository.getReferenceById(3);
     assertThat(originalPost.getModerationStatus()).isEqualTo(ModerationStatus.ACCEPTED);
     assertThat(originalPost.getTags().size()).isEqualTo(2);
 
     EditPostRs editPostRs = postService.editPost(3, editPostRq);
     assertThat(editPostRs.isResult()).isTrue();
 
-    Post updatedPost = postRepository.getById(3);
+    Post updatedPost = postRepository.getReferenceById(3);
     assertThat(updatedPost.getTime().toEpochSecond(ZoneOffset.UTC))
             .isEqualTo(Instant.now().getEpochSecond());
     assertThat(updatedPost.getIsActive()).isEqualTo((byte) 0);
@@ -197,7 +197,7 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
     assertThat(updatedPost.getModerationStatus()).isEqualTo(ModerationStatus.NEW);
     assertThat(updatedPost.getTags().size()).isEqualTo(3);
 
-    Tag newTag = tagRepository.getById(5);
+    Tag newTag = tagRepository.getReferenceById(5);
     assertThat(newTag.getName()).isEqualTo("новый");
     assertThat(newTag.getPosts().contains(updatedPost)).isTrue();
     assertThat(updatedPost.getTags().contains(newTag)).isTrue();
@@ -207,13 +207,13 @@ public class CreateAndEditPostIntegrationTest extends BaseIntegrationTestWithTes
   @WithUserDetails(value = "user01@email.com",
           userDetailsServiceBeanName = "userDetailsServiceImpl")
   void testEditPostByModerator() {
-    Post originalPost = postRepository.getById(3);
+    Post originalPost = postRepository.getReferenceById(3);
     assertThat(originalPost.getModerationStatus()).isEqualTo(ModerationStatus.ACCEPTED);
 
     EditPostRs editPostRs = postService.editPost(3, editPostRq);
     assertThat(editPostRs.isResult()).isTrue();
 
-    Post updatedPost = postRepository.getById(3);
+    Post updatedPost = postRepository.getReferenceById(3);
     assertThat(updatedPost.getTitle()).isEqualTo("1");
     assertThat(updatedPost.getModerationStatus()).isEqualTo(ModerationStatus.ACCEPTED);
 

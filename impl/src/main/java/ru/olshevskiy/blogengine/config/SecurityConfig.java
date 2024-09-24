@@ -3,15 +3,20 @@ package ru.olshevskiy.blogengine.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import ru.olshevskiy.blogengine.security.UserDetailsServiceImpl;
 
@@ -20,10 +25,11 @@ import ru.olshevskiy.blogengine.security.UserDetailsServiceImpl;
  *
  * @author Sergey Olshevskiy
  */
+@Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
   private final UserDetailsServiceImpl userDetailsService;
 
@@ -33,23 +39,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   @Value("${blog.security.remember-me-validity-seconds}")
   private int validitySeconds;
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.csrf().disable()
-        .authorizeRequests()
-        .antMatchers("/**").permitAll()
-        .anyRequest().authenticated()
-        .and()
-        .formLogin().disable()
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-        .rememberMe().rememberMeServices(rememberMeServices())
-        .and()
-        .httpBasic();
+  @Bean
+  SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+    return http.csrf(AbstractHttpConfigurer::disable)
+               .authorizeHttpRequests(requests -> requests
+                       .requestMatchers("/**").permitAll()
+                       .anyRequest().authenticated())
+               .formLogin(AbstractAuthenticationFilterConfigurer::disable)
+               .sessionManagement(httpSecuritySessionManagementConfigurer ->
+                       httpSecuritySessionManagementConfigurer
+                               .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+               .rememberMe(remember -> remember.rememberMeServices(rememberMeServices()))
+               .build();
   }
 
   @Bean
-  protected DaoAuthenticationProvider authenticationProvider() {
+  protected AuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
     authenticationProvider.setPasswordEncoder(passwordEncoder());
     authenticationProvider.setUserDetailsService(userDetailsService);
@@ -74,8 +79,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   @Bean
-  @Override
-  public AuthenticationManager authenticationManagerBean() throws Exception {
-    return super.authenticationManagerBean();
+  protected AuthenticationManager authenticationManager(
+          AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    return authenticationConfiguration.getAuthenticationManager();
   }
 }

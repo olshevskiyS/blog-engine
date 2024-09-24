@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -132,20 +132,22 @@ public interface ApiAuthController {
   })
   ResponseEntity<ChangePassRs> changePassword(@RequestBody ChangePassRq changePassRq);
 
-  String loginAndCheckResponsesExampleOne = "{\n"
-          + "    \"result\": true,\n"
-          + "    \"user\": {\n"
-          + "        \"id\": 5,\n"
-          + "        \"name\": \"Сергей\",\n"
-          + "        \"photo\": null,\n"
-          + "        \"email\": \"user@xxx.ru\",\n"
-          + "        \"moderation\": true,\n"
-          + "        \"moderationCount\": 8,\n"
-          + "        \"settings\": true\n"
-          + "    }\n"
-          + "}";
+  String loginAndCheckResponsesExampleOne = """
+          {
+              "result": true,
+              "user": {
+                  "id": 5,
+                  "name": "Сергей",
+                  "photo": null,
+                  "email": "user@xxx.ru",
+                  "moderation": true,
+                  "moderationCount": 8,
+                  "settings": true
+              }
+          }""";
 
-  String loginAndCheckResponsesExampleTwo = "{\n"
-          + "  \"result\": false\n"
-          + "}";
+  String loginAndCheckResponsesExampleTwo = """
+          {
+            "result": false
+          }""";
 }

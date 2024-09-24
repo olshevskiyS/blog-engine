@@ -39,8 +39,8 @@ public class ProfileService {
     updatePassword(editProfileRq.getPassword(), currentUser);
     updateIfNewPhoto(editProfileRq.getPhoto(), editProfileRq.getRemovePhoto(), currentUser);
     User updatedCurrentUser = userRepository.save(currentUser);
-    log.info("Finish request editProfileWithPhoto, user id is " + updatedCurrentUser.getId()
-             + ". " + editProfileRq);
+    log.info("Finish request editProfileWithPhoto, user id is {}. {}",
+            updatedCurrentUser.getId(), editProfileRq);
     return new EditProfileRs().setResult(true);
   }
 
@@ -55,8 +55,8 @@ public class ProfileService {
     updatePassword(editProfileRq.getPassword(), currentUser);
     deletePhotoIfNecessary(editProfileRq.getRemovePhoto(), currentUser);
     User updatedCurrentUser = userRepository.save(currentUser);
-    log.info("Finish request editProfileWithoutPhoto, user id is " + updatedCurrentUser.getId()
-             + ". " + editProfileRq);
+    log.info("Finish request editProfileWithoutPhoto, user id is {}. {}",
+            updatedCurrentUser.getId(), editProfileRq);
     return new EditProfileRs().setResult(true);
   }
 

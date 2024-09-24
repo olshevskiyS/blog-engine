@@ -82,8 +82,8 @@ public class PostService {
    * PostService. Getting all active posts method.
    */
   public GetPostsRs getPosts(int offset, int limit, String mode) {
-    log.info("Start request getPosts with offset = " + offset
-            + ", limit = " + limit + ", sorting mode = " + mode);
+    log.info("Start request getPosts with offset = {}, limit = {}, sorting mode = {}",
+            offset, limit, mode);
     GetPostsRs postsRs = new GetPostsRs();
     int pageNumber = offset / limit;
     Page<PostView> page = postRepository.getActivePosts(
@@ -97,27 +97,22 @@ public class PostService {
   }
 
   private Sort sortingMode(String mode) {
-    Sort sort;
-    switch (mode) {
-      case "early": sort = Sort.by(Sort.Direction.ASC, "time");
-      break;
-      case "popular": sort = JpaSort.unsafe(Sort.Direction.DESC, "size(p.comments)")
-              .and(Sort.by(Sort.Direction.DESC, "time"));
-      break;
-      case "best": sort = JpaSort.unsafe(Sort.Direction.DESC, "(likeCount)")
-              .and(Sort.by(Sort.Direction.DESC, "time"));
-      break;
-      default: sort = Sort.by(Sort.Direction.DESC, "time");
-    }
-    return sort;
+    return switch (mode) {
+      case "early" -> Sort.by(Sort.Direction.ASC, "time");
+      case "popular" -> JpaSort.unsafe(Sort.Direction.DESC, "size(p.comments)")
+                .and(Sort.by(Sort.Direction.DESC, "time"));
+      case "best" -> JpaSort.unsafe(Sort.Direction.DESC, "likeCount")
+                .and(Sort.by(Sort.Direction.DESC, "time"));
+      default -> Sort.by(Sort.Direction.DESC, "time");
+    };
   }
 
   /**
    * PostService. Getting posts by query method.
    */
   public PostsByQueryRs getPostsByQuery(int offset, int limit, String query) {
-    log.info("Start request getPostsByQuery with offset = " + offset
-            + ", limit = " + limit + ", query = " + query);
+    log.info("Start request getPostsByQuery with offset = {}, limit = {}, query = {}",
+            offset, limit, query);
     PostsByQueryRs postsByQueryRs = new PostsByQueryRs();
     Sort sortingMode = Sort.by(Sort.Direction.DESC, "time");
     int pageNumber = offset / limit;
@@ -132,7 +127,7 @@ public class PostService {
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
     postsByQueryRs.setCount(page.getTotalElements())
                   .setPosts(postsList);
-    log.info("Finish request getPostsByQuery = " + query);
+    log.info("Finish request getPostsByQuery = {}", query);
     return postsByQueryRs;
   }
 
@@ -140,8 +135,8 @@ public class PostService {
    * PostService. Getting posts by date method.
    */
   public PostsByDateRs getPostsByDate(int offset, int limit, String date) {
-    log.info("Start request getPostsByDate with offset = " + offset
-            + ", limit = " + limit + ", date = " + date);
+    log.info("Start request getPostsByDate with offset = {}, limit = {}, date = {}",
+            offset, limit, date);
     PostsByDateRs postsByDateRs = new PostsByDateRs();
     int pageNumber = offset / limit;
     Page<PostView> page = postRepository.getActivePostsByDate(date,
@@ -150,7 +145,7 @@ public class PostService {
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
     postsByDateRs.setCount(page.getTotalElements())
                  .setPosts(postsList);
-    log.info("Finish request getPostsByDate = " + date);
+    log.info("Finish request getPostsByDate = {}", date);
     return postsByDateRs;
   }
 
@@ -158,8 +153,8 @@ public class PostService {
    * PostService. Getting posts by tag method.
    */
   public PostsByTagRs getPostsByTag(int offset, int limit, String tag) {
-    log.info("Start request getPostsByTag with offset = " + offset
-            + ", limit = " + limit + ", tag = " + tag);
+    log.info("Start request getPostsByTag with offset = {}, limit = {}, tag = {}",
+            offset, limit, tag);
     PostsByTagRs postsByTagRs = new PostsByTagRs();
     int pageNumber = offset / limit;
     Page<PostView> page = postRepository.getActivePostsByTag(tag,
@@ -168,7 +163,7 @@ public class PostService {
             .map(postViewPostDtoMapper::postViewToPostDto).collect(Collectors.toList());
     postsByTagRs.setCount(page.getTotalElements())
                 .setPosts(postsList);
-    log.info("Finish request getPostsByTag = " + tag);
+    log.info("Finish request getPostsByTag = {}", tag);
     return postsByTagRs;
   }
 
@@ -176,7 +171,7 @@ public class PostService {
    * PostService. Getting a post by id method.
    */
   public PostByIdRs getPostById(int id) {
-    log.info("Start request getPostById, id = " + id);
+    log.info("Start request getPostById, id = {}", id);
     Optional<PostView> optionalPostView = postRepository.getPostById(id);
     if (optionalPostView.isEmpty()) {
       log.info("Post not found. Finish request getPostById with exception");
@@ -185,7 +180,7 @@ public class PostService {
     Post updatedPost = updateCurrentPostViewCount(optionalPostView.get().getPost());
     PostByIdRs postByIdRs = postViewPostDtoMapper.postViewToPostById(
             optionalPostView.get(), updatedPost.getViewCount());
-    log.info("Finish request getPostById = " + id);
+    log.info("Finish request getPostById = {}", id);
     return postByIdRs;
   }
 
@@ -207,8 +202,8 @@ public class PostService {
    * PostService. Getting all posts of the current user method.
    */
   public MyPostsRs getMyPosts(int offset, int limit, String status) {
-    log.info("Start request getMyPosts with offset = " + offset
-            + ", limit = " + limit + ", status = " + status);
+    log.info("Start request getMyPosts with offset = {}, limit = {}, status = {}",
+            offset, limit, status);
     MyPostsRs myPostsRs = new MyPostsRs();
     int pageNumber = offset / limit;
     PageRequest pageRequest = PageRequest.of(
@@ -225,28 +220,23 @@ public class PostService {
 
   private Page<PostView> getMyPostsDependingOnModerationStatus(String status, int userId,
                                                                PageRequest pageRequest) {
-    Page<PostView> page;
-    switch (status) {
-      case "inactive": page = postRepository.getMyInactivePosts(userId, pageRequest);
-      break;
-      case "pending": page = postRepository.getMyActivePostsDependingOnStatus(
-              userId, ModerationStatus.NEW, pageRequest);
-      break;
-      case "declined": page = postRepository.getMyActivePostsDependingOnStatus(
-              userId, ModerationStatus.DECLINED, pageRequest);
-      break;
-      default: page = postRepository.getMyActivePostsDependingOnStatus(
-              userId, ModerationStatus.ACCEPTED, pageRequest);
-    }
-    return page;
+    return switch (status) {
+      case "inactive" -> postRepository.getMyInactivePosts(userId, pageRequest);
+      case "pending" -> postRepository.getMyActivePostsDependingOnStatus(
+                userId, ModerationStatus.NEW, pageRequest);
+      case "declined" -> postRepository.getMyActivePostsDependingOnStatus(
+                userId, ModerationStatus.DECLINED, pageRequest);
+      default -> postRepository.getMyActivePostsDependingOnStatus(
+                userId, ModerationStatus.ACCEPTED, pageRequest);
+    };
   }
 
   /**
    * PostService. Getting moderation posts of the current moderator method.
    */
   public ModerationPostsRs getModerationPosts(int offset, int limit, String status) {
-    log.info("Start request getModerationPosts with offset = " + offset
-            + ", limit = " + limit + ", status = " + status);
+    log.info("Start request getModerationPosts with offset = {}, limit = {}, status = {}",
+            offset, limit, status);
     ModerationPostsRs moderationPostsRs = new ModerationPostsRs();
     int pageNumber = offset / limit;
     PageRequest pageRequest = PageRequest.of(
@@ -263,18 +253,14 @@ public class PostService {
 
   private Page<PostView> getModerationPostsDependingOnModerationStatus(
           String status, int moderatorId, PageRequest pageRequest) {
-    Page<PostView> page;
-    switch (status) {
-      case "new": page = postRepository.getModerationPostsDependingOnStatus(
-              moderatorId, ModerationStatus.NEW, pageRequest);
-      break;
-      case "declined": page = postRepository.getModerationPostsDependingOnStatus(
-              moderatorId, ModerationStatus.DECLINED, pageRequest);
-      break;
-      default: page = postRepository.getModerationPostsDependingOnStatus(
-              moderatorId, ModerationStatus.ACCEPTED, pageRequest);
-    }
-    return page;
+    return switch (status) {
+      case "new" -> postRepository.getModerationPostsDependingOnStatus(
+                moderatorId, ModerationStatus.NEW, pageRequest);
+      case "declined" -> postRepository.getModerationPostsDependingOnStatus(
+                moderatorId, ModerationStatus.DECLINED, pageRequest);
+      default -> postRepository.getModerationPostsDependingOnStatus(
+                moderatorId, ModerationStatus.ACCEPTED, pageRequest);
+    };
   }
 
   /**
@@ -299,8 +285,8 @@ public class PostService {
     if (!createPostRq.getTags().isEmpty()) {
       addTagsForPost(createPostRq.getTags(), savedPost);
     }
-    log.info("Finish request createPost id = " + savedPost.getId()
-            + " by a user id = " + currentUser.getId());
+    log.info("Finish request createPost id = {} by a user id = {}",
+            savedPost.getId(), currentUser.getId());
     return new CreatePostRs().setResult(true);
   }
 
@@ -354,8 +340,8 @@ public class PostService {
    * PostService. Edit post by id method.
    */
   public EditPostRs editPost(int id, EditPostRq editPostRq) {
-    log.info("Start request editPost id " + id);
-    Post currentPost = postRepository.getById(id);
+    log.info("Start request editPost id {}", id);
+    Post currentPost = postRepository.getReferenceById(id);
     User currentUser = SecurityUtils.getCurrentUser();
     if (currentPost.getIsActive() == 0 && editPostRq.getActive() == 1) {
       assignModeratorForPost(currentPost, currentUser);
@@ -366,7 +352,7 @@ public class PostService {
     updateModerationStatusForPost(currentPost, currentUser);
     updatePostTimestamp(editPostRq.getTimestamp(), currentPost);
     updateTagsForPost(editPostRq.getTags(), currentPost);
-    log.info("Finish request editPost id " + id);
+    log.info("Finish request editPost id {}", id);
     return new EditPostRs().setResult(true);
   }
 
@@ -398,7 +384,7 @@ public class PostService {
         currentPost.getTags().remove(tag);
         tag.getPosts().remove(currentPost);
       }
-    } else if (!listOfGivenTagsNames.isEmpty() && currentPost.getTags().isEmpty()) {
+    } else if (!listOfGivenTagsNames.isEmpty()) {
       addTagsForPost(listOfGivenTagsNames, currentPost);
     }
   }
@@ -407,7 +393,7 @@ public class PostService {
    * PostService. Add comment for post or parent comment method.
    */
   public AddPostCommentRs addPostComment(AddPostCommentRq addPostCommentRq) {
-    log.info("Start request addPostComment for post with id " + addPostCommentRq.getPostId());
+    log.info("Start request addPostComment for post with id {}", addPostCommentRq.getPostId());
     checkLengthCommentText(addPostCommentRq.getText());
     User currentUser = SecurityUtils.getCurrentUser();
     Post currentPost = getPostForComment(addPostCommentRq.getPostId());
@@ -422,7 +408,7 @@ public class PostService {
       newPostComment.setParentComment(currentParentPostComment);
     }
     PostComment savedPostComment = postCommentRepository.save(newPostComment);
-    log.info("Finish request addPostComment, new comment id " + savedPostComment.getId());
+    log.info("Finish request addPostComment, new comment id {}", savedPostComment.getId());
     return new AddPostCommentRs().setId(savedPostComment.getId());
   }
 
@@ -459,7 +445,7 @@ public class PostService {
    * PostService. Moderate the post method.
    */
   public ModerationPostRs moderatePost(ModerationPostRq moderationPostRq) {
-    log.info("Start request moderatePost with id " + moderationPostRq.getPostId());
+    log.info("Start request moderatePost with id {}", moderationPostRq.getPostId());
     Optional<Post> optionalPost = postRepository.findById(moderationPostRq.getPostId());
     if (postDoNotExistsByRequest("moderatePost", optionalPost)) {
       return new ModerationPostRs().setResult(false);
@@ -471,13 +457,13 @@ public class PostService {
       currentPost.setModerationStatus(ModerationStatus.DECLINED);
     }
     postRepository.save(currentPost);
-    log.info("Finish request moderatePost. Status: " + moderationPostRq.getDecision());
+    log.info("Finish request moderatePost. Status: {}", moderationPostRq.getDecision());
     return new ModerationPostRs().setResult(true);
   }
 
   private boolean postDoNotExistsByRequest(String request, Optional<Post> postOptional) {
     if (postOptional.isEmpty()) {
-      log.info("Post not found. Request " + request + " failed");
+      log.info("Post not found. Request {} failed", request);
       return true;
     }
     return false;
@@ -487,7 +473,7 @@ public class PostService {
    * PostService. Like the post method.
    */
   public LikePostRs like(LikePostRq likePostRq) {
-    log.info("Start request like for post id " + likePostRq.getPostId());
+    log.info("Start request like for post id {}", likePostRq.getPostId());
     User currentUser = SecurityUtils.getCurrentUser();
     Optional<PostVote> postVoteOptional = postVoteRepository
             .findByPostIdAndUserId(likePostRq.getPostId(), currentUser.getId());
@@ -512,7 +498,7 @@ public class PostService {
    * PostService. Dislike the post method.
    */
   public DislikePostRs dislike(DislikePostRq dislikePostRq) {
-    log.info("Start request dislike for post id " + dislikePostRq.getPostId());
+    log.info("Start request dislike for post id {}", dislikePostRq.getPostId());
     User currentUser = SecurityUtils.getCurrentUser();
     Optional<PostVote> postVoteOptional = postVoteRepository
             .findByPostIdAndUserId(dislikePostRq.getPostId(), currentUser.getId());
@@ -556,7 +542,7 @@ public class PostService {
       requestName.replace(0, 7, "like");
     }
     if (currentPostVote.getValue() == value) {
-      log.info("Repeat vote. Request " + requestName + " failed");
+      log.info("Repeat vote. Request {} failed", requestName);
       return true;
     }
     return false;

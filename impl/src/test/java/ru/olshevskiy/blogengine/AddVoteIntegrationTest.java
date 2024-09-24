@@ -57,7 +57,7 @@ public class AddVoteIntegrationTest extends BaseIntegrationTestWithTestContainer
     LikePostRs response = postService.like(likeRequest1);
     assertThat(response.isResult()).isTrue();
 
-    PostVote createdLike = postVoteRepository.getById(5);
+    PostVote createdLike = postVoteRepository.getReferenceById(5);
     assertThat(createdLike).isNotNull();
     assertThat(createdLike.getPostId()).isEqualTo(2);
     assertThat(createdLike.getUserId()).isEqualTo(2);
@@ -69,7 +69,7 @@ public class AddVoteIntegrationTest extends BaseIntegrationTestWithTestContainer
     DislikePostRs response = postService.dislike(dislikeRequest1);
     assertThat(response.isResult()).isTrue();
 
-    PostVote createdDislike = postVoteRepository.getById(5);
+    PostVote createdDislike = postVoteRepository.getReferenceById(5);
     assertThat(createdDislike).isNotNull();
     assertThat(createdDislike.getValue()).isEqualTo((byte) -1);
   }
@@ -94,25 +94,25 @@ public class AddVoteIntegrationTest extends BaseIntegrationTestWithTestContainer
 
   @Test
   void testReplaceLikeToDislike() {
-    PostVote originalVote = postVoteRepository.getById(4);
+    PostVote originalVote = postVoteRepository.getReferenceById(4);
     assertThat(originalVote.getValue()).isEqualTo((byte) -1);
 
     LikePostRs response = postService.like(likeRequest4);
     assertThat(response.isResult()).isTrue();
 
-    PostVote editedVote = postVoteRepository.getById(4);
+    PostVote editedVote = postVoteRepository.getReferenceById(4);
     assertThat(editedVote.getValue()).isEqualTo((byte) 1);
   }
 
   @Test
   void testReplaceDisLikeToLike() {
-    PostVote originalVote = postVoteRepository.getById(1);
+    PostVote originalVote = postVoteRepository.getReferenceById(1);
     assertThat(originalVote.getValue()).isEqualTo((byte) 1);
 
     DislikePostRs response = postService.dislike(dislikeRequest3);
     assertThat(response.isResult()).isTrue();
 
-    PostVote editedVote = postVoteRepository.getById(1);
+    PostVote editedVote = postVoteRepository.getReferenceById(1);
     assertThat(editedVote.getValue()).isEqualTo((byte) -1);
   }
 }

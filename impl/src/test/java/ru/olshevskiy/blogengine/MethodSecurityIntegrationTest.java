@@ -39,7 +39,7 @@ public class MethodSecurityIntegrationTest extends BaseIntegrationTestWithTestCo
   void testPermissionAnonymousUser() throws Exception {
     mockMvc.perform(get("/api/post/moderation?offset=0&limit=10&status=accepted")
                     .contentType(MediaType.APPLICATION_JSON))
-           .andExpect(status().isUnauthorized());
+           .andExpect(status().isForbidden());
   }
 
   @Test

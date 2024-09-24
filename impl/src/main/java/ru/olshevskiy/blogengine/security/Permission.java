@@ -1,10 +1,13 @@
 package ru.olshevskiy.blogengine.security;
 
+import lombok.Getter;
+
 /**
  * Permission.
  *
  * @author Sergey Olshevskiy
  */
+@Getter
 public enum Permission {
   WRITE("user:write"),
   MODERATE("user:moderate");
@@ -13,9 +16,5 @@ public enum Permission {
 
   Permission(String permission) {
     this.permission = permission;
-  }
-
-  public String getPermission() {
-    return permission;
   }
 }

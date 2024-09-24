@@ -44,7 +44,8 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
   Page<PostView> getActivePostsByQuery(@Param("query") String query, Pageable pageable);
 
   @Query(value = (selectPosts + "LEFT JOIN p.votes v " + primaryCriterionGettingAllPosts
-          + " AND DATE_FORMAT(p.time, '%Y-%m-%d') LIKE CONCAT('%', :date, '%') GROUP BY p"))
+          + " AND CAST(DATE_FORMAT(p.time, '%Y-%m-%d') as String) LIKE CONCAT('%', :date, '%')"
+          + "GROUP BY p"))
   Page<PostView> getActivePostsByDate(@Param("date") String date, Pageable pageable);
 
   @Query(value = (selectPosts + "JOIN p.tags t LEFT JOIN p.votes v "

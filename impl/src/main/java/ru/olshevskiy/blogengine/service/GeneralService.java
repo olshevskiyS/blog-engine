@@ -62,10 +62,9 @@ public class GeneralService {
    * GeneralService. Set global settings method.
    */
   public void setGlobalSettings(SetGlobalSettingsRq setGlobalSettingsRq) {
-    log.info("Start request setGlobalSettings: MULTIUSER_MODE - "
-            + setGlobalSettingsRq.isMultiuserMode() + ", POST_PREMODERATION - "
-            + setGlobalSettingsRq.isPostPremoderation() + ", STATISTICS_IS_PUBLIC - "
-            + setGlobalSettingsRq.isStatisticsIsPublic());
+    log.info("Start request setGlobalSettings: MULTIUSER_MODE - {}, POST_PREMODERATION - {},"
+            + "STATISTICS_IS_PUBLIC - {}", setGlobalSettingsRq.isMultiuserMode(),
+            setGlobalSettingsRq.isPostPremoderation(), setGlobalSettingsRq.isStatisticsIsPublic());
     Map<String, Boolean> newValuesOfSettings = setGlobalSettingsRq.toMap();
     List<GlobalSetting> listOfSavedSettings = new ArrayList<>();
     globalSettingRepository.findAll().forEach(setting -> {
@@ -76,7 +75,8 @@ public class GeneralService {
     log.info("Finish request setGlobalSettings");
   }
 
-  private void updateValueOfSetting(Map<String, Boolean> newValuesOfSettings, GlobalSetting setting) {
+  private void updateValueOfSetting(Map<String, Boolean> newValuesOfSettings,
+                                    GlobalSetting setting) {
     if (newValuesOfSettings.get(setting.getCode())) {
       setting.setValue("YES");
     } else {
@@ -88,7 +88,7 @@ public class GeneralService {
    * GeneralService. Getting a calendar method.
    */
   public CalendarRs getCalendar(String year) {
-    log.info("Start request getCalendar with year = " + year);
+    log.info("Start request getCalendar with year = {}", year);
     if (year == null || year.isEmpty()) {
       year = String.valueOf(LocalDate.now().getYear());
     }
@@ -151,7 +151,7 @@ public class GeneralService {
                 .setLikesCount(myLikesCount)
                 .setDislikesCount(myDislikesCount)
                 .setViewsCount(myViewsCount)
-                .setFirstPublication(posts.get(0).getPost().getTime()
+                .setFirstPublication(posts.getFirst().getPost().getTime()
                         .toEpochSecond(ZoneOffset.UTC));
   }
 }

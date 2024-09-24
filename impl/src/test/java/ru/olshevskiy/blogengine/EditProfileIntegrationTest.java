@@ -105,7 +105,7 @@ public class EditProfileIntegrationTest extends BaseIntegrationTestWithTestConta
            .andExpect(MockMvcResultMatchers.status().isOk())
            .andExpect(MockMvcResultMatchers.handler().methodName("editProfileWithPhoto"));
 
-    imageStorageService.deleteImage(userRepository.getById(1).getPhoto());
+    imageStorageService.deleteImage(userRepository.getReferenceById(1).getPhoto());
   }
 
   @Test
@@ -124,7 +124,7 @@ public class EditProfileIntegrationTest extends BaseIntegrationTestWithTestConta
   @WithUserDetails(value = "user01@email.com",
           userDetailsServiceBeanName = "userDetailsServiceImpl")
   void testUpdatingProfileWithDataChanges() {
-    User currentUserBeforeUpdate = userRepository.getById(1);
+    User currentUserBeforeUpdate = userRepository.getReferenceById(1);
     assertThat(currentUserBeforeUpdate.getPhoto()).isNull();
 
     EditProfileRs editProfileRs = profileService.editProfileWithPhoto(testData1);
@@ -162,13 +162,13 @@ public class EditProfileIntegrationTest extends BaseIntegrationTestWithTestConta
   @WithUserDetails(value = "user02@email.com",
           userDetailsServiceBeanName = "userDetailsServiceImpl")
   void testUpdatingProfileWithPhotoDeletion() {
-    User currentUserBeforeUpdate = userRepository.getById(2);
+    User currentUserBeforeUpdate = userRepository.getReferenceById(2);
     assertThat(currentUserBeforeUpdate.getPhoto()).isNotNull();
 
     EditProfileRs editProfileRs = profileService.editProfileWithoutPhoto(testData3);
     assertThat(editProfileRs.isResult()).isTrue();
 
-    User currentUserAfterUpdate = userRepository.getById(2);
+    User currentUserAfterUpdate = userRepository.getReferenceById(2);
     assertThat(currentUserAfterUpdate.getPhoto()).isNull();
   }
 

@@ -1,10 +1,13 @@
 package ru.olshevskiy.blogengine.dto;
 
+import lombok.Getter;
+
 /**
  * ImageExtension.
  *
  * @author Sergey Olshevskiy
  */
+@Getter
 public enum ImageExtension {
 
   JPG("jpg"), PNG("png");
@@ -13,10 +16,6 @@ public enum ImageExtension {
 
   ImageExtension(String extension) {
     this.extension = extension;
-  }
-
-  public String getExtension() {
-    return extension;
   }
 
   /**

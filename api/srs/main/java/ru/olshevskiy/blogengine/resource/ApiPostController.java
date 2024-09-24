@@ -251,12 +251,14 @@ public interface ApiPostController {
                schema = @Schema(implementation = DislikePostRs.class)))
   ResponseEntity<DislikePostRs> dislike(@RequestBody DislikePostRq dislikePostRq);
 
-  String addPostCommentInvalidInputResponsesExampleOne = "{\n"
-          + "  \"result\": false,\n"
-          + "  \"errors\": \"ошибка: описание причины ошибки\"\n"
-          + "}";
+  String addPostCommentInvalidInputResponsesExampleOne = """
+          {
+            "result": false,
+            "errors": "ошибка: описание причины ошибки"
+          }""";
 
-  String addPostCommentInvalidInputResponsesExampleTwo = "{\n"
-          + "  \"message\": \"описание ошибки\"\n"
-          + "}";
+  String addPostCommentInvalidInputResponsesExampleTwo = """
+          {
+            "message": "описание ошибки"
+          }""";
 }

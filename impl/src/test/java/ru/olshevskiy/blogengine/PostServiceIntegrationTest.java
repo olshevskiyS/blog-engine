@@ -45,30 +45,30 @@ public class PostServiceIntegrationTest extends BaseIntegrationTestWithTestConta
     GetPostsRs postsRs1 = postService.getPosts(0, 10, "recent");
     assertThat(postsRs1.getCount()).isEqualTo(5L);
     LocalDateTime dateTheMostRecentPost = LocalDateTime.of(2022, Month.JANUARY, 17, 22, 8, 15);
-    assertThat(postsRs1.getPosts().get(0).getTimestamp())
+    assertThat(postsRs1.getPosts().getFirst().getTimestamp())
             .isEqualTo(dateTheMostRecentPost.toEpochSecond(ZoneOffset.UTC));
 
     GetPostsRs postsRs2 = postService.getPosts(0, 10, "early");
     LocalDateTime dateTheMostEarlyPost = LocalDateTime.of(2021, Month.DECEMBER, 18, 9, 12, 50);
-    assertThat(postsRs2.getPosts().get(0).getTimestamp())
+    assertThat(postsRs2.getPosts().getFirst().getTimestamp())
             .isEqualTo(dateTheMostEarlyPost.toEpochSecond(ZoneOffset.UTC));
 
     GetPostsRs postsRs3 = postService.getPosts(0, 10, "popular");
-    assertThat(postsRs3.getPosts().get(0).getId()).isEqualTo(5);
-    assertThat(postsRs3.getPosts().get(0).getCommentCount()).isEqualTo(2);
+    assertThat(postsRs3.getPosts().getFirst().getId()).isEqualTo(5);
+    assertThat(postsRs3.getPosts().getFirst().getCommentCount()).isEqualTo(2);
 
     GetPostsRs postsRs4 = postService.getPosts(0, 10, "best");
-    assertThat(postsRs4.getPosts().get(0).getId()).isEqualTo(1);
-    assertThat(postsRs4.getPosts().get(0).getLikeCount()).isEqualTo(2);
+    assertThat(postsRs4.getPosts().getFirst().getId()).isEqualTo(1);
+    assertThat(postsRs4.getPosts().getFirst().getLikeCount()).isEqualTo(2);
   }
 
   @Test
   void testGetPostsPagination() {
     GetPostsRs postsRs = postService.getPosts(2, 2, "recent");
     assertThat(postsRs.getPosts().size()).isEqualTo(2);
-    assertThat(postsRs.getPosts().get(0).getId()).isEqualTo(3);
+    assertThat(postsRs.getPosts().getFirst().getId()).isEqualTo(3);
     LocalDateTime dateFirstPostOnPage = LocalDateTime.of(2021, Month.DECEMBER, 18, 19, 2, 34);
-    assertThat(postsRs.getPosts().get(0).getTimestamp())
+    assertThat(postsRs.getPosts().getFirst().getTimestamp())
             .isEqualTo(dateFirstPostOnPage.toEpochSecond(ZoneOffset.UTC));
   }
 
@@ -77,7 +77,7 @@ public class PostServiceIntegrationTest extends BaseIntegrationTestWithTestConta
     PostsByQueryRs postsRs1 = postService.getPostsByQuery(0, 10, "коррозии");
     assertThat(postsRs1.getCount()).isEqualTo(2L);
     assertThat(postsRs1.getPosts().size()).isEqualTo(2);
-    assertThat(postsRs1.getPosts().get(0).getId()).isEqualTo(5);
+    assertThat(postsRs1.getPosts().getFirst().getId()).isEqualTo(5);
 
     PostsByQueryRs postsRs2 = postService.getPostsByQuery(0, 10, "query");
     assertThat(postsRs2.getCount()).isEqualTo(0L);
@@ -86,7 +86,7 @@ public class PostServiceIntegrationTest extends BaseIntegrationTestWithTestConta
     PostsByQueryRs postsRs3 = postService.getPostsByQuery(0, 10, " ");
     assertThat(postsRs3.getCount()).isEqualTo(5L);
     assertThat(postsRs3.getPosts().size()).isEqualTo(5);
-    assertThat(postsRs3.getPosts().get(0).getId()).isEqualTo(7);
+    assertThat(postsRs3.getPosts().getFirst().getId()).isEqualTo(7);
   }
 
   @Test
@@ -94,7 +94,7 @@ public class PostServiceIntegrationTest extends BaseIntegrationTestWithTestConta
     PostsByDateRs postsRs = postService.getPostsByDate(0, 10, "2021-12-18");
     assertThat(postsRs.getCount()).isEqualTo(3L);
     assertThat(postsRs.getPosts().size()).isEqualTo(3);
-    assertThat(postsRs.getPosts().get(0).getId()).isEqualTo(3);
+    assertThat(postsRs.getPosts().getFirst().getId()).isEqualTo(3);
   }
 
   @Test
@@ -102,7 +102,7 @@ public class PostServiceIntegrationTest extends BaseIntegrationTestWithTestConta
     PostsByTagRs postsRs = postService.getPostsByTag(0, 10, "коррозия");
     assertThat(postsRs.getCount()).isEqualTo(2L);
     assertThat(postsRs.getPosts().size()).isEqualTo(2);
-    assertThat(postsRs.getPosts().get(0).getId()).isEqualTo(5);
+    assertThat(postsRs.getPosts().getFirst().getId()).isEqualTo(5);
   }
 
   @Test

@@ -35,7 +35,7 @@ public class CaptchaServiceIntegrationTest extends BaseIntegrationTestWithTestCo
 
     assertThat(captchaRepository.findAll().size()).isEqualTo(1);
 
-    String code = captchaRepository.findAll().get(0).getCode();
+    String code = captchaRepository.findAll().getFirst().getCode();
     String verificationSecretCode = Base64.getEncoder().encodeToString(code.getBytes());
     assertThat(secretCode).isEqualTo(verificationSecretCode);
   }

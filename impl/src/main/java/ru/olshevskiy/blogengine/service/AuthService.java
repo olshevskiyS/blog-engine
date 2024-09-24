@@ -1,5 +1,7 @@
 package ru.olshevskiy.blogengine.service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.net.InetAddress;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -7,8 +9,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -191,7 +191,7 @@ public class AuthService {
    * AuthService. Restore password method.
    */
   public RestorePassRs restorePassword(RestorePassRq restorePassRq) {
-    log.info("Start request restorePassword, email - " + restorePassRq.getEmail());
+    log.info("Start request restorePassword, email - {}", restorePassRq.getEmail());
     checkCorrectnessEmail(restorePassRq.getEmail());
     Optional<User> currentUserOptional = userRepository.findByEmail(restorePassRq.getEmail());
     if (currentUserOptional.isEmpty()) {
@@ -236,7 +236,7 @@ public class AuthService {
                .setCode(null)
                .setCodeCreateTime(null);
     userRepository.save(currentUser);
-    log.info("Finish request changePassword, user id " + currentUser.getId());
+    log.info("Finish request changePassword, user id {}", currentUser.getId());
     return new ChangePassRs().setResult(true);
   }
 
@@ -264,7 +264,7 @@ public class AuthService {
                                       String captchaCode, String captchaSecret) {
     Optional<CaptchaCode> captcha = captchaRepository.findByCode(captchaCode);
     if (captcha.isEmpty() || !captcha.get().getSecretCode().equals(captchaSecret)) {
-      log.info("Invalid captcha code. Finish request " + requestName + " with exception");
+      log.info("Invalid captcha code. Finish request {} with exception", requestName);
       throw new InvalidCaptchaCodeException();
     }
   }
