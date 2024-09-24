@@ -12,11 +12,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.hibernate.proxy.HibernateProxy;
 
 /**
  * User.
@@ -25,8 +28,9 @@ import lombok.experimental.Accessors;
  */
 @Getter
 @Setter
-@Accessors(chain = true)
 @NoArgsConstructor
+@ToString
+@Accessors(chain = true)
 @Entity
 @Table(name = "users")
 public class User {
@@ -60,15 +64,19 @@ public class User {
   private String photo;
 
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  @ToString.Exclude
   private Set<PostVote> postVotes = new HashSet<>();
 
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  @ToString.Exclude
   private Set<Post> posts = new HashSet<>();
 
   @OneToMany(mappedBy = "moderator", fetch = FetchType.LAZY, orphanRemoval = true)
+  @ToString.Exclude
   private Set<Post> moderatedPosts = new HashSet<>();
 
   @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, orphanRemoval = true)
+  @ToString.Exclude
   private Set<PostComment> postComments = new HashSet<>();
 
   /**
@@ -78,5 +86,33 @@ public class User {
     this.name = name;
     this.email = email;
     regTime = LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.UTC));
+  }
+
+  @Override
+  public final boolean equals(Object that) {
+    if (this == that) {
+      return true;
+    }
+    if (that == null) {
+      return false;
+    }
+    Class<?> thatEffectiveClass = that instanceof HibernateProxy
+            ? ((HibernateProxy) that).getHibernateLazyInitializer().getPersistentClass()
+            : that.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+    if (thisEffectiveClass != thatEffectiveClass) {
+      return false;
+    }
+    User comparedUser = (User) that;
+    return getId() != null && Objects.equals(getId(), comparedUser.getId());
+  }
+
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+            : getClass().hashCode();
   }
 }

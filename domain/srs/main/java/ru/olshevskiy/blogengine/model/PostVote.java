@@ -12,10 +12,13 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.hibernate.proxy.HibernateProxy;
 
 /**
  * PostVote.
@@ -25,8 +28,9 @@ import lombok.experimental.Accessors;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
+@ToString
 @Accessors(chain = true)
+@Entity
 @Table(name = "post_votes")
 public class PostVote {
 
@@ -48,10 +52,12 @@ public class PostVote {
 
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "user_id")
+  @ToString.Exclude
   private User user;
 
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "post_id")
+  @ToString.Exclude
   private Post post;
 
   /**
@@ -62,5 +68,33 @@ public class PostVote {
     this.postId = postId;
     this.value = value;
     time = LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.UTC));
+  }
+
+  @Override
+  public final boolean equals(Object that) {
+    if (this == that) {
+      return true;
+    }
+    if (that == null) {
+      return false;
+    }
+    Class<?> thatEffectiveClass = that instanceof HibernateProxy
+            ? ((HibernateProxy) that).getHibernateLazyInitializer().getPersistentClass()
+            : that.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+    if (thisEffectiveClass != thatEffectiveClass) {
+      return false;
+    }
+    PostVote comparedPostVote = (PostVote) that;
+    return getId() != null && Objects.equals(getId(), comparedPostVote.getId());
+  }
+
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+            : getClass().hashCode();
   }
 }

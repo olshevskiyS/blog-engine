@@ -15,10 +15,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.proxy.HibernateProxy;
 
 /**
  * PostComment.
@@ -28,6 +31,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @Entity
 @Table(name = "post_comments")
 public class PostComment {
@@ -53,17 +57,21 @@ public class PostComment {
 
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "user_id")
+  @ToString.Exclude
   private User user;
 
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "post_id")
+  @ToString.Exclude
   private Post post;
 
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "parent_id")
+  @ToString.Exclude
   private PostComment parentComment;
 
   @OneToMany(mappedBy = "parentComment", fetch = FetchType.LAZY, orphanRemoval = true)
+  @ToString.Exclude
   private Set<PostComment> childrenPosts = new HashSet<>();
 
   /**
@@ -74,5 +82,33 @@ public class PostComment {
     this.postId = postId;
     this.text = text;
     time = LocalDateTime.now(ZoneId.ofOffset("UTC", ZoneOffset.UTC));
+  }
+
+  @Override
+  public final boolean equals(Object that) {
+    if (this == that) {
+      return true;
+    }
+    if (that == null) {
+      return false;
+    }
+    Class<?> thatEffectiveClass = that instanceof HibernateProxy
+            ? ((HibernateProxy) that).getHibernateLazyInitializer().getPersistentClass()
+            : that.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+            : this.getClass();
+    if (thisEffectiveClass != thatEffectiveClass) {
+      return false;
+    }
+    PostComment comparedPostComment = (PostComment) that;
+    return getId() != null && Objects.equals(getId(), comparedPostComment.getId());
+  }
+
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy
+            ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+            : getClass().hashCode();
   }
 }
